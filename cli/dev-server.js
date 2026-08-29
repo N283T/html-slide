@@ -1,14 +1,23 @@
 /* Dev server: static files with caching off, live reload over SSE, and
- * the write-back endpoint the in-browser edit mode saves through.
+ * the write-back endpoints the in-browser editing UI saves through.
  *
+ * GET  /__hs/ping  -> {ok, themes}   lets the front end detect the server
  * POST /__hs/save  {path, index, html}
  *   Replaces the index-th top-level <section class="slide"> in the
  *   served HTML file with the given markup. The browser is the one
- *   that serializes the slide; the server only locates and splices. */
+ *   that serializes the slide; the server only locates and splices.
+ * POST /__hs/ops   {path, op, ...}
+ *   Structural operations on the deck source:
+ *     {op:'reorder', order:[...]}       new order of slide indices
+ *     {op:'delete', index}              remove a slide
+ *     {op:'duplicate', index}           copy a slide in place
+ *     {op:'insert', index, html}        insert markup after slide index
+ *     {op:'set-theme', theme}           swap the theme + font <link>s */
 
 import { createServer } from 'node:http';
 import { promises as fs, watch } from 'node:fs';
 import path from 'node:path';
+import { THEME_FONTS } from './new.js';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -65,7 +74,7 @@ async function readBody(req) {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-export function startDevServer({ root, port = 8000 }) {
+export function startDevServer({ root, port = 8000, quiet = false }) {
   root = path.resolve(root);
   const sseClients = new Set();
 
@@ -117,6 +126,112 @@ export function startDevServer({ root, port = 8000 }) {
     }
   }
 
+  /* ---- structural ops ---- */
+
+  function spliceAll(source, ranges, contents) {
+    let out = '';
+    let pos = 0;
+    ranges.forEach((r, i) => {
+      out += source.slice(pos, r.start) + contents[i];
+      pos = r.end;
+    });
+    return out + source.slice(pos);
+  }
+
+  async function resolveHtmlFile(urlPath) {
+    let filePath = resolveFile(root, urlPath || '/');
+    if (!filePath) throw new Error('path outside root');
+    const stat = await fs.stat(filePath).catch(() => null);
+    if (stat && stat.isDirectory()) filePath = path.join(filePath, 'index.html');
+    return filePath;
+  }
+
+  /* A slide "unit" is the section plus the label comment directly
+   * above it (<!-- 3 · results -->), so structural ops move, copy and
+   * delete the label together with its slide. */
+  function unitStart(source, start, floor) {
+    let from = start;
+    while (from > floor && /\s/.test(source[from - 1])) from--;
+    const head = source.slice(floor, from);
+    const label = head.match(/<!--(?:(?!-->)[^])*-->$/);
+    if (label) {
+      from -= label[0].length;
+      while (from > floor && /[ \t]/.test(source[from - 1])) from--;
+    }
+    return from;
+  }
+
+  async function handleOps(req, res) {
+    try {
+      const body = JSON.parse(await readBody(req));
+      const filePath = await resolveHtmlFile(body.path);
+      const source = await fs.readFile(filePath, 'utf8');
+      const ranges = findSlideSections(source).map((r, i, all) => ({
+        start: unitStart(source, r.start, i === 0 ? 0 : all[i - 1].end),
+        end: r.end
+      }));
+      const sections = ranges.map((r) => source.slice(r.start, r.end));
+      const inRange = (i) => Number.isInteger(i) && i >= 0 && i < ranges.length;
+      let updated;
+
+      switch (body.op) {
+        case 'reorder': {
+          const order = body.order;
+          const valid = Array.isArray(order) && order.length === ranges.length &&
+            [...order].sort((a, b) => a - b).every((v, i) => v === i);
+          if (!valid) throw new Error('bad order');
+          updated = spliceAll(source, ranges, order.map((i) => sections[i]));
+          break;
+        }
+        case 'delete': {
+          if (!inRange(body.index)) throw new Error('bad index');
+          if (ranges.length === 1) throw new Error('cannot delete the last slide');
+          const { start, end } = ranges[body.index];
+          /* Swallow surrounding blank lines, and the label comment
+           * sitting directly above the slide (if any), so repeated
+           * edits do not accrete whitespace or orphaned comments. */
+          let head = source.slice(0, start).replace(/\s+$/, '');
+          const label = head.match(/<!--(?:(?!-->)[^])*-->$/);
+          if (label) head = head.slice(0, head.length - label[0].length).replace(/\s+$/, '');
+          const tail = source.slice(end).replace(/^[ \t]*\n(?:[ \t]*\n)*/, '\n');
+          updated = head + '\n' + tail;
+          break;
+        }
+        case 'duplicate': {
+          if (!inRange(body.index)) throw new Error('bad index');
+          const { end } = ranges[body.index];
+          updated = source.slice(0, end) + '\n\n' + sections[body.index] + source.slice(end);
+          break;
+        }
+        case 'insert': {
+          if (typeof body.html !== 'string') throw new Error('bad payload');
+          const end = inRange(body.index) ? ranges[body.index].end : ranges[ranges.length - 1].end;
+          updated = source.slice(0, end) + '\n\n' + body.html + source.slice(end);
+          break;
+        }
+        case 'set-theme': {
+          const theme = body.theme;
+          if (!THEME_FONTS[theme]) throw new Error('unknown theme');
+          updated = source
+            .replace(/((?:assets\/hs\/|\.\.\/)themes\/)[\w-]+\.css/, '$1' + theme + '.css')
+            .replace(/https:\/\/fonts\.googleapis\.com\/css2\?[^"]*/, THEME_FONTS[theme]);
+          break;
+        }
+        default:
+          throw new Error('unknown op');
+      }
+
+      suppressUntil = Date.now() + 500;
+      await fs.writeFile(filePath, updated, 'utf8');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end('{"ok":true}');
+      console.log('op %s -> %s', body.op, path.relative(root, filePath));
+    } catch (err) {
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.end(err.message);
+    }
+  }
+
   /* ---- server ---- */
 
   const server = createServer(async (req, res) => {
@@ -136,6 +251,16 @@ export function startDevServer({ root, port = 8000 }) {
 
     if (urlPath === '/__hs/save' && req.method === 'POST') {
       return handleSave(req, res);
+    }
+
+    if (urlPath === '/__hs/ops' && req.method === 'POST') {
+      return handleOps(req, res);
+    }
+
+    if (urlPath === '/__hs/ping') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      res.end(JSON.stringify({ ok: true, themes: Object.keys(THEME_FONTS) }));
+      return;
     }
 
     let filePath = resolveFile(root, urlPath);
@@ -164,9 +289,10 @@ export function startDevServer({ root, port = 8000 }) {
   });
 
   server.listen(port, '127.0.0.1', () => {
+    if (quiet) return;
     console.log('html-slide dev server');
     console.log('  root  %s', root);
-    console.log('  url   http://127.0.0.1:%d/', port);
+    console.log('  url   http://127.0.0.1:%d/', server.address().port);
     console.log('  keys  e edit · o overview · t presenter · f fullscreen');
   });
 

@@ -1,12 +1,15 @@
 # html-slide
 
 A dependency-free HTML/CSS slide framework: fixed 1920×1080 canvas,
-layout templates × swappable themes, a presenter console, and an
-in-browser **edit mode** that writes your tweaks back to the HTML source.
+layout templates × swappable themes, a presenter console, built-in
+SVG charts, PDF/PNG export, and an in-browser **editing suite** —
+text editing, spacing sliders, drag-to-nudge, undo/redo, plus a slide
+manager with drag-reorder and a layout gallery — all of it writing
+straight back to the HTML source.
 
 Slides are plain `<section class="slide">` elements in one HTML file —
-readable by humans, editable by Claude, versioned by git. No build step;
-the only tooling is a small Node dev server.
+readable by humans, editable by Claude, versioned by git. No build step,
+no npm dependencies; the only tooling is a small Node dev server.
 
 ## Quick start
 
@@ -38,13 +41,20 @@ node cli/html-slide.js dev .
 | `e` | **edit mode** (needs the dev server) |
 | `Home` / `End` | first / last slide |
 
+A floating toolbar (move the mouse to reveal it) mirrors all of this,
+adds a **＋ Slide** button and a live **theme switcher**, and stays out
+of captures and prints.
+
 ## Edit mode
 
 Press `e` while the dev server is running:
 
 - **Click** an element → a panel appears with sliders for font-size,
-  gap, margins and padding. Values are applied as inline styles.
+  gap, width (for media), margins and padding, plus buttons to
+  duplicate, delete and reorder the element among its siblings.
+- **Drag** a selected element → nudges its margins, scale-aware.
 - **Double-click** text → edit it in place. `Esc` or click away to finish.
+- **⌘Z / ⇧⌘Z** → undo / redo, one step per gesture.
 - **Save (⌘S)** → the active slide's markup is written back into the
   source file. Live reload is suppressed for your own save, so you keep
   your place; other connected browsers pick the change up.
@@ -52,6 +62,47 @@ Press `e` while the dev server is running:
 
 Because adjustments land as inline styles in the source, a human tweak
 and a Claude edit are the same kind of change — no hidden state.
+
+## Slide manager
+
+With the dev server running, the overview (`o`) is also a manager:
+
+- **Drag** a thumbnail onto another to reorder the deck.
+- **＋** (on a thumbnail, or the trailing tile) inserts a new slide
+  from the **layout gallery** of starter snippets.
+- **⧉ / ✕** duplicate / delete a slide.
+
+Every operation edits the HTML source directly — a slide's label
+comment (`<!-- 3 · results -->`) moves, copies and dies with it.
+
+## Charts
+
+Bar, line and donut charts render as theme-aware SVG from inline JSON —
+no chart library:
+
+```html
+<div data-chart='{"type": "bar", "unit": "%",
+  "labels": ["Q1", "Q2", "Q3", "Q4"],
+  "series": [{"name": "accuracy", "data": [61, 68, 74, 83]}],
+  "highlight": 3}'></div>
+```
+
+Options: `max`, `legend`, `values` (bar labels), `highlight` (dim all
+but one bar), `dashed` per line series, `center`/`centerLabel` (donut).
+Large data can go in a `<script type="application/json">` child instead
+of the attribute. Colors come from the active theme's tokens, so charts
+restyle themselves when the theme changes.
+
+## Export
+
+```bash
+html-slide pdf my-talk --out my-talk.pdf        # one page per slide
+html-slide capture my-talk --out slide-captures # slide-NN.png, 1920×1080
+```
+
+Both use whatever Chrome/Chromium/Edge/Brave is already installed
+(`CHROME_PATH` overrides discovery). Fragments are shown, badges and
+toolbar hidden.
 
 ## Layouts
 
@@ -100,9 +151,11 @@ To make your own, copy a theme file and change the tokens.
 ## Repository layout
 
 ```
-core/      runtime: deck.js, editor, overview, presenter, authoring, deck.css
+core/      runtime: deck, editor, overview/manager, toolbar, charts,
+           presenter, authoring aids, snippets, deck.css
 layouts/   the slide-level design system (structure only)
 themes/    color/type token sets
 template/  starter deck copied by `html-slide new`
-cli/       dev server (static + SSE reload + save endpoint) and scaffolder
+cli/       dev server (static + SSE reload + save/ops endpoints),
+           scaffolder, PDF/PNG exporter
 ```

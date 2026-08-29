@@ -1,6 +1,10 @@
 /* Edit mode: press `e` to toggle.
- *  - click an element        -> select it, tune spacing in the side panel
- *  - double-click text       -> edit it in place (Esc or click away to finish)
+ *  - click an element        -> select it; the panel tunes type, spacing
+ *                               and (for media) width; action buttons
+ *                               delete / duplicate / reorder it
+ *  - drag a selected element -> nudges its margins (scale-aware)
+ *  - double-click text       -> edit it in place (Esc to finish)
+ *  - Cmd+Z / Shift+Cmd+Z     -> undo / redo (snapshot per gesture)
  *  - Save button / Cmd+S     -> write the slide back to the HTML source
  *                               through the dev server (POST /__hs/save)
  * Adjustments are written as inline styles, so what the panel does is
@@ -34,6 +38,48 @@
     toastTimer = setTimeout(function () {
       toastEl.classList.remove('is-visible');
     }, 1800);
+  }
+
+  /* ---- undo / redo ---- */
+
+  const undoStack = [];
+  const redoStack = [];
+  const MAX_UNDO = 80;
+
+  function snapshot() {
+    return { index: D.state.index, html: D.slides[D.state.index].outerHTML };
+  }
+
+  function pushSnapshot() {
+    undoStack.push(snapshot());
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack.length = 0;
+  }
+
+  function restore(snap) {
+    const tpl = document.createElement('template');
+    tpl.innerHTML = snap.html;
+    const el = tpl.content.firstElementChild;
+    selected = null;
+    endTextEdit(true);
+    D.replaceSlide(snap.index, el);
+    if (D.state.index !== snap.index) D.goto(snap.index, 0);
+    dirty = true;
+    buildPanel();
+  }
+
+  function undo() {
+    if (!undoStack.length) { toast('Nothing to undo'); return; }
+    redoStack.push(snapshot());
+    restore(undoStack.pop());
+    toast('Undo');
+  }
+
+  function redo() {
+    if (!redoStack.length) { toast('Nothing to redo'); return; }
+    undoStack.push(snapshot());
+    restore(redoStack.pop());
+    toast('Redo');
   }
 
   /* ---- serialization ---- */
@@ -81,6 +127,45 @@
       });
   }
 
+  /* ---- element operations ---- */
+
+  function elementSiblings(el) {
+    return Array.from(el.parentElement.children);
+  }
+
+  function opDelete() {
+    if (!selected) return;
+    pushSnapshot();
+    const el = selected;
+    select(null);
+    el.remove();
+    dirty = true;
+    toast('Element deleted');
+  }
+
+  function opDuplicate() {
+    if (!selected) return;
+    pushSnapshot();
+    const copy = selected.cloneNode(true);
+    copy.classList.remove('hs-selected');
+    selected.after(copy);
+    dirty = true;
+    select(copy);
+  }
+
+  function opMove(delta) {
+    if (!selected) return;
+    const sibs = elementSiblings(selected);
+    const i = sibs.indexOf(selected);
+    const j = i + delta;
+    if (j < 0 || j >= sibs.length) return;
+    pushSnapshot();
+    if (delta < 0) sibs[j].before(selected);
+    else sibs[j].after(selected);
+    dirty = true;
+    buildPanel();
+  }
+
   /* ---- selection panel ---- */
 
   const SPACING_PROPS = [
@@ -116,7 +201,9 @@
     const num = document.createElement('input');
     num.type = 'number';
     num.value = value;
+    let pushed = false;
     function apply(v) {
+      if (!pushed) { pushSnapshot(); pushed = true; }
       range.value = v;
       num.value = v;
       oninput(Number(v));
@@ -128,7 +215,18 @@
     return div;
   }
 
+  function actionButton(label, title, fn) {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.title = title;
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  const MEDIA_TAGS = ['IMG', 'SVG', 'VIDEO', 'FIGURE', 'CANVAS'];
+
   function buildPanel() {
+    if (!editing) return;
     if (panel) panel.remove();
     panel = document.createElement('div');
     panel.id = 'hs-editor-panel';
@@ -143,11 +241,28 @@
 
     if (selected) {
       const cs = getComputedStyle(selected);
+
+      const ops = document.createElement('div');
+      ops.className = 'hs-actions';
+      ops.append(
+        actionButton('↑', 'Move before previous sibling', function () { opMove(-1); }),
+        actionButton('↓', 'Move after next sibling', function () { opMove(1); }),
+        actionButton('⧉', 'Duplicate element', opDuplicate),
+        actionButton('🗑', 'Delete element', opDelete)
+      );
+      panel.appendChild(ops);
+
       panel.appendChild(row('font-size', Math.round(parseFloat(cs.fontSize)), 8, 160,
         function (v) { selected.style.fontSize = v + 'px'; }));
       if (cs.display.includes('flex') || cs.display.includes('grid')) {
         panel.appendChild(row('gap', Math.round(parseFloat(cs.gap) || 0), 0, 200,
           function (v) { selected.style.gap = v + 'px'; }));
+      }
+      if (MEDIA_TAGS.includes(selected.tagName)) {
+        const parentW = selected.parentElement.getBoundingClientRect().width || 1;
+        const pct = Math.round(selected.getBoundingClientRect().width / parentW * 100);
+        panel.appendChild(row('width %', Math.min(pct, 100), 5, 100,
+          function (v) { selected.style.width = v + '%'; }));
       }
       SPACING_PROPS.forEach(function (pair) {
         const prop = pair[0], label = pair[1];
@@ -158,25 +273,27 @@
       });
       const hint = document.createElement('p');
       hint.className = 'hs-hint';
-      hint.textContent = 'Double-click text to edit it. Values are saved as inline styles.';
+      hint.textContent = 'Drag the element to nudge its margins. Double-click text to edit it.';
       panel.appendChild(hint);
     } else {
       const hint = document.createElement('p');
       hint.className = 'hs-hint';
-      hint.textContent = 'Click an element on the slide to adjust its spacing, or double-click text to rewrite it.';
+      hint.textContent = 'Click an element to adjust it, double-click text to rewrite it. ⌘Z undoes, ⌘S saves to source.';
       panel.appendChild(hint);
     }
 
     const actions = document.createElement('div');
     actions.className = 'hs-actions';
+    const undoBtn = actionButton('↩ Undo', 'Cmd+Z', undo);
     const saveBtn = document.createElement('button');
     saveBtn.className = 'hs-primary';
     saveBtn.textContent = 'Save (⌘S)';
     saveBtn.addEventListener('click', save);
-    const revertBtn = document.createElement('button');
-    revertBtn.textContent = 'Revert';
-    revertBtn.addEventListener('click', function () { location.reload(); });
-    actions.append(saveBtn, revertBtn);
+    const revertBtn = actionButton('Revert', 'Reload from source', function () {
+      dirty = false;
+      location.reload();
+    });
+    actions.append(undoBtn, saveBtn, revertBtn);
     panel.appendChild(actions);
 
     document.body.appendChild(panel);
@@ -191,26 +308,68 @@
     buildPanel();
   }
 
-  function endTextEdit() {
+  function endTextEdit(skipDirty) {
     if (!editingText) return;
     editingText.removeAttribute('contenteditable');
     editingText = null;
-    dirty = true;
+    if (!skipDirty) dirty = true;
   }
 
   const TEXT_TAGS = 'p,h1,h2,h3,h4,h5,h6,li,td,th,figcaption,blockquote,dt,dd,code,span';
+
+  /* ---- drag-to-nudge margins ---- */
+
+  const drag = { active: false, moved: false };
+
+  function canvasScale() {
+    return deck.getBoundingClientRect().width / 1920 || 1;
+  }
+
+  function onPointerDown(e) {
+    if (!editing || !selected || e.button !== 0) return;
+    if (!selected.contains(e.target)) return;
+    if (editingText) return;
+    drag.active = true;
+    drag.moved = false;
+    drag.x = e.clientX;
+    drag.y = e.clientY;
+    const cs = getComputedStyle(selected);
+    drag.ml = parseFloat(cs.marginLeft) || 0;
+    drag.mt = parseFloat(cs.marginTop) || 0;
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!drag.active) return;
+    const scale = canvasScale();
+    const dx = (e.clientX - drag.x) / scale;
+    const dy = (e.clientY - drag.y) / scale;
+    if (!drag.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+    if (!drag.moved) { pushSnapshot(); drag.moved = true; }
+    selected.style.marginLeft = Math.round(drag.ml + dx) + 'px';
+    selected.style.marginTop = Math.round(drag.mt + dy) + 'px';
+    dirty = true;
+  }
+
+  function onPointerUp() {
+    if (drag.active && drag.moved) buildPanel();
+    drag.active = false;
+  }
+
+  /* ---- pointer routing ---- */
 
   function onClick(e) {
     if (!editing) return;
     if (e.target.closest('#hs-editor-panel')) return;
     if (editingText && editingText.contains(e.target)) return;
+    if (drag.moved) { drag.moved = false; return; }
     endTextEdit();
     const slide = D.slides[D.state.index];
     const el = e.target.closest('.slide *');
     if (el && slide.contains(el) && !el.classList.contains('slide-number')) {
       e.preventDefault();
       e.stopPropagation();
-      select(el);
+      select(el === selected ? selected : el);
     } else {
       select(null);
     }
@@ -223,6 +382,7 @@
     const slide = D.slides[D.state.index];
     if (!el || !slide.contains(el)) return;
     e.preventDefault();
+    pushSnapshot();
     select(null);
     endTextEdit();
     editingText = el;
@@ -236,7 +396,7 @@
     editing = true;
     document.body.dataset.editing = '1';
     buildPanel();
-    toast('Edit mode — click to select, double-click to edit text');
+    toast('Edit mode — click to select, drag to nudge, double-click to edit text');
   }
 
   function exit() {
@@ -249,10 +409,16 @@
   }
 
   addEventListener('keydown', function (e) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 's' && editing) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && editing) {
       e.preventDefault();
       endTextEdit();
       save();
+      return;
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && editing &&
+        !e.target.isContentEditable) {
+      e.preventDefault();
+      e.shiftKey ? redo() : undo();
       return;
     }
     if (e.target.isContentEditable) {
@@ -262,6 +428,7 @@
     if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === 'e') { editing ? exit() : enter(); }
+    else if (e.key === 'Backspace' && editing && selected) { opDelete(); }
     else if (e.key === 'Escape' && editing) {
       if (selected) select(null);
       else exit();
@@ -270,8 +437,16 @@
 
   addEventListener('click', onClick, true);
   addEventListener('dblclick', onDblClick, true);
+  addEventListener('pointerdown', onPointerDown, true);
+  addEventListener('pointermove', onPointerMove, true);
+  addEventListener('pointerup', onPointerUp, true);
 
   addEventListener('beforeunload', function (e) {
     if (dirty) e.preventDefault();
   });
+
+  window.HSEditor = {
+    toggle: function () { editing ? exit() : enter(); },
+    isEditing: function () { return editing; }
+  };
 })();

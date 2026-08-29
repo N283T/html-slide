@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 /* html-slide CLI.
- *   html-slide dev [dir] [--port N]   serve a deck with live reload + edit mode
- *   html-slide new <dir> [--theme T]  scaffold a self-contained deck
+ *   html-slide dev [dir] [--port N]      serve a deck with live reload + edit mode
+ *   html-slide new <dir> [--theme T]     scaffold a self-contained deck
+ *   html-slide pdf [dir] [--out F]       render the deck to a PDF
+ *   html-slide capture [dir] [--out D]   render every slide to a PNG
  */
 
 import { startDevServer } from './dev-server.js';
 import { scaffold } from './new.js';
+import { exportPdf, exportPngs } from './export.js';
 
 const [, , command, ...rest] = process.argv;
 
@@ -20,12 +23,21 @@ function flag(name, fallback) {
 const HELP = `html-slide — dependency-free HTML slide framework
 
 Usage:
-  html-slide dev [dir] [--port N]    Serve a deck (default dir ., port 8000).
-                                     Live reload on file change; press e in
-                                     the browser for edit mode with write-back.
-  html-slide new <dir> [--theme T]   Scaffold a self-contained deck.
-                                     Themes: paper (default), aurora, lab.
+  html-slide dev [dir] [--port N]      Serve a deck (default dir ., port 8000).
+                                       Live reload on file change; press e in
+                                       the browser for edit mode with write-back.
+  html-slide new <dir> [--theme T]     Scaffold a self-contained deck.
+                                       Themes: paper (default), aurora, lab.
+  html-slide pdf [dir] [--out F]       Export the deck to a PDF (default deck.pdf).
+  html-slide capture [dir] [--out D]   Export slide-NN.png files (default
+                                       slide-captures/). Both exporters use a
+                                       local Chrome/Chromium/Edge install.
 `;
+
+function fail(err) {
+  console.error(err.message);
+  process.exit(1);
+}
 
 switch (command) {
   case 'dev': {
@@ -39,10 +51,17 @@ switch (command) {
       console.error('usage: html-slide new <dir> [--theme T]');
       process.exit(1);
     }
-    scaffold(rest[0], { theme }).catch((err) => {
-      console.error(err.message);
-      process.exit(1);
-    });
+    scaffold(rest[0], { theme }).catch(fail);
+    break;
+  }
+  case 'pdf': {
+    const out = flag('out', 'deck.pdf');
+    exportPdf(rest[0] || '.', out).then(() => process.exit(0)).catch(fail);
+    break;
+  }
+  case 'capture': {
+    const out = flag('out', 'slide-captures');
+    exportPngs(rest[0] || '.', out).then(() => process.exit(0)).catch(fail);
     break;
   }
   default:

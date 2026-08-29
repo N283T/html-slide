@@ -31,12 +31,32 @@ html, body {
   width: 1920px;
   height: 1080px;
   overflow: hidden;
-  display: none;
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
   background: var(--hs-bg, #fff);
   color: var(--hs-fg, #111);
 }
 
-.slide.is-active { display: flex; }
+.slide.is-active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Default cross-fade between slides; data-transition="none" on #deck
+ * disables it. Kept to opacity only so it can never fight the
+ * overview's scale transform or print layout. */
+#deck:not([data-transition="none"]) .slide {
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+body[data-mode="overview"] .slide,
+body.hs-capture .slide.is-active,
+body[data-editing] .slide {
+  transition: none !important;
+}
 
 /* ---- fragments ---- */
 
@@ -99,12 +119,58 @@ body[data-mode="overview"] .hs-thumb .slide {
   position: absolute;
   top: 0;
   left: 0;
-  display: flex;
+  visibility: visible;
+  opacity: 1;
   transform: scale(calc(1 / 5.5));
   transform-origin: 0 0;
   outline: 1px solid rgba(128, 128, 128, 0.4);
   pointer-events: none;
 }
+
+body[data-mode="overview"] .hs-thumb.is-dragging { opacity: 0.35; }
+body[data-mode="overview"] .hs-thumb.is-drop-target .slide {
+  outline: 3px dashed var(--hs-accent, #06c);
+}
+
+/* per-thumb action buttons (dev server only) */
+.hs-thumb-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 5;
+  display: none;
+  gap: 4px;
+}
+
+.hs-thumb:hover .hs-thumb-actions { display: flex; }
+
+.hs-thumb-actions button {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(15, 17, 22, 0.85);
+  color: #e8e8e8;
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.hs-thumb-actions button:hover { background: #b35b00; }
+
+/* the "add slide" tile */
+.hs-thumb.hs-add-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(128, 128, 128, 0.5);
+  border-radius: 8px;
+  color: #888;
+  font: 600 44px -apple-system, sans-serif;
+  cursor: pointer;
+}
+
+.hs-thumb.hs-add-tile:hover { color: var(--hs-accent, #06c); border-color: var(--hs-accent, #06c); }
 
 body[data-mode="overview"] .hs-thumb.is-current .slide {
   outline: 3px solid var(--hs-accent, #06c);
@@ -119,6 +185,8 @@ body[data-mode="overview"] .hs-thumb-label {
 }
 
 /* ---- authoring overflow badge ---- */
+
+body.hs-capture .slide > .overflow-warning { display: none; }
 
 .slide > .overflow-warning {
   position: absolute;
@@ -254,7 +322,108 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 
 #hs-editor-toast.is-visible { opacity: 1; }
 
+/* ---- deck toolbar ---- */
+
+#hs-toolbar {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(18, 20, 26, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  font: 13px -apple-system, "Helvetica Neue", sans-serif;
+  color: #e8e8e8;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#hs-toolbar.is-visible { opacity: 1; pointer-events: auto; }
+
+#hs-toolbar button, #hs-toolbar select {
+  border: none;
+  background: transparent;
+  color: #e8e8e8;
+  font: inherit;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+#hs-toolbar button:hover { background: rgba(255, 255, 255, 0.12); }
+#hs-toolbar button.is-on { background: #b35b00; }
+#hs-toolbar select { appearance: none; background: rgba(255, 255, 255, 0.08); }
+#hs-toolbar .hs-tb-counter {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: #9aa0ab;
+  padding: 0 6px;
+  min-width: 52px;
+  text-align: center;
+}
+#hs-toolbar .hs-tb-sep {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 0 2px;
+}
+
+body.hs-capture #hs-toolbar { display: none; }
+
+/* ---- layout gallery overlay ---- */
+
+#hs-gallery {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(8, 9, 12, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#hs-gallery .hs-gallery-box {
+  width: min(860px, 92vw);
+  max-height: 82vh;
+  overflow: auto;
+  background: #1d1f24;
+  border: 1px solid #3a3d45;
+  border-radius: 14px;
+  padding: 22px 26px 26px;
+  color: #e8e8e8;
+  font: 14px -apple-system, sans-serif;
+}
+
+#hs-gallery h3 { margin: 0 0 14px; font-size: 15px; color: #ffb05c; }
+
+#hs-gallery .hs-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+#hs-gallery .hs-gallery-item {
+  border: 1px solid #3a3d45;
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  background: #24262d;
+}
+
+#hs-gallery .hs-gallery-item:hover { border-color: #ffb05c; background: #2b2e37; }
+#hs-gallery .hs-gallery-item .hs-g-name { font-weight: 700; margin-bottom: 4px; }
+#hs-gallery .hs-gallery-item .hs-g-desc { font-size: 12px; color: #9aa0ab; }
+
 /* ---- print / capture ---- */
+
+@page { size: 1920px 1080px; margin: 0; }
 
 @media print {
   html, body { background: #fff; overflow: visible; }
@@ -266,8 +435,12 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
   }
   .slide {
     position: relative;
-    display: flex;
+    visibility: visible;
+    opacity: 1;
+    transition: none !important;
     page-break-after: always;
+    break-after: page;
   }
-  .slide > .overflow-warning { display: none; }
+  .slide > .overflow-warning,
+  #hs-toolbar, #hs-editor-panel, #hs-editor-toast { display: none !important; }
 }

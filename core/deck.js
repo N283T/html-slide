@@ -62,7 +62,8 @@
     const params = new URLSearchParams();
     params.set('s', state.index + 1);
     if (state.fragmentStep) params.set('f', state.fragmentStep);
-    const url = location.pathname + '?' + params.toString();
+    /* Keep the hash — overview restore (#overview) rides on it. */
+    const url = location.pathname + '?' + params.toString() + location.hash;
     if (replace) history.replaceState(null, '', url);
     else history.pushState(null, '', url);
   }
@@ -73,6 +74,7 @@
     const f = Number(params.get('f') || 0);
     state.index = Math.max(0, Math.min(total - 1, s));
     state.fragmentStep = f;
+    if (params.has('capture')) document.body.classList.add('hs-capture');
   }
 
   /* ---- navigation ---- */
@@ -107,6 +109,15 @@
       const prevFrags = fragmentsIn(slides[state.index - 1]);
       goto(state.index - 1, prevFrags.length);
     }
+  }
+
+  /* Swap the DOM node of slide i (used by the editor's undo/redo).
+   * The slides array keeps its identity so every module sees the swap. */
+  function replaceSlide(i, el) {
+    slides[i].replaceWith(el);
+    slides[i] = el;
+    render();
+    emit('change');
   }
 
   /* ---- metadata helpers ---- */
@@ -206,6 +217,7 @@
     on: on,
     emit: emit,
     rescale: rescale,
+    replaceSlide: replaceSlide,
     titleOf: titleOf,
     notesOf: notesOf
   };

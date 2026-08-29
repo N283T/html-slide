@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const FRAMEWORK_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /* Google Fonts URL matching each theme's font stack (see themes/*.css). */
-const THEME_FONTS = {
+export const THEME_FONTS = {
   paper: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shippori+Mincho:wght@600;800&family=IBM+Plex+Mono:wght@400;600&display=swap',
   aurora: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Outfit:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap',
   lab: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Sora:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap'

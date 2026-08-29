@@ -197,13 +197,32 @@
   </div>
 </section>
 
-<!-- ============ 9 · quote ============ -->
+<!-- ============ 9 · built-in charts ============ -->
+<section class="slide layout-two-col">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Charts without a chart library</h2>
+    <p class="subtitle">bar / line / donut, drawn as theme-aware SVG from inline JSON</p>
+  </header>
+  <div class="body">
+    <div class="col">
+      <div data-chart='{"type": "bar", "unit": "%", "labels": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "accuracy", "data": [61, 68, 74, 83]}], "highlight": 3}'></div>
+      <p class="small muted" style="margin-top: 10px;">One <code>data-chart</code> attribute; <code>"highlight"</code> dims everything but the bar you are talking about.</p>
+    </div>
+    <div class="col">
+      <div data-chart='{"type": "donut", "center": "1,204", "centerLabel": "compounds", "labels": ["training", "diagnostic", "held out"], "series": [{"name": "split", "data": [820, 240, 144]}]}'></div>
+      <p class="small muted" style="margin-top: 10px;">Colors track the theme — switch themes and the charts follow.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 · quote ============ -->
 <section class="slide layout-quote">
   <blockquote>The slide is not the talk; it is the thing the talk points at.</blockquote>
   <p class="attribution">— someone who sat through too many bullet lists</p>
 </section>
 
-<!-- ============ 10 · end ============ -->
+<!-- ============ 11 · end ============ -->
 <section class="slide layout-end" data-page-number="off">
   <h2>Thank you</h2>
   <p class="subtitle">questions welcome · yourname@example.org</p>
@@ -212,9 +231,12 @@
 </main>
 
 <script src="../core/deck.js"></script>
+<script src="../core/livereload.js"></script>
+<script src="../core/snippets.js"></script>
 <script src="../core/overview.js"></script>
 <script src="../core/authoring.js"></script>
 <script src="../core/editor.js"></script>
-<script src="../core/livereload.js"></script>
+<script src="../core/charts.js"></script>
+<script src="../core/deck-ui.js"></script>
 </body>
 </html>

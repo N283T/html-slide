@@ -1,6 +1,11 @@
 /* Overview mode: `o` toggles a clickable grid of every slide.
  * Slides are wrapped in fixed-size .hs-thumb cells and scaled with a
- * transform, so the live DOM is the thumbnail — no captures needed. */
+ * transform, so the live DOM is the thumbnail — no captures needed.
+ *
+ * With the dev server connected the grid becomes a slide manager:
+ * drag thumbnails to reorder, ⧉ duplicates, ✕ deletes, + inserts a
+ * new slide from the layout gallery. Every operation edits the HTML
+ * source and reloads back into the overview (#overview hash). */
 (function () {
   'use strict';
 
@@ -9,6 +14,120 @@
   if (!deck || !D) return;
 
   let open = false;
+  let canManage = false;
+  let dragFrom = null;
+
+  if (window.HSServer) {
+    window.HSServer.then(function (info) { canManage = !!(info && info.ok); });
+  }
+
+  function runOp(payload, focusIndex) {
+    window.HSOps(payload)
+      .then(function () {
+        const params = new URLSearchParams(location.search);
+        if (focusIndex != null) params.set('s', focusIndex + 1);
+        params.delete('f');
+        history.replaceState(null, '',
+          location.pathname + '?' + params.toString() + '#overview');
+        location.reload();
+      })
+      .catch(function (err) { alert('Operation failed: ' + err.message); });
+  }
+
+  /* ---- layout gallery ---- */
+
+  function openGallery(afterIndex) {
+    const snippets = window.HSSnippets || [];
+    const overlay = document.createElement('div');
+    overlay.id = 'hs-gallery';
+    const box = document.createElement('div');
+    box.className = 'hs-gallery-box';
+    const h = document.createElement('h3');
+    h.textContent = 'New slide — pick a layout (inserted after slide ' + (afterIndex + 1) + ')';
+    box.appendChild(h);
+    const grid = document.createElement('div');
+    grid.className = 'hs-gallery-grid';
+    snippets.forEach(function (snippet) {
+      const item = document.createElement('div');
+      item.className = 'hs-gallery-item';
+      item.innerHTML = '<div class="hs-g-name"></div><div class="hs-g-desc"></div>';
+      item.querySelector('.hs-g-name').textContent = snippet.name;
+      item.querySelector('.hs-g-desc').textContent = snippet.desc;
+      item.addEventListener('click', function () {
+        overlay.remove();
+        runOp({ op: 'insert', index: afterIndex, html: snippet.html }, afterIndex + 1);
+      });
+      grid.appendChild(item);
+    });
+    box.appendChild(grid);
+    overlay.appendChild(box);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) overlay.remove();
+    });
+    document.body.appendChild(overlay);
+  }
+
+  window.HSGallery = openGallery;
+
+  /* ---- grid construction ---- */
+
+  function thumbActions(i) {
+    const bar = document.createElement('div');
+    bar.className = 'hs-thumb-actions';
+    const add = document.createElement('button');
+    add.textContent = '+';
+    add.title = 'Insert new slide after this one';
+    add.addEventListener('click', function (e) { e.stopPropagation(); openGallery(i); });
+    const dup = document.createElement('button');
+    dup.textContent = '⧉';
+    dup.title = 'Duplicate slide';
+    dup.addEventListener('click', function (e) {
+      e.stopPropagation();
+      runOp({ op: 'duplicate', index: i }, i + 1);
+    });
+    const del = document.createElement('button');
+    del.textContent = '✕';
+    del.title = 'Delete slide';
+    del.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (confirm('Delete slide ' + (i + 1) + ' (' + D.titleOf(i) + ')?')) {
+        runOp({ op: 'delete', index: i }, Math.max(0, i - 1));
+      }
+    });
+    bar.append(add, dup, del);
+    return bar;
+  }
+
+  function wireDrag(cell, i) {
+    cell.draggable = true;
+    cell.addEventListener('dragstart', function (e) {
+      dragFrom = i;
+      cell.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    cell.addEventListener('dragend', function () {
+      cell.classList.remove('is-dragging');
+      deck.querySelectorAll('.hs-thumb.is-drop-target').forEach(function (c) {
+        c.classList.remove('is-drop-target');
+      });
+    });
+    cell.addEventListener('dragover', function (e) {
+      if (dragFrom === null || dragFrom === i) return;
+      e.preventDefault();
+      cell.classList.add('is-drop-target');
+    });
+    cell.addEventListener('dragleave', function () {
+      cell.classList.remove('is-drop-target');
+    });
+    cell.addEventListener('drop', function (e) {
+      e.preventDefault();
+      if (dragFrom === null || dragFrom === i) return;
+      const order = D.slides.map(function (_, k) { return k; });
+      order.splice(i, 0, order.splice(dragFrom, 1)[0]);
+      dragFrom = null;
+      runOp({ op: 'reorder', order: order }, i);
+    });
+  }
 
   function enter() {
     open = true;
@@ -23,11 +142,25 @@
       label.className = 'hs-thumb-label';
       label.textContent = (i + 1) + ' · ' + D.titleOf(i);
       cell.appendChild(label);
+      if (canManage) {
+        cell.appendChild(thumbActions(i));
+        wireDrag(cell, i);
+      }
       cell.addEventListener('click', function () {
         exit();
         D.goto(i, 0);
       });
     });
+    if (canManage) {
+      const addTile = document.createElement('div');
+      addTile.className = 'hs-thumb hs-add-tile';
+      addTile.textContent = '+';
+      addTile.title = 'Add a slide at the end';
+      addTile.addEventListener('click', function () {
+        openGallery(D.state.total - 1);
+      });
+      deck.appendChild(addTile);
+    }
     const current = deck.querySelector('.hs-thumb.is-current');
     if (current) current.scrollIntoView({ block: 'center' });
   }
@@ -36,9 +169,10 @@
     open = false;
     delete document.body.dataset.mode;
     D.state.mode = 'slide';
+    if (location.hash === '#overview') history.replaceState(null, '', location.pathname + location.search);
     Array.from(deck.querySelectorAll(':scope > .hs-thumb')).forEach(function (cell) {
       const slide = cell.querySelector('.slide');
-      deck.insertBefore(slide, cell);
+      if (slide) deck.insertBefore(slide, cell);
       cell.remove();
     });
     D.rescale();
@@ -50,4 +184,17 @@
     if (e.key === 'o') { open ? exit() : enter(); }
     else if (e.key === 'Escape' && open) exit();
   });
+
+  /* Reopen after a structural edit reloaded the page. Wait for the
+   * server ping so the management controls come back too. */
+  if (location.hash === '#overview') {
+    (window.HSServer || Promise.resolve(null)).then(function () {
+      setTimeout(enter, 0);
+    });
+  }
+
+  window.HSOverview = {
+    toggle: function () { open ? exit() : enter(); },
+    isOpen: function () { return open; }
+  };
 })();
