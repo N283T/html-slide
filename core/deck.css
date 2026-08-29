@@ -1,0 +1,273 @@
+/* html-slide core — structural styles only.
+ * Colors, typography and layout patterns live in themes/ and layouts/.
+ * Everything here is namespaced to the deck chrome; slide content is
+ * only touched through the .slide canvas contract (1920x1080). */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--hs-page-bg, #111);
+  overflow: hidden;
+}
+
+/* ---- canvas ---- */
+
+#deck {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+  /* scale + translate set from JS on resize */
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  display: none;
+  background: var(--hs-bg, #fff);
+  color: var(--hs-fg, #111);
+}
+
+.slide.is-active { display: flex; }
+
+/* ---- fragments ---- */
+
+[data-fragment] {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+[data-fragment].is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+body[data-mode="overview"] [data-fragment],
+body.hs-capture [data-fragment] {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ---- speaker notes are never rendered on the canvas ---- */
+
+.slide > .notes { display: none; }
+
+/* ---- slide number ---- */
+
+.slide > .slide-number {
+  position: absolute;
+  right: 48px;
+  bottom: 32px;
+  font-family: var(--hs-font-mono, monospace);
+  font-size: 22px;
+  color: var(--hs-muted, #888);
+  pointer-events: none;
+}
+
+/* ---- overview mode ---- */
+
+body[data-mode="overview"] { overflow: auto; }
+
+body[data-mode="overview"] #deck {
+  position: static;
+  width: auto;
+  height: auto;
+  transform: none !important;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 24px;
+}
+
+body[data-mode="overview"] .hs-thumb {
+  position: relative;
+  width: calc(1920px / 5.5);
+  height: calc(1080px / 5.5 + 24px);
+  cursor: pointer;
+}
+
+body[data-mode="overview"] .hs-thumb .slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  transform: scale(calc(1 / 5.5));
+  transform-origin: 0 0;
+  outline: 1px solid rgba(128, 128, 128, 0.4);
+  pointer-events: none;
+}
+
+body[data-mode="overview"] .hs-thumb.is-current .slide {
+  outline: 3px solid var(--hs-accent, #06c);
+}
+
+body[data-mode="overview"] .hs-thumb-label {
+  position: absolute;
+  left: 4px;
+  bottom: 0;
+  font: 12px var(--hs-font-mono, monospace);
+  color: #aaa;
+}
+
+/* ---- authoring overflow badge ---- */
+
+.slide > .overflow-warning {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 50;
+  padding: 8px 14px;
+  background: #c0392b;
+  color: #fff;
+  font: 600 20px var(--hs-font-mono, monospace);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+/* ---- edit mode chrome ---- */
+
+body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6); }
+
+.hs-selected {
+  outline: 2px solid #ff8c00 !important;
+  outline-offset: 2px;
+  cursor: default;
+}
+
+[contenteditable="true"] {
+  outline: 2px solid #06c !important;
+  outline-offset: 2px;
+  cursor: text;
+}
+
+#hs-editor-panel {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  width: 280px;
+  background: #1d1f24;
+  color: #e8e8e8;
+  border: 1px solid #3a3d45;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font: 13px/1.5 -apple-system, "Helvetica Neue", sans-serif;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  user-select: none;
+}
+
+#hs-editor-panel h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #ffb05c;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+#hs-editor-panel .hs-target-tag {
+  font-family: monospace;
+  font-size: 11px;
+  color: #9aa0ab;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#hs-editor-panel .hs-hint {
+  color: #9aa0ab;
+  font-size: 11.5px;
+  margin: 6px 0 0;
+}
+
+#hs-editor-panel .hs-row {
+  display: grid;
+  grid-template-columns: 88px 1fr 52px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#hs-editor-panel .hs-row label {
+  color: #c6cad2;
+  font-size: 12px;
+}
+
+#hs-editor-panel input[type="range"] { width: 100%; }
+
+#hs-editor-panel input[type="number"] {
+  width: 52px;
+  background: #12141a;
+  color: #e8e8e8;
+  border: 1px solid #3a3d45;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 12px;
+}
+
+#hs-editor-panel .hs-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+#hs-editor-panel button {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid #3a3d45;
+  border-radius: 6px;
+  background: #2a2d35;
+  color: #e8e8e8;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#hs-editor-panel button:hover { background: #343845; }
+#hs-editor-panel button.hs-primary { background: #b35b00; border-color: #b35b00; }
+#hs-editor-panel button.hs-primary:hover { background: #cc6a00; }
+
+#hs-editor-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.9);
+  color: #fff;
+  font: 13px -apple-system, sans-serif;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+#hs-editor-toast.is-visible { opacity: 1; }
+
+/* ---- print / capture ---- */
+
+@media print {
+  html, body { background: #fff; overflow: visible; }
+  #deck {
+    position: static;
+    width: auto;
+    height: auto;
+    transform: none !important;
+  }
+  .slide {
+    position: relative;
+    display: flex;
+    page-break-after: always;
+  }
+  .slide > .overflow-warning { display: none; }
+}

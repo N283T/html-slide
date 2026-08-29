@@ -1,0 +1,35 @@
+/* Theme: lab — cool light, high-contrast scientific. Good for data-heavy decks.
+ * Suggested Google Fonts:
+ *   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Sora:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+ */
+:root {
+  --hs-page-bg: #0f172a;
+
+  --hs-bg: #ffffff;
+  --hs-surface: #f1f5f9;
+  --hs-fg: #1e293b;
+  --hs-heading: #0f172a;
+  --hs-muted: #64748b;
+  --hs-border: #dbe3ec;
+
+  --hs-accent: #0e63d6;
+  --hs-accent-2: #d6336c;
+  --hs-accent-soft: #e3eefc;
+  --hs-em: #d6336c;
+
+  --hs-title-bg: linear-gradient(160deg, #ffffff 55%, #e3eefc 100%);
+  --hs-section-bg: #0f172a;
+
+  --hs-radius: 12px;
+
+  --hs-font-head: "Sora", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --hs-font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --hs-font-mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+}
+
+/* lab inverts its section dividers for rhythm between chapters. */
+.slide.layout-section {
+  --hs-heading: #f8fafc;
+  --hs-muted: #94a3b8;
+  color: #e2e8f0;
+}

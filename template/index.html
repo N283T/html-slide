@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Talk</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shippori+Mincho:wght@600;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../themes/paper.css">
+<link rel="stylesheet" href="../core/deck.css">
+<link rel="stylesheet" href="../layouts/layouts.css">
+</head>
+<body>
+<main id="deck">
+
+<!-- ============ 1 · title ============ -->
+<section class="slide layout-title">
+  <div class="kicker">Working draft</div>
+  <h1>A Presentation<br>Worth the Screen It's On</h1>
+  <p class="subtitle">Built with html-slide — layouts × themes × an edit mode</p>
+  <div class="meta">
+    <span><strong>Your Name</strong></span>
+    <span>Lab Seminar</span>
+    <span>2026-08-29</span>
+  </div>
+  <aside class="notes">
+    Opening: one sentence on why this topic, one on what the audience
+    gets out of the next 15 minutes.
+  </aside>
+</section>
+
+<!-- ============ 2 · standard ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Background</div>
+    <h2>A standard slide is a heading and a body</h2>
+    <p class="subtitle">Everything else is a layout class away</p>
+  </header>
+  <div class="body">
+    <p>This is <code>layout-std</code>: a <code>.slide-head</code> on top and a flexible
+      <code>.body</code> below. Body text is 34px on a 1920×1080 canvas, which reads
+      comfortably from the back of a seminar room.</p>
+    <ul>
+      <li>Emphasis with <strong>strong</strong> for weight, <span class="em">.em</span> for colour — keep the coloured one rare.</li>
+      <li>Asides and labels go in <span class="muted">.muted grey</span>, never body copy.</li>
+      <li data-fragment="1">List items can appear <span class="em">step by step</span> with <code>data-fragment</code>.</li>
+    </ul>
+    <div class="callout">A <code>.callout</code> holds the one sentence you want remembered.</div>
+  </div>
+  <footer class="foot">
+    <span>Sources or footnotes live in the .foot strip</span>
+    <span>my-talk / 2026</span>
+  </footer>
+</section>
+
+<!-- ============ 3 · section divider ============ -->
+<section class="slide layout-section">
+  <div class="kicker">Part 1</div>
+  <h2>Section dividers give a deck rhythm</h2>
+  <p class="subtitle">One per chapter; the audience gets a breath, you get a transition line.</p>
+</section>
+
+<!-- ============ 4 · two columns ============ -->
+<section class="slide layout-two-col">
+  <header class="slide-head">
+    <div class="kicker">Layouts</div>
+    <h2>Two columns</h2>
+  </header>
+  <div class="body">
+    <div class="col">
+      <h3 class="small muted">TEXT SIDE</h3>
+      <p>Columns are plain flex children. Add <code>.is-narrow</code> or
+        <code>.is-wide</code> to break the 50/50 split.</p>
+      <p>Keep one idea per column — if both columns argue the same point,
+        this should have been <code>layout-std</code>.</p>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Cards nest anywhere</h3>
+        <p class="small">A <code>.card</code> is the general-purpose grouped box.
+          <code>.is-accent</code> highlights the one that matters.</p>
+      </div>
+      <div class="card is-accent" style="margin-top: 28px;">
+        <h3>The highlighted one</h3>
+        <p class="small">Use at most one accent card per slide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 · figure main ============ -->
+<section class="slide layout-figure">
+  <header class="slide-head">
+    <div class="kicker">Layouts</div>
+    <h2>When the figure is the slide</h2>
+  </header>
+  <div class="body">
+    <figure>
+      <svg viewBox="0 0 900 480" role="img" aria-label="placeholder chart" style="background: var(--hs-surface); border: 1px solid var(--hs-border); border-radius: var(--hs-radius);">
+        <polyline points="60,400 200,340 340,360 480,240 620,200 760,90" fill="none" stroke="var(--hs-accent)" stroke-width="7" stroke-linecap="round"/>
+        <polyline points="60,420 200,410 340,380 480,370 620,330 760,310" fill="none" stroke="var(--hs-muted)" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>
+        <text x="770" y="80" font-size="26" fill="var(--hs-accent)">ours</text>
+        <text x="770" y="315" font-size="26" fill="var(--hs-muted)">baseline</text>
+      </svg>
+      <figcaption>Replace this SVG with your chart, image or embed. The figure column gets ~63% of the width.</figcaption>
+    </figure>
+    <div class="aside">
+      <p><code>layout-figure</code> puts the graphic first and the words second.</p>
+      <p>The aside is for reading the figure: what to look at, and
+        <span class="em">what it means</span>.</p>
+      <div class="stat" style="margin-top: 40px;">
+        <div class="stat-value">3.4×</div>
+        <div class="stat-label">the one number this figure exists to deliver</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 · compare ============ -->
+<section class="slide layout-compare">
+  <header class="slide-head">
+    <div class="kicker">Layouts</div>
+    <h2>Before / after, ours / theirs</h2>
+  </header>
+  <div class="body">
+    <div class="panel">
+      <h3>The usual way</h3>
+      <ul>
+        <li>Point about the status quo</li>
+        <li>Its hidden cost</li>
+        <li>Why it persists anyway</li>
+      </ul>
+    </div>
+    <div class="vs">VS</div>
+    <div class="panel is-accent">
+      <h3>The proposed way</h3>
+      <ul>
+        <li>What changes</li>
+        <li>What it costs</li>
+        <li data-fragment="1">What you get back — <span class="em">revealed on cue</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 · cards grid ============ -->
+<section class="slide layout-cards">
+  <header class="slide-head">
+    <div class="kicker">Layouts</div>
+    <h2>Three parallel points</h2>
+  </header>
+  <div class="body">
+    <div class="card">
+      <h3>Speed</h3>
+      <p class="small">Cards wrap in a grid; three across by default,
+        <code>.is-two-up</code> for two.</p>
+    </div>
+    <div class="card">
+      <h3>Clarity</h3>
+      <p class="small">Each card is one claim with one line of support.
+        More than that belongs on its own slide.</p>
+    </div>
+    <div class="card">
+      <h3>Honesty</h3>
+      <p class="small">If you only have two real points, use two cards.
+        Padding to three shows.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 · steps + stats ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Pipelines and headline numbers</h2>
+  </header>
+  <div class="body">
+    <ol class="steps">
+      <li><strong>Collect</strong><br><span class="small muted">where the data comes from</span></li>
+      <li><strong>Model</strong><br><span class="small muted">what happens to it</span></li>
+      <li><strong>Validate</strong><br><span class="small muted">why you believe the result</span></li>
+      <li><strong>Report</strong><br><span class="small muted">this deck</span></li>
+    </ol>
+    <div style="display: flex; gap: 120px; margin-top: 70px;">
+      <div class="stat">
+        <div class="stat-value">98.2%</div>
+        <div class="stat-label">of a metric that matters</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">12 min</div>
+        <div class="stat-label">down from 3 hours</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">n = 1,204</div>
+        <div class="stat-label">and where it came from</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9 · quote ============ -->
+<section class="slide layout-quote">
+  <blockquote>The slide is not the talk; it is the thing the talk points at.</blockquote>
+  <p class="attribution">— someone who sat through too many bullet lists</p>
+</section>
+
+<!-- ============ 10 · end ============ -->
+<section class="slide layout-end" data-page-number="off">
+  <h2>Thank you</h2>
+  <p class="subtitle">questions welcome · yourname@example.org</p>
+</section>
+
+</main>
+
+<script src="../core/deck.js"></script>
+<script src="../core/overview.js"></script>
+<script src="../core/authoring.js"></script>
+<script src="../core/editor.js"></script>
+<script src="../core/livereload.js"></script>
+</body>
+</html>

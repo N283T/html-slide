@@ -1,0 +1,30 @@
+/* Theme: aurora — dark with cold gradient accents. Good for tech talks.
+ * Suggested Google Fonts:
+ *   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Outfit:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+ */
+:root {
+  --hs-page-bg: #05070d;
+
+  --hs-bg: #0b0f1a;
+  --hs-surface: #131a2b;
+  --hs-fg: #dbe2f0;
+  --hs-heading: #f4f7ff;
+  --hs-muted: #8d99b5;
+  --hs-border: #26314d;
+
+  --hs-accent: #4fd6c2;
+  --hs-accent-2: #8b7bff;
+  --hs-accent-soft: rgba(79, 214, 194, 0.12);
+  --hs-em: #4fd6c2;
+
+  --hs-title-bg: radial-gradient(circle at 82% 12%, rgba(139, 123, 255, 0.22), transparent 45%),
+                 radial-gradient(circle at 12% 88%, rgba(79, 214, 194, 0.16), transparent 50%),
+                 #0b0f1a;
+  --hs-section-bg: linear-gradient(135deg, #10172a 0%, #0b0f1a 70%);
+
+  --hs-radius: 16px;
+
+  --hs-font-head: "Outfit", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --hs-font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --hs-font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+}

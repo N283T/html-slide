@@ -1,0 +1,410 @@
+/* html-slide layouts — the slide-level design system.
+ *
+ * Every slide picks one layout class (layout-title, layout-std,
+ * layout-two-col, ...) and inherits its structure; all color and type
+ * decisions come from theme tokens (themes/*.css), so any layout works
+ * under any theme.
+ *
+ * Specificity policy (learned the hard way): layout rules are written
+ * as `.slide.layout-x > .body ...` and component rules as a single
+ * class. No rule in this file reaches deeper than two classes plus an
+ * element, so a one-class override in the deck always wins. */
+
+/* ================= base canvas typography ================= */
+
+.slide {
+  font-family: var(--hs-font-body);
+  font-size: 34px;
+  line-height: 1.65;
+  padding: 90px 110px;
+  flex-direction: column;
+}
+
+.slide h1, .slide h2, .slide h3 {
+  font-family: var(--hs-font-head);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  color: var(--hs-heading, var(--hs-fg));
+}
+
+.slide p { margin: 0 0 0.55em; }
+.slide ul, .slide ol { margin: 0 0 0.55em; padding-left: 1.2em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li::marker { color: var(--hs-accent); }
+
+.slide a { color: var(--hs-accent); text-decoration: none; }
+
+.slide strong { font-weight: 700; }
+.slide .em { color: var(--hs-em, var(--hs-accent)); font-weight: 700; }
+.slide .muted { color: var(--hs-muted); }
+.slide .small { font-size: 0.82em; }
+
+.slide code, .slide .mono {
+  font-family: var(--hs-font-mono);
+  font-size: 0.9em;
+}
+
+.slide pre {
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 0.7em 1em;
+  font-size: 0.72em;
+  line-height: 1.55;
+  overflow: hidden;
+}
+
+.slide img, .slide svg, .slide video {
+  max-width: 100%;
+  height: auto;
+}
+
+.slide figure { margin: 0; }
+.slide figcaption {
+  font-size: 0.7em;
+  color: var(--hs-muted);
+  margin-top: 0.6em;
+}
+
+.slide table {
+  border-collapse: collapse;
+  font-size: 0.8em;
+  width: 100%;
+}
+
+.slide th {
+  text-align: left;
+  font-family: var(--hs-font-head);
+  font-weight: 700;
+  color: var(--hs-muted);
+  font-size: 0.85em;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--hs-border);
+  padding: 0.35em 0.7em;
+}
+
+.slide td {
+  border-bottom: 1px solid var(--hs-border);
+  padding: 0.42em 0.7em;
+}
+
+.slide tr.is-highlight td {
+  background: var(--hs-accent-soft);
+  font-weight: 600;
+}
+
+/* ================= shared slide chrome ================= */
+
+.kicker {
+  font-family: var(--hs-font-head);
+  font-size: 0.62em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hs-accent);
+  margin-bottom: 0.5em;
+}
+
+.slide-head { margin-bottom: 44px; flex: none; }
+.slide-head h2 { font-size: 56px; }
+.slide-head .subtitle {
+  margin: 10px 0 0;
+  font-size: 0.78em;
+  color: var(--hs-muted);
+}
+
+.slide > .body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.foot {
+  flex: none;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hs-border);
+  font-size: 0.62em;
+  color: var(--hs-muted);
+  display: flex;
+  justify-content: space-between;
+  gap: 2em;
+}
+
+/* ================= components ================= */
+
+.card {
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 34px 38px;
+}
+
+.card > h3 {
+  font-size: 0.82em;
+  color: var(--hs-accent);
+  margin-bottom: 0.5em;
+}
+
+.card.is-accent {
+  border-color: var(--hs-accent);
+  background: var(--hs-accent-soft);
+}
+
+.stat { text-align: left; }
+.stat .stat-value {
+  font-family: var(--hs-font-head);
+  font-size: 2.6em;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--hs-accent);
+}
+.stat .stat-label {
+  font-size: 0.68em;
+  color: var(--hs-muted);
+  margin-top: 0.3em;
+}
+
+.tag {
+  display: inline-block;
+  font-family: var(--hs-font-head);
+  font-size: 0.58em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.25em 0.9em;
+  border-radius: 999px;
+  background: var(--hs-accent-soft);
+  color: var(--hs-accent);
+  vertical-align: middle;
+}
+
+.callout {
+  border-left: 6px solid var(--hs-accent);
+  background: var(--hs-accent-soft);
+  border-radius: 0 var(--hs-radius) var(--hs-radius) 0;
+  padding: 24px 34px;
+  font-size: 0.95em;
+}
+
+.steps {
+  display: flex;
+  gap: 28px;
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+}
+
+.steps > li {
+  flex: 1;
+  counter-increment: step;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 30px 32px 26px;
+  position: relative;
+}
+
+.steps > li::before {
+  content: counter(step, decimal-leading-zero);
+  display: block;
+  font-family: var(--hs-font-head);
+  font-size: 0.75em;
+  font-weight: 800;
+  color: var(--hs-accent);
+  margin-bottom: 0.45em;
+}
+
+/* ================= layout: title ================= */
+
+.slide.layout-title {
+  justify-content: center;
+  background: var(--hs-title-bg, var(--hs-bg));
+}
+
+.slide.layout-title h1 {
+  font-size: 104px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 26em;
+}
+
+.slide.layout-title .subtitle {
+  font-size: 44px;
+  color: var(--hs-muted);
+  margin: 28px 0 0;
+}
+
+.slide.layout-title .meta {
+  position: absolute;
+  left: 110px;
+  bottom: 90px;
+  font-size: 30px;
+  color: var(--hs-muted);
+  display: flex;
+  gap: 2.2em;
+}
+
+.slide.layout-title .meta strong { color: var(--hs-fg); }
+
+/* ================= layout: section divider ================= */
+
+.slide.layout-section {
+  justify-content: center;
+  background: var(--hs-section-bg, var(--hs-surface));
+}
+
+.slide.layout-section .kicker { font-size: 30px; }
+
+.slide.layout-section h2 {
+  font-size: 92px;
+  letter-spacing: -0.01em;
+}
+
+.slide.layout-section .subtitle {
+  font-size: 38px;
+  color: var(--hs-muted);
+  margin-top: 26px;
+  max-width: 30em;
+}
+
+/* ================= layout: standard ================= */
+
+/* layout-std is just slide-head + body; the base rules already do it. */
+
+/* ================= layout: two columns ================= */
+
+.slide.layout-two-col > .body {
+  flex-direction: row;
+  gap: 64px;
+  align-items: stretch;
+}
+
+.slide.layout-two-col > .body > .col {
+  flex: 1;
+  min-width: 0;
+}
+
+.slide.layout-two-col > .body > .col.is-narrow { flex: 0 0 34%; }
+.slide.layout-two-col > .body > .col.is-wide { flex: 1.6; }
+
+/* ================= layout: figure main ================= */
+
+.slide.layout-figure > .body {
+  flex-direction: row;
+  gap: 56px;
+  align-items: center;
+}
+
+.slide.layout-figure > .body > figure {
+  flex: 1.7;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide.layout-figure > .body > .aside {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.88em;
+}
+
+/* ================= layout: compare ================= */
+
+.slide.layout-compare > .body {
+  flex-direction: row;
+  gap: 48px;
+}
+
+.slide.layout-compare .panel {
+  flex: 1;
+  min-width: 0;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.slide.layout-compare .panel > h3 {
+  font-size: 0.85em;
+  margin-bottom: 0.7em;
+  padding-bottom: 0.5em;
+  border-bottom: 2px solid var(--hs-border);
+}
+
+.slide.layout-compare .panel.is-accent { border-color: var(--hs-accent); }
+.slide.layout-compare .panel.is-accent > h3 { color: var(--hs-accent); border-bottom-color: var(--hs-accent); }
+
+.slide.layout-compare .vs {
+  align-self: center;
+  flex: none;
+  font-family: var(--hs-font-head);
+  font-weight: 800;
+  font-size: 0.9em;
+  color: var(--hs-muted);
+}
+
+/* ================= layout: cards grid ================= */
+
+.slide.layout-cards > .body {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-content: center;
+}
+
+.slide.layout-cards > .body > .card {
+  flex: 1 1 calc(33% - 40px);
+  min-width: 0;
+}
+
+.slide.layout-cards.is-two-up > .body > .card { flex-basis: calc(50% - 40px); }
+
+/* ================= layout: quote ================= */
+
+.slide.layout-quote { justify-content: center; }
+
+.slide.layout-quote blockquote {
+  margin: 0;
+  font-family: var(--hs-font-head);
+  font-size: 62px;
+  line-height: 1.5;
+  max-width: 24em;
+}
+
+.slide.layout-quote blockquote::before {
+  content: '\201C';
+  display: block;
+  font-size: 2.2em;
+  line-height: 0.6;
+  color: var(--hs-accent);
+  margin-bottom: 0.25em;
+}
+
+.slide.layout-quote .attribution {
+  margin-top: 40px;
+  font-size: 32px;
+  color: var(--hs-muted);
+}
+
+/* ================= layout: end ================= */
+
+.slide.layout-end {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: var(--hs-title-bg, var(--hs-bg));
+}
+
+.slide.layout-end h2 { font-size: 96px; }
+
+.slide.layout-end .subtitle {
+  font-size: 38px;
+  color: var(--hs-muted);
+  margin-top: 24px;
+}

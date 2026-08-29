@@ -1,0 +1,28 @@
+/* Theme: paper — warm light, editorial. Good for lab talks and reports.
+ * Suggested Google Fonts:
+ *   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shippori+Mincho:wght@600;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+ */
+:root {
+  --hs-page-bg: #1c1917;
+
+  --hs-bg: #faf7f2;
+  --hs-surface: #f1ece3;
+  --hs-fg: #292524;
+  --hs-heading: #1c1917;
+  --hs-muted: #78716c;
+  --hs-border: #ddd5c8;
+
+  --hs-accent: #b4530a;
+  --hs-accent-2: #1d6a5a;
+  --hs-accent-soft: #f4e3d3;
+  --hs-em: #b4530a;
+
+  --hs-title-bg: linear-gradient(160deg, #faf7f2 60%, #f4e3d3 100%);
+  --hs-section-bg: #f1ece3;
+
+  --hs-radius: 14px;
+
+  --hs-font-head: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --hs-font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --hs-font-mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+}

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Presenter — html-slide</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 1px;
+    background: #26282e;
+    color: #e8e8e8;
+    font: 15px/1.6 -apple-system, "Helvetica Neue", sans-serif;
+  }
+  header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    padding: 14px 22px;
+    background: #16181c;
+  }
+  #clock { font: 700 30px ui-monospace, monospace; color: #4fd6c2; }
+  #position { font: 600 20px ui-monospace, monospace; color: #9aa0ab; }
+  #current-title { font-size: 18px; font-weight: 700; }
+  #next-wrap { margin-left: auto; color: #9aa0ab; font-size: 14px; }
+  #next-title { color: #e8e8e8; font-weight: 600; }
+  main { background: #1d1f24; padding: 26px 30px; overflow: auto; }
+  main h2 { margin: 0 0 12px; font-size: 13px; letter-spacing: 0.1em; color: #9aa0ab; }
+  #notes { font-size: 19px; line-height: 1.8; }
+  nav { background: #1a1c21; overflow: auto; padding: 14px 0; }
+  #list { list-style: none; margin: 0; padding: 0; }
+  #list li { padding: 7px 22px; cursor: pointer; color: #b9bec8; font-size: 14px; }
+  #list li:hover { background: #24262d; }
+  #list li.is-current { background: #2c3040; color: #fff; font-weight: 600; }
+  kbd { background: #2c2f37; border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+  footer { position: fixed; right: 14px; bottom: 10px; color: #6b7280; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <span id="clock">00:00</span>
+  <span id="position">– / –</span>
+  <span id="current-title"></span>
+  <span id="next-wrap">next: <span id="next-title"></span></span>
+</header>
+<main>
+  <h2>NOTES</h2>
+  <div id="notes"><em>Waiting for the deck… open the slides in another window.</em></div>
+</main>
+<nav><ul id="list"></ul></nav>
+<footer><kbd>←</kbd><kbd>→</kbd> navigate · <kbd>r</kbd> reset clock</footer>
+<script src="../core/presenter.js"></script>
+</body>
+</html>
