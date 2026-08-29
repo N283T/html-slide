@@ -39,6 +39,7 @@ node cli/html-slide.js dev .
 | `t` | open the presenter console (second screen) |
 | `f` | fullscreen |
 | `e` | **edit mode** (needs the dev server) |
+| `p` | pen — draw on the slide (`c` clears; strokes vanish on slide change) |
 | `Home` / `End` | first / last slide |
 
 A floating toolbar (move the mouse to reveal it) mirrors all of this,
@@ -145,6 +146,11 @@ To make your own, copy a theme file and change the tokens.
 
 - Content that spills off the 1920×1080 canvas gets a red
   **overflow** badge naming the offending element.
+- The same badge flags a full-width space (U+3000) inside a mono
+  span and full-width parens around Latin text — both invisible in
+  the source and ugly on screen.
+- `data-fit` on an element shrinks its font-size until the content
+  fits its box (PowerPoint's "shrink on overflow", but explicit).
 - CSS in `layouts/` never exceeds two classes of specificity, so a
   single class in your deck always wins an override.
 

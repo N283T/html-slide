@@ -38,6 +38,26 @@
     return s;
   }
 
+  /* Typography audit — the two Japanese-typesetting mistakes that are
+   * invisible in the source and ugly on screen: a full-width space
+   * inside a mono span, and full-width parens around Latin text. */
+  function auditText(slide) {
+    const problems = [];
+    slide.querySelectorAll('code, .mono, pre').forEach(function (el) {
+      if (el.textContent.includes('　')) {
+        problems.push('U+3000 in ' + describe(el));
+      }
+    });
+    const textish = slide.querySelectorAll('p, li, h1, h2, h3, td, th, figcaption, .subtitle');
+    textish.forEach(function (el) {
+      if (el.closest('.notes')) return;
+      if (/（[\x20-\x7e]+）/.test(el.textContent)) {
+        problems.push('full-width parens around Latin in ' + describe(el));
+      }
+    });
+    return problems;
+  }
+
   function check(slide) {
     slide.querySelectorAll(':scope > .overflow-warning').forEach(function (b) { b.remove(); });
     const slideBox = slide.getBoundingClientRect();
@@ -51,10 +71,15 @@
         if (!offenders.some(function (o) { return o.contains(el); })) offenders.push(el);
       }
     });
+    const problems = [];
     if (offenders.length) {
+      problems.push('overflow: ' + offenders.slice(0, 3).map(describe).join(', '));
+    }
+    problems.push.apply(problems, auditText(slide));
+    if (problems.length) {
       const badge = document.createElement('div');
       badge.className = 'overflow-warning';
-      badge.textContent = 'overflow: ' + offenders.slice(0, 3).map(describe).join(', ');
+      badge.textContent = problems.slice(0, 3).join(' · ');
       slide.appendChild(badge);
     }
   }
