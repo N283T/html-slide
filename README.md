@@ -55,10 +55,14 @@ export keeps the deck presentational. A docked inspector sits on the
 right:
 
 - **Click** an element → inspect it; the **breadcrumb** picks any
-  ancestor. Sliders cover font-size, gap, width (media), margins and
-  padding — each with a ✕ that falls back to the stylesheet. Buttons
-  duplicate, delete and reorder the element; chips toggle the utility
-  classes (`.em`, `.muted`, `.small`, `.mono`); ⟸⇔⟹ set text-align.
+  ancestor. Sliders cover font-size, line-height, gap, width (media),
+  margins and padding — each with a ✕ that falls back to the
+  stylesheet. Text and background colors offer theme-token swatches
+  (saved as `var(--hs-*)`, so they follow theme switches) plus a free
+  picker. Flex containers get align-items / justify-content segments
+  and flex children align-self, labelled by the container's axis.
+  Buttons duplicate, delete and reorder the element; chips toggle the
+  utility classes (`.em`, `.muted`, `.small`, `.mono`).
 - **Drag** a selected element, or press **arrow keys** (Shift = 10px),
   to nudge its margins — canvas-scale aware.
 - **Double-click** text → edit it in place. `Esc` or click away to finish.
