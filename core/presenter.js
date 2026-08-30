@@ -113,6 +113,10 @@
 
   /* ---- controls ---- */
 
+  el('btn-first').addEventListener('click', function () { goto(0); });
+  el('btn-last').addEventListener('click', function () {
+    goto(Math.max(0, titles.length - 1));
+  });
   el('btn-prev').addEventListener('click', function () {
     goto(Math.max(0, currentIndex - 1));
   });
@@ -129,6 +133,10 @@
       goto(currentIndex + 1);
     } else if (e.key === 'ArrowLeft') {
       goto(Math.max(0, currentIndex - 1));
+    } else if (e.key === 'Home') {
+      goto(0);
+    } else if (e.key === 'End') {
+      goto(Math.max(0, titles.length - 1));
     } else if (e.key === 'r') {
       startedAt = Date.now();
     } else if (e.key === 'o') {

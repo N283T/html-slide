@@ -10,7 +10,7 @@
     height: 100vh;
     display: grid;
     grid-template-columns: 1.6fr 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr auto;
     gap: 1px;
     background: #26282e;
     color: #e8e8e8;
@@ -19,28 +19,16 @@
   header {
     grid-column: 1 / -1;
     display: flex;
-    align-items: center;
-    gap: 18px;
+    align-items: baseline;
+    gap: 20px;
     padding: 12px 22px;
     background: #16181c;
   }
-  #clock { font: 700 30px ui-monospace, monospace; color: #4fd6c2; }
+  #clock { font: 700 30px ui-monospace, monospace; color: #4fd6c2; cursor: default; }
   #position { font: 600 20px ui-monospace, monospace; color: #9aa0ab; }
   #current-title { font-size: 18px; font-weight: 700; }
   #next-wrap { margin-left: auto; color: #9aa0ab; font-size: 14px; }
   #next-title { color: #e8e8e8; font-weight: 600; }
-  header .nav-btns { display: flex; gap: 6px; }
-  header button {
-    border: 1px solid #33363f;
-    background: #22252d;
-    color: #e8e8e8;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 15px;
-    cursor: pointer;
-  }
-  header button:hover { background: #2c3039; }
-  header button.is-on { background: #b35b00; border-color: #b35b00; }
   main { background: #1d1f24; padding: 26px 30px; overflow: auto; }
   main h2 { margin: 0 0 12px; font-size: 13px; letter-spacing: 0.1em; color: #9aa0ab; }
   #notes { font-size: 19px; line-height: 1.8; }
@@ -50,7 +38,47 @@
   #list li:hover { background: #24262d; }
   #list li.is-current { background: #2c3040; color: #fff; font-weight: 600; }
   kbd { background: #2c2f37; border-radius: 4px; padding: 1px 6px; font-size: 12px; }
-  footer { position: fixed; right: 14px; bottom: 10px; color: #6b7280; font-size: 12px; }
+
+  /* ---- big control row ----
+   * One row of equal-width buttons: at a lectern the target is found
+   * by position, and a row of differently sized ones is harder to hit
+   * without looking. Only 次へ is filled, so the eye lands on the
+   * button pressed most; 前へ is the same hue outlined. */
+  footer.controls {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px 14px;
+    background: #16181c;
+  }
+  .controls button {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0;
+    border: 2px solid #33363f;
+    border-radius: 10px;
+    background: #22252d;
+    color: #e8e8e8;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .controls button:hover { border-color: #565c69; }
+  .controls button.is-overview { border-color: #2b6f64; }
+  .controls button.is-overview:hover { border-color: #4fd6c2; }
+  .controls button.is-overview.is-on { background: #1d3833; border-color: #4fd6c2; }
+  .controls button.is-prev { border-color: #b35b00; color: #ffb05c; }
+  .controls button.is-prev:hover { background: #2a2118; }
+  .controls button.is-next {
+    background: #b35b00;
+    border-color: #b35b00;
+    color: #fff;
+    flex-grow: 1.6;
+  }
+  .controls button.is-next:hover { background: #cc6a00; border-color: #cc6a00; }
 
   /* ---- slide overview overlay ---- */
   #overview {
@@ -100,12 +128,7 @@
 </head>
 <body>
 <header>
-  <span id="clock">00:00</span>
-  <div class="nav-btns">
-    <button id="btn-prev" title="前へ (←)">◀</button>
-    <button id="btn-next" title="次へ (→ / Space)">▶</button>
-  </div>
-  <button id="btn-overview" title="スライド一覧 (o)">▦ 一覧</button>
+  <span id="clock" title="r でリセット">00:00</span>
   <span id="position">– / –</span>
   <span id="current-title"></span>
   <span id="next-wrap">次: <span id="next-title"></span></span>
@@ -115,11 +138,17 @@
   <div id="notes"><em>デッキ待機中… 別ウィンドウでスライドを開いてください。</em></div>
 </main>
 <nav><ul id="list"></ul></nav>
+<footer class="controls">
+  <button id="btn-first" title="先頭へ (Home)">|◀ 先頭</button>
+  <button id="btn-last" title="末尾へ (End)">末尾 ▶|</button>
+  <button id="btn-overview" class="is-overview" title="スライド一覧 (o)">▦ 一覧</button>
+  <button id="btn-prev" class="is-prev" title="前へ (←)">← 前へ</button>
+  <button id="btn-next" class="is-next" title="次へ (→ / Space)">次へ →</button>
+</footer>
 <div id="overview" hidden>
   <p class="ov-hint">クリックでそのスライドへ。画像は <code>html-slide capture</code> の出力（slide-captures/）を使い、無ければ番号タイルで代用します。<kbd>o</kbd> / <kbd>Esc</kbd> で閉じる</p>
   <div class="grid"></div>
 </div>
-<footer><kbd>←</kbd><kbd>→</kbd> スライド送り · <kbd>o</kbd> 一覧 · <kbd>r</kbd> タイマーリセット</footer>
 <script src="../core/presenter.js"></script>
 </body>
 </html>
