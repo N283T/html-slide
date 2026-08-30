@@ -3,8 +3,8 @@
  * placeholders, and the layout CSS does the rest. */
 window.HSSnippets = [
   {
-    name: 'Standard',
-    desc: 'Heading + free-form body',
+    name: '標準',
+    desc: '見出し＋自由な本文 (layout-std)',
     html: [
       '<section class="slide layout-std">',
       '  <header class="slide-head">',
@@ -18,8 +18,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Section divider',
-    desc: 'Chapter break with a big line',
+    name: 'セクション区切り',
+    desc: '章の切り替わりに一呼吸 (layout-section)',
     html: [
       '<section class="slide layout-section">',
       '  <div class="kicker">Part N</div>',
@@ -29,8 +29,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Two columns',
-    desc: 'Text/figure side by side',
+    name: '2カラム',
+    desc: 'テキストと図を横並びに (layout-two-col)',
     html: [
       '<section class="slide layout-two-col">',
       '  <header class="slide-head">',
@@ -48,8 +48,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Figure main',
-    desc: 'Big figure + reading aside',
+    name: '図メイン',
+    desc: '大きな図＋読み解きの説明 (layout-figure)',
     html: [
       '<section class="slide layout-figure">',
       '  <header class="slide-head">',
@@ -68,8 +68,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Compare',
-    desc: 'Before/after, ours/theirs',
+    name: '比較',
+    desc: 'ビフォー/アフター、提案/従来 (layout-compare)',
     html: [
       '<section class="slide layout-compare">',
       '  <header class="slide-head">',
@@ -90,8 +90,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Cards',
-    desc: '2–3 parallel points',
+    name: 'カード',
+    desc: '並列する2〜3個のポイント (layout-cards)',
     html: [
       '<section class="slide layout-cards">',
       '  <header class="slide-head">',
@@ -106,8 +106,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Chart',
-    desc: 'Built-in bar/line/donut chart',
+    name: 'チャート',
+    desc: '組み込みの bar/line/donut チャート',
     html: [
       '<section class="slide layout-figure">',
       '  <header class="slide-head">',
@@ -126,8 +126,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Quote',
-    desc: 'One quotation, centered',
+    name: '引用',
+    desc: 'ひとつの引用を中央に (layout-quote)',
     html: [
       '<section class="slide layout-quote">',
       '  <blockquote>The quote.</blockquote>',
@@ -136,8 +136,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'Statement',
-    desc: 'One big claim (steps/stats optional)',
+    name: '数字で主張',
+    desc: '大きな数字で1つの主張 (stat)',
     html: [
       '<section class="slide layout-std">',
       '  <header class="slide-head">',
@@ -153,8 +153,8 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
-    name: 'End',
-    desc: 'Closing slide',
+    name: 'エンド',
+    desc: '締めのスライド (layout-end)',
     html: [
       '<section class="slide layout-end" data-page-number="off">',
       '  <h2>Thank you</h2>',

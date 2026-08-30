@@ -53,9 +53,9 @@
     if (!statusEl) return;
     statusEl.className = 'hs-ep-status is-' + saveState;
     statusEl.textContent =
-      saveState === 'saved' ? '✓ saved' :
-      saveState === 'dirty' ? (autosave ? '● saving…' : '● unsaved') :
-      '✕ save failed';
+      saveState === 'saved' ? '✓ 保存済み' :
+      saveState === 'dirty' ? (autosave ? '● 保存中…' : '● 未保存') :
+      '✕ 保存失敗';
   }
 
   /* The slide the pending changes belong to — saving must target it
@@ -102,13 +102,13 @@
   }
 
   function undo() {
-    if (!undoStack.length) { toast('Nothing to undo'); return; }
+    if (!undoStack.length) { toast('これ以上戻せません'); return; }
     redoStack.push(snapshot());
     restore(undoStack.pop());
   }
 
   function redo() {
-    if (!redoStack.length) { toast('Nothing to redo'); return; }
+    if (!redoStack.length) { toast('やり直す操作がありません'); return; }
     undoStack.push(snapshot());
     restore(redoStack.pop());
   }
@@ -156,12 +156,12 @@
         pendingIndex = null;
         saveState = 'saved';
         updateStatus();
-        if (!quiet) toast('Saved slide ' + (index + 1));
+        if (!quiet) toast('スライド ' + (index + 1) + ' を保存しました');
       })
       .catch(function (err) {
         saveState = 'error';
         updateStatus();
-        toast('Save failed: ' + err.message);
+        toast('保存に失敗: ' + err.message);
       });
   }
 
@@ -174,7 +174,7 @@
     select(null);
     el.remove();
     markDirty();
-    toast('Element deleted');
+    toast('要素を削除しました');
   }
 
   function opDuplicate() {
@@ -249,7 +249,7 @@
     range.addEventListener('input', function () { set(range.value); });
     num.addEventListener('input', function () { if (num.value !== '') set(num.value); });
     const reset = h('button', 'hs-reset', '✕');
-    reset.title = 'Remove the inline ' + (prop || labelText) + ' and fall back to the stylesheet';
+    reset.title = 'インライン指定の ' + (prop || labelText) + ' を消してテーマのCSSに戻す';
     reset.addEventListener('click', function () {
       if (!selected || !prop) return;
       pushSnapshot();
@@ -275,7 +275,7 @@
     /* header */
     const head = h('div', 'hs-ep-head');
     head.appendChild(h('span', 'hs-ep-title',
-      'SLIDE ' + (D.state.index + 1) + ' / ' + D.state.total));
+      'スライド ' + (D.state.index + 1) + ' / ' + D.state.total));
     statusEl = h('span', 'hs-ep-status');
     head.appendChild(statusEl);
     panel.appendChild(head);
@@ -286,7 +286,7 @@
       const cs = getComputedStyle(selected);
 
       /* element section: breadcrumb, size, ops */
-      const elSec = section('ELEMENT');
+      const elSec = section('要素');
       const crumb = h('div', 'hs-breadcrumb');
       const chain = [];
       for (let el = selected; el && !el.classList.contains('slide'); el = el.parentElement) {
@@ -294,7 +294,7 @@
       }
       chain.forEach(function (el) {
         const b = h('button', el === selected ? 'is-current' : null, describe(el));
-        b.title = 'Select ' + describe(el);
+        b.title = describe(el) + ' を選択';
         b.addEventListener('click', function () { select(el); });
         crumb.appendChild(b);
       });
@@ -305,10 +305,10 @@
         Math.round(box.width / scale) + ' × ' + Math.round(box.height / scale) + ' px'));
 
       const ops = h('div', 'hs-actions');
-      [['↑', 'Move before previous sibling', function () { opMove(-1); }],
-       ['↓', 'Move after next sibling', function () { opMove(1); }],
-       ['⧉', 'Duplicate', opDuplicate],
-       ['🗑', 'Delete (Backspace)', opDelete]
+      [['↑', '前の兄弟要素の前へ移動', function () { opMove(-1); }],
+       ['↓', '次の兄弟要素の後へ移動', function () { opMove(1); }],
+       ['⧉', '複製', opDuplicate],
+       ['🗑', '削除 (Backspace)', opDelete]
       ].forEach(function (def) {
         const b = h('button', null, def[0]);
         b.title = def[1];
@@ -336,8 +336,8 @@
       panel.appendChild(elSec);
 
       /* text section */
-      const textSec = section('TEXT');
-      row(textSec, 'size', 'font-size', Math.round(parseFloat(cs.fontSize)), 8, 160,
+      const textSec = section('テキスト');
+      row(textSec, '文字サイズ', 'font-size', Math.round(parseFloat(cs.fontSize)), 8, 160,
         function (v) { selected.style.fontSize = v + 'px'; });
       const seg = h('div', 'hs-seg');
       [['⟸', 'left'], ['⇔', 'center'], ['⟹', 'right']].forEach(function (def) {
@@ -356,7 +356,7 @@
       panel.appendChild(textSec);
 
       /* box section */
-      const boxSec = section('BOX');
+      const boxSec = section('余白・サイズ');
       if (cs.display.includes('flex') || cs.display.includes('grid')) {
         row(boxSec, 'gap', 'gap', Math.round(parseFloat(cs.gap) || 0), 0, 200,
           function (v) { selected.style.gap = v + 'px'; });
@@ -364,7 +364,7 @@
       if (MEDIA_TAGS.includes(selected.tagName)) {
         const parentW = selected.parentElement.getBoundingClientRect().width || 1;
         const pct = Math.round(box.width / parentW * 100);
-        row(boxSec, 'width %', 'width', Math.min(pct, 100), 5, 100,
+        row(boxSec, '幅 %', 'width', Math.min(pct, 100), 5, 100,
           function (v) { selected.style.width = v + '%'; });
       }
       [['m-top', 'margin-top'], ['m-bottom', 'margin-bottom'],
@@ -376,7 +376,7 @@
           selected.style.setProperty(pair[1], v + 'px');
         });
       });
-      const clearBtn = h('button', null, 'Clear inline styles');
+      const clearBtn = h('button', null, 'インライン指定をすべて解除');
       clearBtn.style.cssText = 'width:100%;margin:4px 0 10px;padding:5px 0;border:1px solid #2c2f37;border-radius:6px;background:#1f222a;color:#9aa0ab;cursor:pointer;font-size:11.5px;';
       clearBtn.addEventListener('click', function () {
         pushSnapshot();
@@ -389,12 +389,12 @@
 
       const hint = section();
       hint.appendChild(h('p', 'hs-hint',
-        'Drag the element or use arrow keys (Shift = 10px) to nudge. Double-click text to rewrite it.'));
+        'ドラッグまたは矢印キー（Shift で 10px）で位置を微調整。テキストはダブルクリックで直接書き換えられます。'));
       panel.appendChild(hint);
     } else {
       const empty = section();
       empty.appendChild(h('p', 'hs-hint',
-        'Click any element on the slide to inspect it. Double-click text to rewrite it. ⌘Z undoes. Slides are managed in the overview (o / ▦).'));
+        'スライド上の要素をクリックすると調整パネルが出ます。テキストはダブルクリックで編集、⌘Z で取り消し。スライドの並べ替え・追加は一覧（o / ▦）から。'));
       panel.appendChild(empty);
     }
 
@@ -411,7 +411,7 @@
       if (autosave && dirty) save(true);
       updateStatus();
     });
-    autosaveLabel.append(cb, document.createTextNode('Autosave to source'));
+    autosaveLabel.append(cb, document.createTextNode('自動保存（ソースに書き戻し）'));
     foot.appendChild(autosaveLabel);
 
     const histRow = h('div', 'hs-actions');
@@ -425,11 +425,11 @@
     foot.appendChild(histRow);
 
     const saveRow = h('div', 'hs-actions');
-    const saveBtn = h('button', null, 'Save now');
+    const saveBtn = h('button', null, '今すぐ保存');
     saveBtn.title = '⌘S';
     saveBtn.addEventListener('click', function () { save(false); });
-    const revertBtn = h('button', null, 'Revert');
-    revertBtn.title = 'Reload from source';
+    const revertBtn = h('button', null, '破棄して再読込');
+    revertBtn.title = '未保存の変更を捨ててソースから読み直す';
     revertBtn.addEventListener('click', function () {
       dirty = false;
       location.reload();
@@ -437,8 +437,8 @@
     saveRow.append(saveBtn, revertBtn);
     foot.appendChild(saveRow);
 
-    const presentBtn = h('button', 'hs-primary', '▶ Present');
-    presentBtn.title = 'Leave edit mode and go fullscreen (e toggles back)';
+    const presentBtn = h('button', 'hs-primary', '▶ 発表モード');
+    presentBtn.title = '編集を終えてフルスクリーンで発表（e で編集に戻る）';
     presentBtn.addEventListener('click', function () {
       exit();
       /* survive a reload as presentation mode */
@@ -587,7 +587,7 @@
     delete document.body.dataset.editing;
     if (panel) { panel.remove(); panel = null; statusEl = null; }
     D.rescale();
-    if (dirty && !autosave) toast('Unsaved changes — press e, then Save');
+    if (dirty && !autosave) toast('未保存の変更があります — e で編集に戻って保存してください');
   }
 
   /* ---- keyboard ---- */

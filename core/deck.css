@@ -223,13 +223,13 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
   right: 0;
   bottom: 0;
   z-index: 1000;
-  width: 300px;
+  width: 320px;
   overflow-y: auto;
   background: #17191e;
   color: #e8e8e8;
   border-left: 1px solid #2c2f37;
   padding: 0 0 16px;
-  font: 13px/1.5 -apple-system, "Helvetica Neue", sans-serif;
+  font: 14px/1.6 -apple-system, "Helvetica Neue", sans-serif;
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -248,13 +248,13 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 }
 
 #hs-editor-panel .hs-ep-head .hs-ep-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.12em;
   color: #ffb05c;
 }
 
-#hs-editor-panel .hs-ep-status { font-size: 11.5px; }
+#hs-editor-panel .hs-ep-status { font-size: 12.5px; }
 #hs-editor-panel .hs-ep-status.is-dirty { color: #ffb05c; }
 #hs-editor-panel .hs-ep-status.is-saved { color: #6fcf97; }
 #hs-editor-panel .hs-ep-status.is-error { color: #ff6b6b; }
@@ -266,7 +266,7 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 
 #hs-editor-panel .hs-ep-section > h4 {
   margin: 0 0 8px;
-  font-size: 10.5px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: #7d8494;
@@ -277,7 +277,7 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
   flex-wrap: wrap;
   gap: 4px;
   font-family: ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 #hs-editor-panel .hs-breadcrumb button {
@@ -299,7 +299,7 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 
 #hs-editor-panel .hs-ep-meta {
   font-family: ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: #7d8494;
   margin: 6px 0 8px;
 }
@@ -311,8 +311,8 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
   background: #1f222a;
   color: #c6cad2;
   border-radius: 999px;
-  padding: 3px 12px;
-  font-size: 11.5px;
+  padding: 4px 13px;
+  font-size: 12.5px;
   cursor: pointer;
 }
 
@@ -324,7 +324,7 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 
 #hs-editor-panel .hs-row {
   display: grid;
-  grid-template-columns: 70px 1fr 48px 18px;
+  grid-template-columns: 74px 1fr 52px 18px;
   align-items: center;
   gap: 7px;
   margin-bottom: 7px;
@@ -332,7 +332,7 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 
 #hs-editor-panel .hs-row label {
   color: #c6cad2;
-  font-size: 11.5px;
+  font-size: 12.5px;
   white-space: nowrap;
 }
 
@@ -342,13 +342,13 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 }
 
 #hs-editor-panel input[type="number"] {
-  width: 48px;
+  width: 52px;
   background: #101216;
   color: #e8e8e8;
   border: 1px solid #2c2f37;
   border-radius: 4px;
-  padding: 2px 4px;
-  font-size: 11.5px;
+  padding: 3px 4px;
+  font-size: 12.5px;
 }
 
 #hs-editor-panel .hs-row .hs-reset {
@@ -368,9 +368,9 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
   background: #1f222a;
   color: #c6cad2;
   border-radius: 6px;
-  padding: 4px 0;
+  padding: 5px 0;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
 }
 #hs-editor-panel .hs-seg button:hover { background: #262a33; }
 #hs-editor-panel .hs-seg button.is-on {
@@ -381,7 +381,7 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 
 #hs-editor-panel .hs-hint {
   color: #7d8494;
-  font-size: 11px;
+  font-size: 12.5px;
   margin: 8px 0;
   line-height: 1.55;
 }
@@ -391,13 +391,13 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
 #hs-editor-panel .hs-actions button,
 #hs-editor-panel .hs-ep-footer button {
   flex: 1;
-  padding: 6px 0;
+  padding: 8px 0;
   border: 1px solid #2c2f37;
   border-radius: 6px;
   background: #22252d;
   color: #e8e8e8;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 #hs-editor-panel .hs-actions button:hover,
@@ -424,12 +424,12 @@ body[data-editing] .slide.is-active { outline: 2px dashed rgba(255, 140, 0, 0.6)
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 11.5px;
+  font-size: 13px;
   color: #9aa0ab;
   cursor: pointer;
 }
 
-body[data-editing] #hs-toolbar { left: calc(50% - 150px); }
+body[data-editing] #hs-toolbar { left: calc(50% - 160px); }
 
 #hs-editor-toast {
   position: fixed;
@@ -441,7 +441,7 @@ body[data-editing] #hs-toolbar { left: calc(50% - 150px); }
   border-radius: 999px;
   background: rgba(20, 20, 20, 0.9);
   color: #fff;
-  font: 13px -apple-system, sans-serif;
+  font: 14px -apple-system, sans-serif;
   opacity: 0;
   transition: opacity 0.2s;
   pointer-events: none;
@@ -465,7 +465,7 @@ body[data-editing] #hs-toolbar { left: calc(50% - 150px); }
   background: rgba(18, 20, 26, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.09);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-  font: 13px -apple-system, "Helvetica Neue", sans-serif;
+  font: 14px -apple-system, "Helvetica Neue", sans-serif;
   color: #e8e8e8;
   opacity: 0;
   pointer-events: none;
@@ -489,7 +489,7 @@ body[data-editing] #hs-toolbar { left: calc(50% - 150px); }
 #hs-toolbar select { appearance: none; background: rgba(255, 255, 255, 0.08); }
 #hs-toolbar .hs-tb-counter {
   font-family: ui-monospace, monospace;
-  font-size: 12px;
+  font-size: 13px;
   color: #9aa0ab;
   padding: 0 6px;
   min-width: 52px;
@@ -525,10 +525,10 @@ body.hs-capture #hs-toolbar { display: none; }
   border-radius: 14px;
   padding: 22px 26px 26px;
   color: #e8e8e8;
-  font: 14px -apple-system, sans-serif;
+  font: 15px -apple-system, sans-serif;
 }
 
-#hs-gallery h3 { margin: 0 0 14px; font-size: 15px; color: #ffb05c; }
+#hs-gallery h3 { margin: 0 0 14px; font-size: 16px; color: #ffb05c; }
 
 #hs-gallery .hs-gallery-grid {
   display: grid;
@@ -546,7 +546,7 @@ body.hs-capture #hs-toolbar { display: none; }
 
 #hs-gallery .hs-gallery-item:hover { border-color: #ffb05c; background: #2b2e37; }
 #hs-gallery .hs-gallery-item .hs-g-name { font-weight: 700; margin-bottom: 4px; }
-#hs-gallery .hs-gallery-item .hs-g-desc { font-size: 12px; color: #9aa0ab; }
+#hs-gallery .hs-gallery-item .hs-g-desc { font-size: 13px; color: #9aa0ab; }
 
 /* ---- print / capture ---- */
 

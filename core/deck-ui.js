@@ -29,28 +29,28 @@
     bar.appendChild(s);
   }
 
-  button('◀', 'Previous (←)', function () { D.prev(); });
+  button('◀', '前へ (←)', function () { D.prev(); });
 
   const counter = document.createElement('div');
   counter.className = 'hs-tb-counter';
   bar.appendChild(counter);
 
-  button('▶', 'Next (→)', function () { D.next(); });
+  button('▶', '次へ (→)', function () { D.next(); });
   sep();
-  const editBtn = button('✎ Edit', 'Edit mode (e)', function (b) {
+  const editBtn = button('✎ 編集', '編集モード (e)', function (b) {
     if (window.HSEditor) {
       window.HSEditor.toggle();
       b.classList.toggle('is-on', window.HSEditor.isEditing());
     }
   });
-  button('▦ Slides', 'Overview (o)', function () {
+  button('▦ 一覧', 'スライド一覧・管理 (o)', function () {
     if (window.HSOverview) window.HSOverview.toggle();
   });
-  button('⌚ Notes', 'Presenter window (t)', function () {
+  button('⌚ ノート', '発表者コンソール (t)', function () {
     const url = location.pathname.replace(/[^/]*$/, '') + 'presenter.html';
     open(url, 'hs-presenter', 'width=1100,height=700');
   });
-  button('⛶', 'Fullscreen (f)', function () {
+  button('⛶', 'フルスクリーン (f)', function () {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen();
   });
@@ -69,11 +69,11 @@
       if (!info || !info.ok) return;
       refresh(); /* editor may have auto-entered edit mode by now */
       sep();
-      button('＋ Slide', 'Insert a new slide after this one', function () {
+      button('＋ スライド', 'このスライドの後に新規スライドを挿入', function () {
         if (window.HSGallery) window.HSGallery(D.state.index);
       });
       const themeSel = document.createElement('select');
-      themeSel.title = 'Switch theme (rewrites the source file)';
+      themeSel.title = 'テーマ切替（ソースファイルを書き換えます）';
       const currentTheme = (function () {
         const link = document.querySelector('link[href*="themes/"]');
         const m = link && link.href.match(/themes\/([\w-]+)\.css/);
@@ -89,7 +89,7 @@
       themeSel.addEventListener('change', function () {
         window.HSOps({ op: 'set-theme', theme: themeSel.value })
           .then(function () { location.reload(); })
-          .catch(function (err) { alert('Theme switch failed: ' + err.message); });
+          .catch(function (err) { alert('テーマ切替に失敗: ' + err.message); });
       });
       bar.appendChild(themeSel);
     });

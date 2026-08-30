@@ -31,7 +31,7 @@
           location.pathname + '?' + params.toString() + '#overview');
         location.reload();
       })
-      .catch(function (err) { alert('Operation failed: ' + err.message); });
+      .catch(function (err) { alert('操作に失敗: ' + err.message); });
   }
 
   /* ---- layout gallery ---- */
@@ -43,7 +43,7 @@
     const box = document.createElement('div');
     box.className = 'hs-gallery-box';
     const h = document.createElement('h3');
-    h.textContent = 'New slide — pick a layout (inserted after slide ' + (afterIndex + 1) + ')';
+    h.textContent = '新しいスライド — レイアウトを選択（スライド ' + (afterIndex + 1) + ' の後に挿入）';
     box.appendChild(h);
     const grid = document.createElement('div');
     grid.className = 'hs-gallery-grid';
@@ -76,21 +76,21 @@
     bar.className = 'hs-thumb-actions';
     const add = document.createElement('button');
     add.textContent = '+';
-    add.title = 'Insert new slide after this one';
+    add.title = 'この後に新規スライドを挿入';
     add.addEventListener('click', function (e) { e.stopPropagation(); openGallery(i); });
     const dup = document.createElement('button');
     dup.textContent = '⧉';
-    dup.title = 'Duplicate slide';
+    dup.title = 'スライドを複製';
     dup.addEventListener('click', function (e) {
       e.stopPropagation();
       runOp({ op: 'duplicate', index: i }, i + 1);
     });
     const del = document.createElement('button');
     del.textContent = '✕';
-    del.title = 'Delete slide';
+    del.title = 'スライドを削除';
     del.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (confirm('Delete slide ' + (i + 1) + ' (' + D.titleOf(i) + ')?')) {
+      if (confirm('スライド ' + (i + 1) + '「' + D.titleOf(i) + '」を削除しますか？')) {
         runOp({ op: 'delete', index: i }, Math.max(0, i - 1));
       }
     });
@@ -155,7 +155,7 @@
       const addTile = document.createElement('div');
       addTile.className = 'hs-thumb hs-add-tile';
       addTile.textContent = '+';
-      addTile.title = 'Add a slide at the end';
+      addTile.title = '末尾にスライドを追加';
       addTile.addEventListener('click', function () {
         openGallery(D.state.total - 1);
       });

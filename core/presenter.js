@@ -44,8 +44,8 @@
     titles = msg.titles || titles;
     el('position').textContent = (msg.index + 1) + ' / ' + msg.total;
     el('current-title').textContent = msg.title || '';
-    el('next-title').textContent = msg.nextTitle || '— end —';
-    el('notes').innerHTML = msg.notes || '<em>No notes for this slide.</em>';
+    el('next-title').textContent = msg.nextTitle || '— 最後のスライド —';
+    el('notes').innerHTML = msg.notes || '<em>このスライドにノートはありません。</em>';
     renderList();
   };
 

@@ -47,9 +47,9 @@
 
   function rescale() {
     if (state.mode === 'overview') return;
-    /* Edit mode docks a 300px inspector on the right; the canvas
+    /* Edit mode docks a 320px inspector on the right; the canvas
      * centers itself in what is left. */
-    const sidebar = document.body.dataset.editing ? 300 : 0;
+    const sidebar = document.body.dataset.editing ? 320 : 0;
     const availW = innerWidth - sidebar;
     const scale = Math.min(availW / 1920, innerHeight / 1080);
     const x = (availW - 1920 * scale) / 2;
