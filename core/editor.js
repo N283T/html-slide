@@ -1,14 +1,15 @@
-/* Edit mode: press `e` to toggle.
- *  - click an element        -> select it; the panel tunes type, spacing
- *                               and (for media) width; action buttons
- *                               delete / duplicate / reorder it
- *  - drag a selected element -> nudges its margins (scale-aware)
- *  - double-click text       -> edit it in place (Esc to finish)
+/* Edit mode — the default when the dev server is running (?present=1
+ * or a static host keeps the deck in presentation mode; `e` toggles).
+ *
+ * A docked inspector on the right:
+ *  - click an element        -> select; breadcrumb picks any ancestor
+ *  - drag a selected element -> nudge its margins (scale-aware)
+ *  - arrow keys              -> nudge by 1px (Shift = 10px)
+ *  - double-click text       -> edit in place (Esc to finish)
  *  - Cmd+Z / Shift+Cmd+Z     -> undo / redo (snapshot per gesture)
- *  - Save button / Cmd+S     -> write the slide back to the HTML source
- *                               through the dev server (POST /__hs/save)
- * Adjustments are written as inline styles, so what the panel does is
- * exactly what lands in the file — no hidden state. */
+ *  - autosave (on by default) or Cmd+S -> POST /__hs/save
+ * Adjustments land as inline styles / classes in the source, so what
+ * the inspector does is exactly what Claude and git see. */
 (function () {
   'use strict';
 
@@ -20,7 +21,13 @@
   let selected = null;
   let editingText = null;
   let dirty = false;
+  let saveState = 'saved';   /* saved | dirty | error */
   let panel = null;
+  let statusEl = null;
+
+  let autosave = true;
+  try { autosave = localStorage.getItem('hs-autosave') !== '0'; } catch (_) {}
+  let autosaveTimer = null;
 
   /* ---- toast ---- */
 
@@ -38,6 +45,32 @@
     toastTimer = setTimeout(function () {
       toastEl.classList.remove('is-visible');
     }, 1800);
+  }
+
+  /* ---- save state ---- */
+
+  function updateStatus() {
+    if (!statusEl) return;
+    statusEl.className = 'hs-ep-status is-' + saveState;
+    statusEl.textContent =
+      saveState === 'saved' ? '✓ saved' :
+      saveState === 'dirty' ? (autosave ? '● saving…' : '● unsaved') :
+      '✕ save failed';
+  }
+
+  /* The slide the pending changes belong to — saving must target it
+   * even if the user has meanwhile navigated elsewhere. */
+  let pendingIndex = null;
+
+  function markDirty() {
+    dirty = true;
+    saveState = 'dirty';
+    pendingIndex = D.state.index;
+    updateStatus();
+    if (autosave && editing) {
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(function () { save(true); }, 900);
+    }
   }
 
   /* ---- undo / redo ---- */
@@ -64,7 +97,7 @@
     endTextEdit(true);
     D.replaceSlide(snap.index, el);
     if (D.state.index !== snap.index) D.goto(snap.index, 0);
-    dirty = true;
+    markDirty();
     buildPanel();
   }
 
@@ -72,14 +105,12 @@
     if (!undoStack.length) { toast('Nothing to undo'); return; }
     redoStack.push(snapshot());
     restore(undoStack.pop());
-    toast('Undo');
   }
 
   function redo() {
     if (!redoStack.length) { toast('Nothing to redo'); return; }
     undoStack.push(snapshot());
     restore(redoStack.pop());
-    toast('Redo');
   }
 
   /* ---- serialization ---- */
@@ -108,11 +139,13 @@
     return clone.outerHTML;
   }
 
-  function save() {
-    const slide = D.slides[D.state.index];
+  function save(quiet) {
+    clearTimeout(autosaveTimer);
+    const index = pendingIndex != null ? pendingIndex : D.state.index;
+    const slide = D.slides[index];
     const body = JSON.stringify({
       path: location.pathname,
-      index: D.state.index,
+      index: index,
       html: serializeSlide(slide)
     });
     if (window.HSLiveReload) window.HSLiveReload.suppress();
@@ -120,18 +153,19 @@
       .then(function (res) {
         if (!res.ok) return res.text().then(function (t) { throw new Error(t); });
         dirty = false;
-        toast('Saved slide ' + (D.state.index + 1));
+        pendingIndex = null;
+        saveState = 'saved';
+        updateStatus();
+        if (!quiet) toast('Saved slide ' + (index + 1));
       })
       .catch(function (err) {
+        saveState = 'error';
+        updateStatus();
         toast('Save failed: ' + err.message);
       });
   }
 
   /* ---- element operations ---- */
-
-  function elementSiblings(el) {
-    return Array.from(el.parentElement.children);
-  }
 
   function opDelete() {
     if (!selected) return;
@@ -139,7 +173,7 @@
     const el = selected;
     select(null);
     el.remove();
-    dirty = true;
+    markDirty();
     toast('Element deleted');
   }
 
@@ -149,50 +183,53 @@
     const copy = selected.cloneNode(true);
     copy.classList.remove('hs-selected');
     selected.after(copy);
-    dirty = true;
+    markDirty();
     select(copy);
   }
 
   function opMove(delta) {
     if (!selected) return;
-    const sibs = elementSiblings(selected);
+    const sibs = Array.from(selected.parentElement.children);
     const i = sibs.indexOf(selected);
     const j = i + delta;
     if (j < 0 || j >= sibs.length) return;
     pushSnapshot();
     if (delta < 0) sibs[j].before(selected);
     else sibs[j].after(selected);
-    dirty = true;
+    markDirty();
     buildPanel();
   }
 
-  /* ---- selection panel ---- */
-
-  const SPACING_PROPS = [
-    ['margin-top', 'm-top'],
-    ['margin-bottom', 'm-bottom'],
-    ['margin-left', 'm-left'],
-    ['margin-right', 'm-right'],
-    ['padding-top', 'p-top'],
-    ['padding-bottom', 'p-bottom']
-  ];
+  /* ---- panel helpers ---- */
 
   function describe(el) {
     let s = el.tagName.toLowerCase();
-    if (el.id) s += '#' + el.id;
-    else if (el.classList.length) {
-      s += '.' + Array.from(el.classList)
-        .filter(function (c) { return c !== 'hs-selected'; })
-        .slice(0, 2).join('.');
-    }
+    if (el.id) return s + '#' + el.id;
+    const classes = Array.from(el.classList)
+      .filter(function (c) {
+        return c !== 'hs-selected' && c !== 'is-active' && c !== 'is-visible';
+      })
+      .slice(0, 2);
+    if (classes.length) s += '.' + classes.join('.');
     return s;
   }
 
-  function row(labelText, value, min, max, oninput) {
-    const div = document.createElement('div');
-    div.className = 'hs-row';
-    const label = document.createElement('label');
-    label.textContent = labelText;
+  function h(tag, className, text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text != null) el.textContent = text;
+    return el;
+  }
+
+  function section(title) {
+    const s = h('div', 'hs-ep-section');
+    if (title) s.appendChild(h('h4', null, title));
+    return s;
+  }
+
+  function row(parent, labelText, prop, value, min, max, apply) {
+    const div = h('div', 'hs-row');
+    const label = h('label', null, labelText);
     const range = document.createElement('input');
     range.type = 'range';
     range.min = min;
@@ -202,101 +239,219 @@
     num.type = 'number';
     num.value = value;
     let pushed = false;
-    function apply(v) {
+    function set(v) {
       if (!pushed) { pushSnapshot(); pushed = true; }
       range.value = v;
       num.value = v;
-      oninput(Number(v));
-      dirty = true;
+      apply(Number(v));
+      markDirty();
     }
-    range.addEventListener('input', function () { apply(range.value); });
-    num.addEventListener('input', function () { if (num.value !== '') apply(num.value); });
-    div.append(label, range, num);
-    return div;
-  }
-
-  function actionButton(label, title, fn) {
-    const b = document.createElement('button');
-    b.textContent = label;
-    b.title = title;
-    b.addEventListener('click', fn);
-    return b;
+    range.addEventListener('input', function () { set(range.value); });
+    num.addEventListener('input', function () { if (num.value !== '') set(num.value); });
+    const reset = h('button', 'hs-reset', '✕');
+    reset.title = 'Remove the inline ' + (prop || labelText) + ' and fall back to the stylesheet';
+    reset.addEventListener('click', function () {
+      if (!selected || !prop) return;
+      pushSnapshot();
+      selected.style.removeProperty(prop);
+      markDirty();
+      buildPanel();
+    });
+    div.append(label, range, num, prop ? reset : h('span'));
+    parent.appendChild(div);
   }
 
   const MEDIA_TAGS = ['IMG', 'SVG', 'VIDEO', 'FIGURE', 'CANVAS'];
+  const TEXT_TAGS = 'p,h1,h2,h3,h4,h5,h6,li,td,th,figcaption,blockquote,dt,dd,code,span';
+  const UTILITY_CLASSES = ['em', 'muted', 'small', 'mono'];
 
   function buildPanel() {
     if (!editing) return;
+    const scrollTop = panel ? panel.scrollTop : 0;
     if (panel) panel.remove();
-    panel = document.createElement('div');
+    panel = h('div');
     panel.id = 'hs-editor-panel';
 
-    const h = document.createElement('h3');
-    h.textContent = 'Edit mode';
-    const tag = document.createElement('span');
-    tag.className = 'hs-target-tag';
-    tag.textContent = selected ? describe(selected) : 'no selection';
-    h.appendChild(tag);
-    panel.appendChild(h);
+    /* header */
+    const head = h('div', 'hs-ep-head');
+    head.appendChild(h('span', 'hs-ep-title',
+      'SLIDE ' + (D.state.index + 1) + ' / ' + D.state.total));
+    statusEl = h('span', 'hs-ep-status');
+    head.appendChild(statusEl);
+    panel.appendChild(head);
+    saveState = dirty ? saveState : 'saved';
+    updateStatus();
 
     if (selected) {
       const cs = getComputedStyle(selected);
 
-      const ops = document.createElement('div');
-      ops.className = 'hs-actions';
-      ops.append(
-        actionButton('↑', 'Move before previous sibling', function () { opMove(-1); }),
-        actionButton('↓', 'Move after next sibling', function () { opMove(1); }),
-        actionButton('⧉', 'Duplicate element', opDuplicate),
-        actionButton('🗑', 'Delete element', opDelete)
-      );
-      panel.appendChild(ops);
+      /* element section: breadcrumb, size, ops */
+      const elSec = section('ELEMENT');
+      const crumb = h('div', 'hs-breadcrumb');
+      const chain = [];
+      for (let el = selected; el && !el.classList.contains('slide'); el = el.parentElement) {
+        chain.unshift(el);
+      }
+      chain.forEach(function (el) {
+        const b = h('button', el === selected ? 'is-current' : null, describe(el));
+        b.title = 'Select ' + describe(el);
+        b.addEventListener('click', function () { select(el); });
+        crumb.appendChild(b);
+      });
+      elSec.appendChild(crumb);
+      const box = selected.getBoundingClientRect();
+      const scale = deck.getBoundingClientRect().width / 1920 || 1;
+      elSec.appendChild(h('div', 'hs-ep-meta',
+        Math.round(box.width / scale) + ' × ' + Math.round(box.height / scale) + ' px'));
 
-      panel.appendChild(row('font-size', Math.round(parseFloat(cs.fontSize)), 8, 160,
-        function (v) { selected.style.fontSize = v + 'px'; }));
+      const ops = h('div', 'hs-actions');
+      [['↑', 'Move before previous sibling', function () { opMove(-1); }],
+       ['↓', 'Move after next sibling', function () { opMove(1); }],
+       ['⧉', 'Duplicate', opDuplicate],
+       ['🗑', 'Delete (Backspace)', opDelete]
+      ].forEach(function (def) {
+        const b = h('button', null, def[0]);
+        b.title = def[1];
+        b.addEventListener('click', def[2]);
+        ops.appendChild(b);
+      });
+      elSec.appendChild(ops);
+
+      /* utility class chips */
+      const chips = h('div', 'hs-chips');
+      chips.style.marginTop = '10px';
+      UTILITY_CLASSES.forEach(function (cls) {
+        const chip = h('button',
+          'hs-chip' + (selected.classList.contains(cls) ? ' is-on' : ''), '.' + cls);
+        chip.addEventListener('click', function () {
+          pushSnapshot();
+          selected.classList.toggle(cls);
+          if (!selected.classList.length) selected.removeAttribute('class');
+          markDirty();
+          buildPanel();
+        });
+        chips.appendChild(chip);
+      });
+      elSec.appendChild(chips);
+      panel.appendChild(elSec);
+
+      /* text section */
+      const textSec = section('TEXT');
+      row(textSec, 'size', 'font-size', Math.round(parseFloat(cs.fontSize)), 8, 160,
+        function (v) { selected.style.fontSize = v + 'px'; });
+      const seg = h('div', 'hs-seg');
+      [['⟸', 'left'], ['⇔', 'center'], ['⟹', 'right']].forEach(function (def) {
+        const b = h('button',
+          cs.textAlign === def[1] ? 'is-on' : null, def[0]);
+        b.title = 'text-align: ' + def[1];
+        b.addEventListener('click', function () {
+          pushSnapshot();
+          selected.style.textAlign = def[1];
+          markDirty();
+          buildPanel();
+        });
+        seg.appendChild(b);
+      });
+      textSec.appendChild(seg);
+      panel.appendChild(textSec);
+
+      /* box section */
+      const boxSec = section('BOX');
       if (cs.display.includes('flex') || cs.display.includes('grid')) {
-        panel.appendChild(row('gap', Math.round(parseFloat(cs.gap) || 0), 0, 200,
-          function (v) { selected.style.gap = v + 'px'; }));
+        row(boxSec, 'gap', 'gap', Math.round(parseFloat(cs.gap) || 0), 0, 200,
+          function (v) { selected.style.gap = v + 'px'; });
       }
       if (MEDIA_TAGS.includes(selected.tagName)) {
         const parentW = selected.parentElement.getBoundingClientRect().width || 1;
-        const pct = Math.round(selected.getBoundingClientRect().width / parentW * 100);
-        panel.appendChild(row('width %', Math.min(pct, 100), 5, 100,
-          function (v) { selected.style.width = v + '%'; }));
+        const pct = Math.round(box.width / parentW * 100);
+        row(boxSec, 'width %', 'width', Math.min(pct, 100), 5, 100,
+          function (v) { selected.style.width = v + '%'; });
       }
-      SPACING_PROPS.forEach(function (pair) {
-        const prop = pair[0], label = pair[1];
-        const current = Math.round(parseFloat(cs.getPropertyValue(prop)) || 0);
-        panel.appendChild(row(label, current, -100, 300, function (v) {
-          selected.style.setProperty(prop, v + 'px');
-        }));
+      [['m-top', 'margin-top'], ['m-bottom', 'margin-bottom'],
+       ['m-left', 'margin-left'], ['m-right', 'margin-right'],
+       ['p-top', 'padding-top'], ['p-bottom', 'padding-bottom']
+      ].forEach(function (pair) {
+        const current = Math.round(parseFloat(cs.getPropertyValue(pair[1])) || 0);
+        row(boxSec, pair[0], pair[1], current, -100, 300, function (v) {
+          selected.style.setProperty(pair[1], v + 'px');
+        });
       });
-      const hint = document.createElement('p');
-      hint.className = 'hs-hint';
-      hint.textContent = 'Drag the element to nudge its margins. Double-click text to edit it.';
+      const clearBtn = h('button', null, 'Clear inline styles');
+      clearBtn.style.cssText = 'width:100%;margin:4px 0 10px;padding:5px 0;border:1px solid #2c2f37;border-radius:6px;background:#1f222a;color:#9aa0ab;cursor:pointer;font-size:11.5px;';
+      clearBtn.addEventListener('click', function () {
+        pushSnapshot();
+        selected.removeAttribute('style');
+        markDirty();
+        buildPanel();
+      });
+      boxSec.appendChild(clearBtn);
+      panel.appendChild(boxSec);
+
+      const hint = section();
+      hint.appendChild(h('p', 'hs-hint',
+        'Drag the element or use arrow keys (Shift = 10px) to nudge. Double-click text to rewrite it.'));
       panel.appendChild(hint);
     } else {
-      const hint = document.createElement('p');
-      hint.className = 'hs-hint';
-      hint.textContent = 'Click an element to adjust it, double-click text to rewrite it. ⌘Z undoes, ⌘S saves to source.';
-      panel.appendChild(hint);
+      const empty = section();
+      empty.appendChild(h('p', 'hs-hint',
+        'Click any element on the slide to inspect it. Double-click text to rewrite it. ⌘Z undoes. Slides are managed in the overview (o / ▦).'));
+      panel.appendChild(empty);
     }
 
-    const actions = document.createElement('div');
-    actions.className = 'hs-actions';
-    const undoBtn = actionButton('↩ Undo', 'Cmd+Z', undo);
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'hs-primary';
-    saveBtn.textContent = 'Save (⌘S)';
-    saveBtn.addEventListener('click', save);
-    const revertBtn = actionButton('Revert', 'Reload from source', function () {
+    /* footer */
+    const foot = h('div', 'hs-ep-footer');
+
+    const autosaveLabel = h('label', 'hs-autosave');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = autosave;
+    cb.addEventListener('change', function () {
+      autosave = cb.checked;
+      try { localStorage.setItem('hs-autosave', autosave ? '1' : '0'); } catch (_) {}
+      if (autosave && dirty) save(true);
+      updateStatus();
+    });
+    autosaveLabel.append(cb, document.createTextNode('Autosave to source'));
+    foot.appendChild(autosaveLabel);
+
+    const histRow = h('div', 'hs-actions');
+    const undoBtn = h('button', null, '↩ Undo');
+    undoBtn.title = '⌘Z';
+    undoBtn.addEventListener('click', undo);
+    const redoBtn = h('button', null, '↪ Redo');
+    redoBtn.title = '⇧⌘Z';
+    redoBtn.addEventListener('click', redo);
+    histRow.append(undoBtn, redoBtn);
+    foot.appendChild(histRow);
+
+    const saveRow = h('div', 'hs-actions');
+    const saveBtn = h('button', null, 'Save now');
+    saveBtn.title = '⌘S';
+    saveBtn.addEventListener('click', function () { save(false); });
+    const revertBtn = h('button', null, 'Revert');
+    revertBtn.title = 'Reload from source';
+    revertBtn.addEventListener('click', function () {
       dirty = false;
       location.reload();
     });
-    actions.append(undoBtn, saveBtn, revertBtn);
-    panel.appendChild(actions);
+    saveRow.append(saveBtn, revertBtn);
+    foot.appendChild(saveRow);
 
+    const presentBtn = h('button', 'hs-primary', '▶ Present');
+    presentBtn.title = 'Leave edit mode and go fullscreen (e toggles back)';
+    presentBtn.addEventListener('click', function () {
+      exit();
+      /* survive a reload as presentation mode */
+      const params = new URLSearchParams(location.search);
+      params.set('present', '1');
+      history.replaceState(null, '', location.pathname + '?' + params.toString());
+      document.documentElement.requestFullscreen().catch(function () {});
+    });
+    foot.appendChild(presentBtn);
+
+    panel.appendChild(foot);
     document.body.appendChild(panel);
+    panel.scrollTop = scrollTop;
   }
 
   /* ---- selection / text editing ---- */
@@ -312,10 +467,8 @@
     if (!editingText) return;
     editingText.removeAttribute('contenteditable');
     editingText = null;
-    if (!skipDirty) dirty = true;
+    if (!skipDirty) markDirty();
   }
-
-  const TEXT_TAGS = 'p,h1,h2,h3,h4,h5,h6,li,td,th,figcaption,blockquote,dt,dd,code,span';
 
   /* ---- drag-to-nudge margins ---- */
 
@@ -348,7 +501,7 @@
     if (!drag.moved) { pushSnapshot(); drag.moved = true; }
     selected.style.marginLeft = Math.round(drag.ml + dx) + 'px';
     selected.style.marginTop = Math.round(drag.mt + dy) + 'px';
-    dirty = true;
+    markDirty();
   }
 
   function onPointerUp() {
@@ -356,11 +509,32 @@
     drag.active = false;
   }
 
+  function nudge(prop, delta) {
+    const cs = getComputedStyle(selected);
+    const current = parseFloat(cs.getPropertyValue(prop)) || 0;
+    pushOnceForNudge();
+    selected.style.setProperty(prop, Math.round(current + delta) + 'px');
+    markDirty();
+  }
+
+  /* Coalesce a run of arrow-key nudges into one undo step. */
+  let nudgeTimer = null;
+  let nudgePushed = false;
+  function pushOnceForNudge() {
+    if (!nudgePushed) { pushSnapshot(); nudgePushed = true; }
+    clearTimeout(nudgeTimer);
+    nudgeTimer = setTimeout(function () {
+      nudgePushed = false;
+      buildPanel();
+    }, 600);
+  }
+
   /* ---- pointer routing ---- */
 
   function onClick(e) {
     if (!editing) return;
-    if (e.target.closest('#hs-editor-panel')) return;
+    if (e.target.closest('#hs-editor-panel') || e.target.closest('#hs-toolbar') ||
+        e.target.closest('#hs-gallery')) return;
     if (editingText && editingText.contains(e.target)) return;
     if (drag.moved) { drag.moved = false; return; }
     endTextEdit();
@@ -369,7 +543,7 @@
     if (el && slide.contains(el) && !el.classList.contains('slide-number')) {
       e.preventDefault();
       e.stopPropagation();
-      select(el === selected ? selected : el);
+      select(el);
     } else {
       select(null);
     }
@@ -387,16 +561,23 @@
     endTextEdit();
     editingText = el;
     el.setAttribute('contenteditable', 'true');
+    el.addEventListener('input', markDirty);
     el.focus();
   }
 
   /* ---- mode toggle ---- */
 
   function enter() {
+    if (editing) return;
     editing = true;
     document.body.dataset.editing = '1';
+    const params = new URLSearchParams(location.search);
+    if (params.has('present')) {
+      params.delete('present');
+      history.replaceState(null, '', location.pathname + '?' + params.toString());
+    }
+    D.rescale();
     buildPanel();
-    toast('Edit mode — click to select, drag to nudge, double-click to edit text');
   }
 
   function exit() {
@@ -404,15 +585,18 @@
     select(null);
     editing = false;
     delete document.body.dataset.editing;
-    if (panel) { panel.remove(); panel = null; }
-    if (dirty) toast('Left edit mode — unsaved changes (press e, then Save)');
+    if (panel) { panel.remove(); panel = null; statusEl = null; }
+    D.rescale();
+    if (dirty && !autosave) toast('Unsaved changes — press e, then Save');
   }
+
+  /* ---- keyboard ---- */
 
   addEventListener('keydown', function (e) {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && editing) {
       e.preventDefault();
       endTextEdit();
-      save();
+      save(false);
       return;
     }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && editing &&
@@ -427,13 +611,26 @@
     }
     if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+    /* arrow-key nudging beats slide navigation while a selection exists */
+    if (editing && selected && /^Arrow/.test(e.key)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const step = e.shiftKey ? 10 : 1;
+      if (e.key === 'ArrowLeft') nudge('margin-left', -step);
+      if (e.key === 'ArrowRight') nudge('margin-left', step);
+      if (e.key === 'ArrowUp') nudge('margin-top', -step);
+      if (e.key === 'ArrowDown') nudge('margin-top', step);
+      return;
+    }
+
     if (e.key === 'e') { editing ? exit() : enter(); }
-    else if (e.key === 'Backspace' && editing && selected) { opDelete(); }
+    else if (e.key === 'Backspace' && editing && selected) { e.preventDefault(); opDelete(); }
     else if (e.key === 'Escape' && editing) {
       if (selected) select(null);
       else exit();
     }
-  });
+  }, true);
 
   addEventListener('click', onClick, true);
   addEventListener('dblclick', onDblClick, true);
@@ -442,8 +639,33 @@
   addEventListener('pointerup', onPointerUp, true);
 
   addEventListener('beforeunload', function (e) {
-    if (dirty) e.preventDefault();
+    if (dirty && !autosave) e.preventDefault();
   });
+
+  /* On slide change: flush pending edits from the slide we left, drop
+   * a selection that no longer lives on the active slide, and keep the
+   * header's counter honest. */
+  D.on('change', function () {
+    if (!editing) return;
+    if (dirty && autosave && pendingIndex != null && pendingIndex !== D.state.index) {
+      save(true);
+    }
+    if (selected && !D.slides[D.state.index].contains(selected)) select(null);
+    else buildPanel();
+  });
+
+  /* ---- default mode ---- */
+
+  if (window.HSServer) {
+    window.HSServer.then(function (info) {
+      const params = new URLSearchParams(location.search);
+      if (info && info.ok &&
+          !params.has('present') && !params.has('capture') &&
+          location.hash !== '#overview') {
+        enter();
+      }
+    });
+  }
 
   window.HSEditor = {
     toggle: function () { editing ? exit() : enter(); },

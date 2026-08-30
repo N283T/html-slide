@@ -67,6 +67,7 @@
   if (window.HSServer) {
     window.HSServer.then(function (info) {
       if (!info || !info.ok) return;
+      refresh(); /* editor may have auto-entered edit mode by now */
       sep();
       button('＋ Slide', 'Insert a new slide after this one', function () {
         if (window.HSGallery) window.HSGallery(D.state.index);

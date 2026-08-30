@@ -48,21 +48,29 @@ of captures and prints.
 
 ## Edit mode
 
-Press `e` while the dev server is running:
+**Edit is the default whenever the dev server is running** — open the
+deck and start clicking. `▶ Present` (or `e`) switches to presentation
+mode and goes fullscreen; `?present=1` in the URL, a static host, or an
+export keeps the deck presentational. A docked inspector sits on the
+right:
 
-- **Click** an element → a panel appears with sliders for font-size,
-  gap, width (for media), margins and padding, plus buttons to
-  duplicate, delete and reorder the element among its siblings.
-- **Drag** a selected element → nudges its margins, scale-aware.
+- **Click** an element → inspect it; the **breadcrumb** picks any
+  ancestor. Sliders cover font-size, gap, width (media), margins and
+  padding — each with a ✕ that falls back to the stylesheet. Buttons
+  duplicate, delete and reorder the element; chips toggle the utility
+  classes (`.em`, `.muted`, `.small`, `.mono`); ⟸⇔⟹ set text-align.
+- **Drag** a selected element, or press **arrow keys** (Shift = 10px),
+  to nudge its margins — canvas-scale aware.
 - **Double-click** text → edit it in place. `Esc` or click away to finish.
 - **⌘Z / ⇧⌘Z** → undo / redo, one step per gesture.
-- **Save (⌘S)** → the active slide's markup is written back into the
-  source file. Live reload is suppressed for your own save, so you keep
-  your place; other connected browsers pick the change up.
-- **Revert** reloads the page, discarding unsaved changes.
+- **Autosave** (on by default) writes the slide back to the source
+  ~1s after you stop tweaking, and flushes when you change slides;
+  toggle it off for explicit **Save now / ⌘S**. Live reload is
+  suppressed for your own saves, so you keep your place.
 
-Because adjustments land as inline styles in the source, a human tweak
-and a Claude edit are the same kind of change — no hidden state.
+Because adjustments land as inline styles and classes in the source, a
+human tweak and a Claude edit are the same kind of change — no hidden
+state.
 
 ## Slide manager
 

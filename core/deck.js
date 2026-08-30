@@ -47,8 +47,12 @@
 
   function rescale() {
     if (state.mode === 'overview') return;
-    const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
-    const x = (innerWidth - 1920 * scale) / 2;
+    /* Edit mode docks a 300px inspector on the right; the canvas
+     * centers itself in what is left. */
+    const sidebar = document.body.dataset.editing ? 300 : 0;
+    const availW = innerWidth - sidebar;
+    const scale = Math.min(availW / 1920, innerHeight / 1080);
+    const x = (availW - 1920 * scale) / 2;
     const y = (innerHeight - 1080 * scale) / 2;
     deck.style.transform =
       'translate(' + x + 'px,' + y + 'px) scale(' + scale + ')';
