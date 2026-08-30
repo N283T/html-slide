@@ -63,9 +63,12 @@
   /* ---- URL sync ---- */
 
   function syncUrl(replace) {
-    const params = new URLSearchParams();
+    /* Only own the s/f params — present/capture and anything else
+     * belong to other modules and must survive navigation. */
+    const params = new URLSearchParams(location.search);
     params.set('s', state.index + 1);
     if (state.fragmentStep) params.set('f', state.fragmentStep);
+    else params.delete('f');
     /* Keep the hash — overview restore (#overview) rides on it. */
     const url = location.pathname + '?' + params.toString() + location.hash;
     if (replace) history.replaceState(null, '', url);

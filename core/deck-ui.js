@@ -97,23 +97,41 @@
 
   document.body.appendChild(bar);
 
-  /* ---- show on activity, hide when idle ---- */
+  /* ---- show on activity, hide when idle ----
+   * While editing, any mouse movement reveals the bar. While
+   * presenting, only the bottom edge does — the audience should never
+   * see it unless the presenter reaches for it. */
 
   let hideTimer = null;
-  function poke() {
+
+  function show() {
     bar.classList.add('is-visible');
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function () {
-      if (bar.matches(':hover')) { poke(); return; }
-      bar.classList.remove('is-visible');
-    }, 2500);
+      if (bar.matches(':hover')) { show(); return; }
+      hide();
+    }, 2000);
   }
 
-  addEventListener('mousemove', poke);
-  addEventListener('keydown', function () {
-    /* keep it out of the way while presenting from the keyboard */
+  function hide() {
     bar.classList.remove('is-visible');
     clearTimeout(hideTimer);
+  }
+
+  addEventListener('mousemove', function (e) {
+    const editingNow = window.HSEditor && window.HSEditor.isEditing();
+    const nearBottom = e.clientY > innerHeight - 130;
+    if (editingNow || nearBottom) show();
   });
-  poke();
+
+  addEventListener('keydown', function () {
+    /* keep it out of the way while presenting from the keyboard */
+    hide();
+  });
+
+  /* going (or leaving) fullscreen means a mode switch — start hidden */
+  addEventListener('fullscreenchange', hide);
+
+  /* visible once at load so the controls are discoverable */
+  show();
 })();
