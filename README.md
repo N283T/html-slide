@@ -40,6 +40,7 @@ node cli/html-slide.js dev .
 | `f` | fullscreen |
 | `e` | **edit mode** (needs the dev server) |
 | `p` | pen — draw on the slide (`c` clears; strokes vanish on slide change) |
+| `m` | toggle the toolbar (stays until dismissed; the mouse never summons it while presenting) |
 | `Home` / `End` | first / last slide |
 
 A floating toolbar (move the mouse to reveal it) mirrors all of this,

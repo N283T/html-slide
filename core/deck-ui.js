@@ -97,16 +97,20 @@
 
   document.body.appendChild(bar);
 
-  /* ---- show on activity, hide when idle ----
-   * While editing, any mouse movement reveals the bar. While
-   * presenting, only the bottom edge does — the audience should never
-   * see it unless the presenter reaches for it. */
+  /* ---- visibility ----
+   * While editing, any mouse movement reveals the bar (idle-hidden
+   * after 2s). While presenting, the mouse never summons it — `m`
+   * toggles it and it stays until dismissed (m / Esc / any other
+   * key), so it can't photobomb the projector. */
 
   let hideTimer = null;
+  let sticky = false;
 
-  function show() {
+  function show(stick) {
+    sticky = !!stick;
     bar.classList.add('is-visible');
     clearTimeout(hideTimer);
+    if (sticky) return;
     hideTimer = setTimeout(function () {
       if (bar.matches(':hover')) { show(); return; }
       hide();
@@ -114,18 +118,27 @@
   }
 
   function hide() {
+    sticky = false;
     bar.classList.remove('is-visible');
     clearTimeout(hideTimer);
   }
 
-  addEventListener('mousemove', function (e) {
-    const editingNow = window.HSEditor && window.HSEditor.isEditing();
-    const nearBottom = e.clientY > innerHeight - 130;
-    if (editingNow || nearBottom) show();
+  function isVisible() {
+    return bar.classList.contains('is-visible');
+  }
+
+  addEventListener('mousemove', function () {
+    if (window.HSEditor && window.HSEditor.isEditing()) show();
   });
 
-  addEventListener('keydown', function () {
-    /* keep it out of the way while presenting from the keyboard */
+  addEventListener('keydown', function (e) {
+    if (e.target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'm') {
+      isVisible() ? hide() : show(true);
+      return;
+    }
+    /* any other key puts it away while presenting from the keyboard */
     hide();
   });
 
