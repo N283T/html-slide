@@ -107,9 +107,27 @@
     el('current-title').textContent = msg.title || '';
     el('next-title').textContent = msg.nextTitle || '— 最後のスライド —';
     el('notes').innerHTML = msg.notes || '<em>このスライドにノートはありません。</em>';
+    const bar = document.querySelector('#progress > div');
+    if (bar) bar.style.width = ((msg.index + 1) / msg.total * 100) + '%';
     renderList();
     markCurrentTile();
   };
+
+  /* ---- notes font size (persisted) ---- */
+
+  let notesSize = 19;
+  try { notesSize = Number(localStorage.getItem('hs-notes-size')) || 19; } catch (_) {}
+
+  function applyNotesSize(delta) {
+    notesSize = Math.max(14, Math.min(34, notesSize + (delta || 0)));
+    el('notes').style.fontSize = notesSize + 'px';
+    try { localStorage.setItem('hs-notes-size', String(notesSize)); } catch (_) {}
+  }
+  applyNotesSize(0);
+  el('btn-notes-minus').addEventListener('click', function () { applyNotesSize(-2); });
+  el('btn-notes-plus').addEventListener('click', function () { applyNotesSize(2); });
+
+  el('btn-reset').addEventListener('click', function () { startedAt = Date.now(); });
 
   /* ---- controls ---- */
 
