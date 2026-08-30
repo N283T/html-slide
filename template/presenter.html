@@ -111,74 +111,91 @@
   }
   kbd { background: #262a32; border-radius: 4px; padding: 1px 6px; font-size: 12px; }
 
-  /* ---- control row ----
-   * Equal-height row, found by position at a lectern. 次へ is the one
-   * filled button — the one pressed most — with 前へ joined to it as
-   * an outlined pair. Utility buttons sit left, quieter. */
+  /* ---- control bar ----
+   * A centered, content-sized bar: buttons keep a hittable fixed size
+   * at any window width instead of stretching into slabs. 次へ is the
+   * one filled button; everything else stays quiet. */
   footer.controls {
     grid-column: 1 / -1;
     display: flex;
-    align-items: stretch;
-    gap: 10px;
-    padding: 14px 18px 16px;
-    background: linear-gradient(180deg, #14161b, #0d0f13);
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px 14px;
+    background: #0d0f13;
     border-top: 1px solid var(--line);
   }
   .controls button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
+    gap: 8px;
+    height: 46px;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 11px;
     background: var(--panel-2);
     color: var(--fg);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    padding: 15px 0;
     transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
   }
-  .controls button:active { transform: scale(0.97); }
-  .controls svg { width: 17px; height: 17px; fill: currentColor; flex: none; }
+  .controls button:active { transform: scale(0.96); }
+  .controls svg { width: 16px; height: 16px; fill: currentColor; flex: none; }
 
-  .controls .jump { flex: 0 0 76px; color: var(--muted); }
+  .controls .jump { width: 48px; color: var(--muted); }
   .controls .jump:hover { color: var(--fg); border-color: #3a4050; }
 
   .controls #btn-overview {
-    flex: 1;
+    padding: 0 22px;
     color: var(--teal);
-    border-color: #234b44;
-    background: rgba(79, 214, 194, 0.06);
+    background: transparent;
+    border-color: var(--line);
+    margin-right: 18px;
   }
   .controls #btn-overview:hover { border-color: var(--teal); }
-  .controls #btn-overview.is-on { background: rgba(79, 214, 194, 0.16); border-color: var(--teal); }
+  .controls #btn-overview.is-on { background: rgba(79, 214, 194, 0.12); border-color: var(--teal); }
 
-  .controls .pair {
-    flex: 2.6;
-    display: flex;
-    gap: 0;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .controls .pair button { border-radius: 0; }
   .controls #btn-prev {
-    flex: 1;
+    padding: 0 28px;
     color: var(--accent);
-    border: 1px solid var(--accent-deep);
-    border-right: none;
-    background: rgba(255, 138, 61, 0.07);
+    background: transparent;
   }
-  .controls #btn-prev:hover { background: rgba(255, 138, 61, 0.15); }
+  .controls #btn-prev:hover { border-color: var(--accent-deep); background: rgba(255, 138, 61, 0.06); }
   .controls #btn-next {
-    flex: 1.7;
-    font-size: 18px;
-    border: none;
-    background: linear-gradient(135deg, #e07a1f, var(--accent-deep));
+    padding: 0 52px;
+    font-size: 16px;
+    border-color: var(--accent-deep);
+    background: var(--accent-deep);
     color: #fff;
-    box-shadow: 0 4px 18px rgba(224, 122, 31, 0.25);
   }
-  .controls #btn-next:hover { filter: brightness(1.1); }
+  .controls #btn-next:hover { background: #d96f1a; border-color: #d96f1a; }
+
+  /* ---- next-slide preview ---- */
+  #next-preview { padding: 16px 22px 6px; }
+  #next-preview .np-label {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  #np-frame {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--panel-2);
+  }
+  #np-frame img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+  #np-frame .np-ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16/9;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 16px;
+    text-align: center;
+  }
 
   /* ---- slide overview overlay ---- */
   #overview {
@@ -243,7 +260,13 @@
   </div>
   <div id="notes"><em>デッキ待機中… 別ウィンドウでスライドを開いてください。</em></div>
 </main>
-<nav><ul id="list"></ul></nav>
+<nav>
+  <div id="next-preview">
+    <div class="np-label">次のスライド</div>
+    <div id="np-frame"></div>
+  </div>
+  <ul id="list"></ul>
+</nav>
 <footer class="controls">
   <button id="btn-first" class="jump" title="先頭へ (Home)">
     <svg viewBox="0 0 16 16"><path d="M2 2h2v12H2zM14 2v12L5.5 8z"/></svg>
@@ -255,10 +278,8 @@
     <svg viewBox="0 0 16 16"><path d="M1 1h4v4H1zM6 1h4v4H6zM11 1h4v4h-4zM1 6h4v4H1zM6 6h4v4H6zM11 6h4v4h-4zM1 11h4v4H1zM6 11h4v4H6zM11 11h4v4h-4z"/></svg>
     一覧
   </button>
-  <div class="pair">
-    <button id="btn-prev" title="前へ (←)">← 前へ</button>
-    <button id="btn-next" title="次へ (→ / Space)">次へ →</button>
-  </div>
+  <button id="btn-prev" title="前へ (←)">← 前へ</button>
+  <button id="btn-next" title="次へ (→ / Space)">次へ →</button>
 </footer>
 <div id="overview" hidden>
   <p class="ov-hint">クリックでそのスライドへ。画像は <code>html-slide capture</code> の出力（slide-captures/）を使い、無ければ番号タイルで代用します。<kbd>o</kbd> / <kbd>Esc</kbd> で閉じる</p>

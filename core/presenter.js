@@ -109,9 +109,38 @@
     el('notes').innerHTML = msg.notes || '<em>このスライドにノートはありません。</em>';
     const bar = document.querySelector('#progress > div');
     if (bar) bar.style.width = ((msg.index + 1) / msg.total * 100) + '%';
+    renderNextPreview(msg);
     renderList();
     markCurrentTile();
   };
+
+  /* ---- next-slide preview (uses capture PNGs like the overview) ---- */
+
+  const previewBust = '?t=' + Date.now();
+
+  function renderNextPreview(msg) {
+    const frame = document.getElementById('np-frame');
+    if (!frame) return;
+    frame.innerHTML = '';
+    const next = msg.index + 1;
+    if (next >= msg.total) {
+      const ph = document.createElement('div');
+      ph.className = 'np-ph';
+      ph.textContent = '— 最後のスライド —';
+      frame.appendChild(ph);
+      return;
+    }
+    const img = document.createElement('img');
+    img.src = 'slide-captures/slide-' + String(next + 1).padStart(2, '0') + '.png' + previewBust;
+    img.alt = '';
+    img.addEventListener('error', function () {
+      const ph = document.createElement('div');
+      ph.className = 'np-ph';
+      ph.textContent = (next + 1) + ' · ' + (msg.nextTitle || '');
+      img.replaceWith(ph);
+    });
+    frame.appendChild(img);
+  }
 
   /* ---- notes font size (persisted) ---- */
 
