@@ -10,14 +10,19 @@
    * speaker: how long the talk has been running, the notes at a
    * readable size, and the name of whatever comes next.
    * (Layout carried over from the openadmet-pxr-slides presenter.) */
+  /* pxr-slides layout, html-slide chrome colors (same palette as the
+   * editor sidebar and toolbar: dark panels, orange primary, teal
+   * secondary). --blue keeps its name from the original stylesheet
+   * but carries the primary accent. */
   :root {
-    --bg: #fbf7f2;
-    --surface: #ffffff;
-    --ink: #3a4257;
-    --muted: #6b7488;
-    --line: #e7e0d6;
-    --blue: #5b7bb0;
-    --teal: #7ac4b8;
+    --bg: #101216;
+    --surface: #17191e;
+    --btn: #1f222a;
+    --ink: #e8eaef;
+    --muted: #8b93a3;
+    --line: #262a32;
+    --blue: #cc6a00;
+    --teal: #4fd6c2;
     --font-display: "Outfit", system-ui, sans-serif;
     --font-body: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -62,7 +67,7 @@
   button {
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: var(--bg);
+    background: var(--btn);
     color: var(--ink);
     font-family: var(--font-display);
     cursor: pointer;
@@ -70,7 +75,7 @@
   button:hover:not(:disabled) { border-color: var(--blue); }
   button:disabled { opacity: 0.35; cursor: default; }
   kbd {
-    background: var(--bg);
+    background: var(--btn);
     border: 1px solid var(--line);
     border-radius: 4px;
     padding: 0 5px;
@@ -105,7 +110,7 @@
     height: 8px;
     border: 1px solid var(--line);
     border-radius: 4px;
-    background: var(--bg);
+    background: var(--btn);
     overflow: hidden;
   }
   .progress__fill {
@@ -137,7 +142,7 @@
     align-items: flex-end;
     gap: 10px;
   }
-  #elapsed { font-family: var(--font-mono); font-size: 3rem; line-height: 1; }
+  #elapsed { font-family: var(--font-mono); font-size: 3rem; line-height: 1; color: var(--teal); }
   .clockrow {
     font-family: var(--font-mono);
     font-size: 0.95rem;
@@ -192,8 +197,8 @@
     text-align: left;
     font-size: 0.95rem;
   }
-  .outline button:hover:not(.is-current) { background: var(--bg); }
-  .outline button.is-current { background: var(--blue); color: var(--surface); }
+  .outline button:hover:not(.is-current) { background: var(--btn); }
+  .outline button.is-current { background: var(--blue); color: #fff; }
   .outline__num {
     flex: 0 0 2.2em;
     text-align: right;
@@ -201,7 +206,7 @@
     font-size: 0.85em;
     color: var(--muted);
   }
-  .outline button.is-current .outline__num { color: var(--surface); }
+  .outline button.is-current .outline__num { color: rgba(255, 255, 255, 0.75); }
   .outline__label {
     min-width: 0;
     overflow: hidden;
@@ -234,13 +239,13 @@
   .controls > button.is-next {
     background: var(--blue);
     border-color: var(--blue);
-    color: var(--surface);
+    color: #fff;
   }
-  .controls > button.is-next:hover:not(:disabled) { filter: brightness(0.92); }
-  .controls > button.is-prev { border-color: var(--blue); color: var(--blue); }
-  .controls > button.is-prev:hover:not(:disabled) { background: var(--surface); }
+  .controls > button.is-next:hover:not(:disabled) { filter: brightness(1.12); }
+  .controls > button.is-prev { border-color: var(--blue); color: #ff9d42; }
+  .controls > button.is-prev:hover:not(:disabled) { background: rgba(204, 106, 0, 0.12); }
   .controls > button.is-overview { border-color: var(--teal); }
-  .controls > button.is-overview:hover:not(:disabled) { background: var(--surface); }
+  .controls > button.is-overview:hover:not(:disabled) { background: rgba(79, 214, 194, 0.1); }
   .controls > button.is-overview .btn-icon { fill: var(--teal); }
   .btn-icon { flex: 0 0 auto; width: 1em; height: 1em; fill: currentColor; }
 
@@ -293,7 +298,7 @@
     aspect-ratio: 16 / 9;
     object-fit: cover;
     border-radius: 4px;
-    background: var(--bg);
+    background: var(--btn);
   }
   .thumb.is-missing img { display: none; }
   .thumb__missing {
@@ -302,7 +307,7 @@
     justify-content: center;
     aspect-ratio: 16 / 9;
     border-radius: 4px;
-    background: var(--bg);
+    background: var(--btn);
     color: var(--muted);
     font-family: var(--font-mono);
     font-size: 0.8rem;
