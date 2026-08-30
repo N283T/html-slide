@@ -76,11 +76,21 @@ function render(cmd, args, outFile, timeoutMs = 60000) {
 }
 
 async function withServer(root, fn) {
+  /* A deck that references assets one level up (e.g. this repo's
+   * template/ pointing at ../core/) must be served from its parent,
+   * or every stylesheet 404s and the captures come out unstyled. */
+  root = path.resolve(root);
+  let urlPath = '/';
+  const source = await fs.readFile(path.join(root, 'index.html'), 'utf8');
+  if (/(?:href|src)="\.\.\//.test(source)) {
+    urlPath = '/' + path.basename(root) + '/';
+    root = path.dirname(root);
+  }
   const server = startDevServer({ root, port: 0, quiet: true });
   await new Promise((resolve) => server.on('listening', resolve));
   const port = server.address().port;
   try {
-    return await fn('http://127.0.0.1:' + port + '/');
+    return await fn('http://127.0.0.1:' + port + urlPath);
   } finally {
     server.close();
     /* SSE clients hold the server open; force-exit any leftovers. */

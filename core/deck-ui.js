@@ -55,6 +55,28 @@
     else document.documentElement.requestFullscreen();
   });
 
+  /* ---- edge-click navigation (presentation mode only) ---- */
+
+  let edgeNav = true;
+  try { edgeNav = localStorage.getItem('hs-edge-nav') !== '0'; } catch (_) {}
+
+  const edgeBtn = button('⇄ 端クリック', '発表モードで画面の左右端クリックによるスライド送りを有効化', function (b) {
+    edgeNav = !edgeNav;
+    try { localStorage.setItem('hs-edge-nav', edgeNav ? '1' : '0'); } catch (_) {}
+    b.classList.toggle('is-on', edgeNav);
+  });
+  edgeBtn.classList.toggle('is-on', edgeNav);
+
+  addEventListener('click', function (e) {
+    if (!edgeNav) return;
+    if (window.HSEditor && window.HSEditor.isEditing()) return;
+    if (document.body.dataset.mode) return;                    /* overview */
+    if (e.target.closest('#hs-toolbar, #hs-editor-panel, #hs-gallery, a, button, canvas')) return;
+    const x = e.clientX / innerWidth;
+    if (x < 0.15) D.prev();
+    else if (x > 0.85) D.next();
+  });
+
   function refresh() {
     counter.textContent = (D.state.index + 1) + ' / ' + D.state.total;
     if (window.HSEditor) editBtn.classList.toggle('is-on', window.HSEditor.isEditing());

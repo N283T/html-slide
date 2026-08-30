@@ -535,7 +535,10 @@ body[data-editing] #hs-toolbar { left: calc(50% - 160px); }
   padding: 5px 10px;
   border-radius: 999px;
   cursor: pointer;
+  white-space: nowrap;
 }
+
+#hs-toolbar { max-width: calc(100vw - 24px); flex-wrap: nowrap; }
 
 #hs-toolbar button:hover { background: rgba(255, 255, 255, 0.12); }
 #hs-toolbar button.is-on { background: #b35b00; }

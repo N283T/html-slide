@@ -43,9 +43,18 @@ node cli/html-slide.js dev .
 | `m` | toggle the toolbar (stays until dismissed; the mouse never summons it while presenting) |
 | `Home` / `End` | first / last slide |
 
-A floating toolbar (move the mouse to reveal it) mirrors all of this,
-adds a **＋ Slide** button and a live **theme switcher**, and stays out
-of captures and prints.
+A floating toolbar mirrors all of this, adds a **＋ Slide** button, a
+live **theme switcher** and a toggle for **edge-click navigation**
+(click the left/right 15% of the screen to move between slides while
+presenting; the preference persists). While editing, moving the mouse
+reveals the toolbar; while presenting only `m` does, and it stays until
+dismissed. It never appears in captures or prints.
+
+The presenter console (`t`) shows notes, current/next titles, an
+elapsed clock, a clickable slide list, prev/next buttons and an
+overview grid (`o` or ▦ 一覧) built from `html-slide capture` PNGs —
+tiles with no capture fall back to numbered placeholders and still
+navigate.
 
 ## Edit mode
 

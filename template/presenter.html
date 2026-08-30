@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="utf-8">
 <title>Presenter — html-slide</title>
@@ -19,9 +19,9 @@
   header {
     grid-column: 1 / -1;
     display: flex;
-    align-items: baseline;
-    gap: 24px;
-    padding: 14px 22px;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 22px;
     background: #16181c;
   }
   #clock { font: 700 30px ui-monospace, monospace; color: #4fd6c2; }
@@ -29,6 +29,18 @@
   #current-title { font-size: 18px; font-weight: 700; }
   #next-wrap { margin-left: auto; color: #9aa0ab; font-size: 14px; }
   #next-title { color: #e8e8e8; font-weight: 600; }
+  header .nav-btns { display: flex; gap: 6px; }
+  header button {
+    border: 1px solid #33363f;
+    background: #22252d;
+    color: #e8e8e8;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  header button:hover { background: #2c3039; }
+  header button.is-on { background: #b35b00; border-color: #b35b00; }
   main { background: #1d1f24; padding: 26px 30px; overflow: auto; }
   main h2 { margin: 0 0 12px; font-size: 13px; letter-spacing: 0.1em; color: #9aa0ab; }
   #notes { font-size: 19px; line-height: 1.8; }
@@ -39,11 +51,61 @@
   #list li.is-current { background: #2c3040; color: #fff; font-weight: 600; }
   kbd { background: #2c2f37; border-radius: 4px; padding: 1px 6px; font-size: 12px; }
   footer { position: fixed; right: 14px; bottom: 10px; color: #6b7280; font-size: 12px; }
+
+  /* ---- slide overview overlay ---- */
+  #overview {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(10, 11, 14, 0.96);
+    overflow: auto;
+    padding: 24px;
+  }
+  #overview[hidden] { display: none; }
+  #overview .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  #overview .tile {
+    cursor: pointer;
+    border: 2px solid #2c2f37;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #17191e;
+  }
+  #overview .tile:hover { border-color: #b35b00; }
+  #overview .tile.is-current { border-color: #4fd6c2; }
+  #overview .tile img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+  #overview .tile .ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16/9;
+    color: #6b7280;
+    font-size: 13px;
+    padding: 0 12px;
+    text-align: center;
+  }
+  #overview .tile .cap {
+    padding: 6px 10px;
+    font-size: 12.5px;
+    color: #b9bec8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #overview .ov-hint { color: #6b7280; font-size: 12.5px; margin: 0 0 14px; }
 </style>
 </head>
 <body>
 <header>
   <span id="clock">00:00</span>
+  <div class="nav-btns">
+    <button id="btn-prev" title="前へ (←)">◀</button>
+    <button id="btn-next" title="次へ (→ / Space)">▶</button>
+  </div>
+  <button id="btn-overview" title="スライド一覧 (o)">▦ 一覧</button>
   <span id="position">– / –</span>
   <span id="current-title"></span>
   <span id="next-wrap">次: <span id="next-title"></span></span>
@@ -53,7 +115,11 @@
   <div id="notes"><em>デッキ待機中… 別ウィンドウでスライドを開いてください。</em></div>
 </main>
 <nav><ul id="list"></ul></nav>
-<footer><kbd>←</kbd><kbd>→</kbd> スライド送り · <kbd>r</kbd> タイマーリセット</footer>
+<div id="overview" hidden>
+  <p class="ov-hint">クリックでそのスライドへ。画像は <code>html-slide capture</code> の出力（slide-captures/）を使い、無ければ番号タイルで代用します。<kbd>o</kbd> / <kbd>Esc</kbd> で閉じる</p>
+  <div class="grid"></div>
+</div>
+<footer><kbd>←</kbd><kbd>→</kbd> スライド送り · <kbd>o</kbd> 一覧 · <kbd>r</kbd> タイマーリセット</footer>
 <script src="../core/presenter.js"></script>
 </body>
 </html>
