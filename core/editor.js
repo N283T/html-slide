@@ -227,16 +227,18 @@
     return s;
   }
 
-  function row(parent, labelText, prop, value, min, max, apply) {
+  function row(parent, labelText, prop, value, min, max, apply, step) {
     const div = h('div', 'hs-row');
     const label = h('label', null, labelText);
     const range = document.createElement('input');
     range.type = 'range';
     range.min = min;
     range.max = max;
+    range.step = step || 1;
     range.value = value;
     const num = document.createElement('input');
     num.type = 'number';
+    num.step = step || 1;
     num.value = value;
     let pushed = false;
     function set(v) {
@@ -260,6 +262,94 @@
     div.append(label, range, num, prop ? reset : h('span'));
     parent.appendChild(div);
   }
+
+  function rgbToHex(str) {
+    const m = String(str).match(/rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+    if (!m) return /^#/.test(str) ? str : '#888888';
+    return '#' + [m[1], m[2], m[3]].map(function (v) {
+      return Number(v).toString(16).padStart(2, '0');
+    }).join('');
+  }
+
+  /* A row of theme swatches + a free color picker. Swatches write
+   * var(--hs-*) so the value keeps following the theme; the picker
+   * writes a literal hex. ✕ falls back to the stylesheet. */
+  function colorRow(parent, labelText, prop, tokens, computedValue) {
+    const div = h('div', 'hs-ctl-row');
+    div.appendChild(h('label', null, labelText));
+    const wrap = h('div', 'hs-swatches');
+    const slideStyle = getComputedStyle(D.slides[D.state.index]);
+    const current = (selected.style.getPropertyValue(prop) || '').trim();
+
+    const clear = h('button', 'hs-swatch hs-swatch-clear');
+    clear.title = 'テーマの色に戻す';
+    clear.addEventListener('click', function () {
+      pushSnapshot();
+      selected.style.removeProperty(prop);
+      markDirty();
+      buildPanel();
+    });
+    wrap.appendChild(clear);
+
+    tokens.forEach(function (token) {
+      const resolved = slideStyle.getPropertyValue(token).trim();
+      if (!resolved) return;
+      const b = h('button',
+        'hs-swatch' + (current === 'var(' + token + ')' ? ' is-on' : ''));
+      b.style.background = resolved;
+      b.title = token;
+      b.addEventListener('click', function () {
+        pushSnapshot();
+        selected.style.setProperty(prop, 'var(' + token + ')');
+        markDirty();
+        buildPanel();
+      });
+      wrap.appendChild(b);
+    });
+
+    const picker = document.createElement('input');
+    picker.type = 'color';
+    picker.value = rgbToHex(computedValue);
+    picker.title = '自由に色を選ぶ';
+    let pushed = false;
+    picker.addEventListener('input', function () {
+      if (!pushed) { pushSnapshot(); pushed = true; }
+      selected.style.setProperty(prop, picker.value);
+      markDirty();
+    });
+    wrap.appendChild(picker);
+
+    div.appendChild(wrap);
+    parent.appendChild(div);
+  }
+
+  /* A labelled segment control writing one CSS value per button. */
+  function segRow(parent, labelText, prop, options, currentValue) {
+    const div = h('div', 'hs-ctl-row');
+    div.appendChild(h('label', null, labelText));
+    const seg = h('div', 'hs-seg');
+    seg.style.marginBottom = '0';
+    options.forEach(function (def) {
+      const b = h('button', currentValue === def[1] ? 'is-on' : null, def[0]);
+      b.title = prop + ': ' + def[1];
+      b.addEventListener('click', function () {
+        pushSnapshot();
+        selected.style.setProperty(prop, def[1]);
+        markDirty();
+        buildPanel();
+      });
+      seg.appendChild(b);
+    });
+    div.appendChild(seg);
+    parent.appendChild(div);
+  }
+
+  /* Axis-aware labels: in a row-direction flex, align-items is the
+   * vertical axis; in a column it is horizontal. */
+  const ALIGN_V = [['上', 'flex-start'], ['中', 'center'], ['下', 'flex-end'], ['伸', 'stretch']];
+  const ALIGN_H = [['左', 'flex-start'], ['中', 'center'], ['右', 'flex-end'], ['伸', 'stretch']];
+  const JUSTIFY_H = [['左', 'flex-start'], ['中', 'center'], ['右', 'flex-end'], ['等間', 'space-between']];
+  const JUSTIFY_V = [['上', 'flex-start'], ['中', 'center'], ['下', 'flex-end'], ['等間', 'space-between']];
 
   const MEDIA_TAGS = ['IMG', 'SVG', 'VIDEO', 'FIGURE', 'CANVAS'];
   const TEXT_TAGS = 'p,h1,h2,h3,h4,h5,h6,li,td,th,figcaption,blockquote,dt,dd,code,span';
@@ -339,20 +429,16 @@
       const textSec = section('テキスト');
       row(textSec, '文字サイズ', 'font-size', Math.round(parseFloat(cs.fontSize)), 8, 160,
         function (v) { selected.style.fontSize = v + 'px'; });
-      const seg = h('div', 'hs-seg');
-      [['⟸', 'left'], ['⇔', 'center'], ['⟹', 'right']].forEach(function (def) {
-        const b = h('button',
-          cs.textAlign === def[1] ? 'is-on' : null, def[0]);
-        b.title = 'text-align: ' + def[1];
-        b.addEventListener('click', function () {
-          pushSnapshot();
-          selected.style.textAlign = def[1];
-          markDirty();
-          buildPanel();
-        });
-        seg.appendChild(b);
-      });
-      textSec.appendChild(seg);
+      const fontPx = parseFloat(cs.fontSize) || 34;
+      const lhRaw = parseFloat(cs.lineHeight);
+      const lh = isNaN(lhRaw) ? 1.5 : Math.round(lhRaw / fontPx * 100) / 100;
+      row(textSec, '行間', 'line-height', lh, 0.9, 3,
+        function (v) { selected.style.lineHeight = v; }, 0.05);
+      segRow(textSec, '揃え', 'text-align',
+        [['左', 'left'], ['中', 'center'], ['右', 'right']], cs.textAlign);
+      colorRow(textSec, '文字色', 'color',
+        ['--hs-fg', '--hs-heading', '--hs-accent', '--hs-accent-2', '--hs-em', '--hs-muted'],
+        cs.color);
       panel.appendChild(textSec);
 
       /* box section */
@@ -376,6 +462,27 @@
           selected.style.setProperty(pair[1], v + 'px');
         });
       });
+      colorRow(boxSec, '背景色', 'background-color',
+        ['--hs-bg', '--hs-surface', '--hs-accent-soft', '--hs-accent'],
+        cs.backgroundColor);
+
+      /* flex alignment — labels follow the container's axis */
+      if (cs.display.includes('flex')) {
+        const isColumn = cs.flexDirection.startsWith('column');
+        segRow(boxSec, '子の揃え', 'align-items',
+          isColumn ? ALIGN_H : ALIGN_V, cs.alignItems);
+        segRow(boxSec, '子の配置', 'justify-content',
+          isColumn ? JUSTIFY_V : JUSTIFY_H,
+          cs.justifyContent === 'normal' ? 'flex-start' : cs.justifyContent);
+      }
+      const pcs = getComputedStyle(selected.parentElement);
+      if (pcs.display.includes('flex')) {
+        const parentColumn = pcs.flexDirection.startsWith('column');
+        segRow(boxSec, '自身の揃え', 'align-self',
+          parentColumn ? ALIGN_H : ALIGN_V,
+          cs.alignSelf === 'auto' ? pcs.alignItems : cs.alignSelf);
+      }
+
       const clearBtn = h('button', null, 'インライン指定をすべて解除');
       clearBtn.style.cssText = 'width:100%;margin:4px 0 10px;padding:5px 0;border:1px solid #2c2f37;border-radius:6px;background:#1f222a;color:#9aa0ab;cursor:pointer;font-size:11.5px;';
       clearBtn.addEventListener('click', function () {
