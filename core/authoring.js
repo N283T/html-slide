@@ -58,6 +58,18 @@
     return problems;
   }
 
+  /* An element whose ancestor clips (overflow hidden/clip/scroll) can't
+   * visually spill past that ancestor — full-bleed media and decorative
+   * shapes are cropped on purpose. The clipping ancestor itself is still
+   * checked, so real spills don't hide behind this. */
+  function isClipped(el, slide) {
+    for (let a = el.parentElement; a && a !== slide; a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') return true;
+    }
+    return false;
+  }
+
   function check(slide) {
     slide.querySelectorAll(':scope > .overflow-warning').forEach(function (b) { b.remove(); });
     const slideBox = slide.getBoundingClientRect();
@@ -68,6 +80,7 @@
       if (box.width === 0 && box.height === 0) return;
       if (box.bottom > slideBox.bottom + TOLERANCE_PX ||
           box.right > slideBox.right + TOLERANCE_PX) {
+        if (isClipped(el, slide)) return;
         if (!offenders.some(function (o) { return o.contains(el); })) offenders.push(el);
       }
     });
