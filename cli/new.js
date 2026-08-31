@@ -12,7 +12,9 @@ const FRAMEWORK_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 export const THEME_FONTS = {
   paper: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shippori+Mincho:wght@600;800&family=IBM+Plex+Mono:wght@400;600&display=swap',
   aurora: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Outfit:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap',
-  lab: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Sora:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap'
+  lab: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Sora:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap',
+  kasumi: 'https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap',
+  ink: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap'
 };
 const THEMES = Object.keys(THEME_FONTS);
 

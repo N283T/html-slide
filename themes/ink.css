@@ -1,0 +1,38 @@
+/* Theme: ink — near-monochrome editorial with one red accent and sharp
+ * corners. Good for design reviews and line-centric, type-driven decks.
+ * Suggested Google Fonts:
+ *   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+ */
+:root {
+  --hs-page-bg: #0d0d0d;
+
+  --hs-bg: #ffffff;
+  --hs-surface: #f7f6f4;
+  --hs-fg: #1a1a1a;
+  --hs-heading: #000000;
+  --hs-muted: #7a7a7a;
+  --hs-border: #1a1a1a;
+
+  --hs-accent: #d8402b;
+  --hs-accent-2: #1a1a1a;
+  --hs-accent-soft: #fbe9e5;
+  --hs-on-accent: #ffffff;
+  --hs-em: #d8402b;
+
+  --hs-title-bg: #ffffff;
+  --hs-section-bg: #111111;
+
+  --hs-radius: 2px;
+
+  --hs-font-head: "Space Grotesk", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --hs-font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --hs-font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+}
+
+/* ink inverts its section dividers — a black frame between chapters. */
+.slide.layout-section {
+  --hs-heading: #ffffff;
+  --hs-muted: #9a9a9a;
+  --hs-border: #3a3a3a;
+  color: #e8e8e8;
+}

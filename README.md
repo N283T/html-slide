@@ -135,18 +135,53 @@ working example of each.
 | Class | Use for |
 |---|---|
 | `layout-title` | cover slide (`h1`, `.subtitle`, `.meta`) |
+| `layout-hero` | cover over a full-bleed image (`.media`, `.hero-panel`) |
+| `layout-split` | media half / text half (`.media`, `.is-media-right`) |
 | `layout-section` | chapter dividers |
 | `layout-std` | heading + free-form body |
 | `layout-two-col` | text/figure pairs (`.col`, `.is-narrow`, `.is-wide`) |
 | `layout-figure` | figure-first slides (`figure` + `.aside`) |
 | `layout-compare` | before/after, ours/theirs (`.panel`, `.is-accent`, `.vs`) |
 | `layout-cards` | 2–3 parallel points (`.card`, `.is-two-up`) |
+| `layout-message` | one big claim (`h2` + `.support`) |
 | `layout-quote` | one quotation (`blockquote`, `.attribution`) |
 | `layout-end` | closing slide |
 
 Components usable anywhere: `.kicker`, `.card`, `.callout`, `.stat`,
 `.tag`, `.steps`, `.em`, `.muted`, `.small`, `.foot`, plus styled
-tables and `pre`/`code`.
+tables and `pre`/`code`. Pattern components extracted from good deck
+practice: `.agenda` (numbered contents), `.flow` (arrowed process
+steps), `.timeline` (horizontal milestones + `.when`), `.people` /
+`.person` (profile grid with `.avatar` and `.role`), `.spec`
+(label/value definition rows), `.matrix` + `.axis` (2×2 quadrant with
+axis labels), `.takeaway` (a conclusion band that pins to the bottom
+of the body), `.plans` / `.plan` (pricing tiers, `.is-featured` +
+`.flag`), `.gantt` (schedule bars — `--gantt-cols` sets the periods,
+each `.bar` picks its `grid-column`), `.funnel` (narrowing stages),
+`.checklist` (✓ rows, `.is-no` for ✕), `.gallery` (uniformly cropped
+photo grid, `.is-two-up`), `.tree` (one-level org chart), and
+`th/td.is-highlight` (lift one table column).
+
+Diagram figures: `.phases` (chevron roadmap band), `.pyramid` (4-layer
+stack), `.venn` (two overlapping sets + `.and`), `.cycle` (circular
+4-step loop + `.hub`), `.timeline.is-alt` (entries alternate above/below a center line),
+`.arrow`
+(a big → between flex children).
+
+Interactive, CSS-only: `.tabs` (radio-driven tab switch inside one
+slide), `details.reveal` (styled click-to-open Q&A), `.flip` (hover
+flip card — front face prints, back is live-only).
+
+Web-design garnish: `.bento` (mosaic grid with `.is-wide/.is-tall/
+.is-big` spans), `.window` (app/browser chrome with traffic lights and
+a `.url` pill), `.bubble` (speech balloon, `.is-accent`/`.is-right`),
+`.delta` (▲/▼ badge), `.gradient-text`, `.hero-panel.is-glass`
+(frosted glass), and styled `kbd` keys.
+
+JS entrance effects (`core/effects.js`): `data-countup` numbers count
+from zero and `.meter[data-value]` bars fill whenever their slide
+becomes active; exports and reduced-motion get the final state
+instantly.
 
 Speaker notes go in `<aside class="notes">` inside a slide; they render
 only in the presenter console. `data-page-number="off"` hides a slide's
@@ -161,6 +196,8 @@ color or type, so any layout works under any theme.
 - `paper` — warm light, editorial serif headings
 - `aurora` — dark, cold gradient accents
 - `lab` — cool light, high-contrast, data-first
+- `kasumi` — dusty pink × warm gray, rounded and soft
+- `ink` — near-monochrome editorial, one red accent, sharp corners
 
 To make your own, copy a theme file and change the tokens.
 

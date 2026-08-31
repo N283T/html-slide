@@ -392,6 +392,1165 @@
   color: var(--hs-muted);
 }
 
+/* ================= layout: hero (full-bleed media cover) ================= */
+
+.slide.layout-hero { padding: 0; }
+
+.slide.layout-hero > .media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--hs-surface);
+}
+
+.slide.layout-hero > .body {
+  position: relative;
+  padding: 90px 110px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.slide.layout-hero h1 { font-size: 92px; line-height: 1.18; }
+
+.hero-panel {
+  background: var(--hs-bg);
+  border-radius: var(--hs-radius);
+  padding: 52px 68px;
+  max-width: 62%;
+}
+
+.hero-panel .subtitle {
+  margin: 20px 0 0;
+  font-size: 40px;
+  color: var(--hs-muted);
+}
+
+/* ================= layout: split (media half / text half) ================= */
+
+.slide.layout-split {
+  flex-direction: row;
+  padding: 0;
+}
+
+.slide.layout-split > .media {
+  flex: 0 0 44%;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--hs-surface);
+}
+
+.slide.layout-split.is-media-right > .media { order: 2; }
+
+.slide.layout-split > .body {
+  flex: 1;
+  min-width: 0;
+  padding: 90px 100px;
+  justify-content: center;
+}
+
+.slide.layout-split h1 { font-size: 84px; line-height: 1.18; }
+.slide.layout-split .subtitle {
+  font-size: 40px;
+  color: var(--hs-muted);
+  margin: 24px 0 0;
+}
+
+/* media fill — shared by layout-hero and layout-split */
+.media > img, .media > svg, .media > video {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  display: block;
+}
+
+/* ================= layout: message (one assertion per slide) ================= */
+
+.slide.layout-message { justify-content: center; }
+
+.slide.layout-message h2 {
+  font-size: 76px;
+  line-height: 1.4;
+  max-width: 22em;
+}
+
+.slide.layout-message .support {
+  margin-top: 44px;
+  font-size: 38px;
+  color: var(--hs-muted);
+  max-width: 34em;
+}
+
+/* ================= component: takeaway (conclusion band) ================= */
+
+.takeaway {
+  flex: none;
+  margin-top: auto;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  border-radius: var(--hs-radius);
+  padding: 26px 44px;
+  font-size: 0.92em;
+  font-weight: 700;
+}
+
+.takeaway .kicker { color: inherit; opacity: 0.75; margin-bottom: 0.2em; }
+
+/* ================= component: agenda (numbered contents) ================= */
+
+.agenda {
+  list-style: none;
+  counter-reset: agenda;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 52px;
+}
+
+.agenda > li {
+  counter-increment: agenda;
+  display: flex;
+  align-items: baseline;
+  gap: 44px;
+  margin: 0;
+}
+
+.agenda > li::before {
+  content: counter(agenda, decimal-leading-zero);
+  font-family: var(--hs-font-head);
+  font-size: 1.4em;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--hs-accent);
+}
+
+.agenda > li > h3 { font-size: 1em; flex: none; }
+
+.agenda > li > p {
+  flex: 1;
+  margin: 0;
+  font-size: 0.72em;
+  color: var(--hs-muted);
+}
+
+/* ================= component: flow (arrowed process) ================= */
+
+.flow {
+  list-style: none;
+  counter-reset: flow;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 56px;
+  align-items: stretch;
+}
+
+.flow > li {
+  flex: 1;
+  min-width: 0;
+  counter-increment: flow;
+  position: relative;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 30px 32px 26px;
+}
+
+.flow > li::before {
+  content: 'STEP ' counter(flow, decimal-leading-zero);
+  display: block;
+  font-family: var(--hs-font-head);
+  font-size: 0.58em;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--hs-accent);
+  margin-bottom: 0.6em;
+}
+
+.flow > li::after {
+  content: '→';
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--hs-font-head);
+  font-weight: 800;
+  color: var(--hs-accent);
+}
+
+.flow > li:first-child::after { content: none; }
+
+.flow > li > h3 { font-size: 0.85em; margin-bottom: 0.35em; }
+
+/* ================= component: timeline (horizontal milestones) ================= */
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 48px;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 11px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--hs-border);
+}
+
+.timeline > li {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  padding-top: 48px;
+}
+
+.timeline > li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--hs-bg);
+  border: 6px solid var(--hs-accent);
+}
+
+.timeline .when {
+  font-family: var(--hs-font-head);
+  font-size: 0.78em;
+  font-weight: 800;
+  color: var(--hs-accent);
+  margin-bottom: 0.25em;
+}
+
+.timeline h3 { font-size: 0.85em; margin-bottom: 0.3em; }
+
+/* ================= component: people (profile grid) ================= */
+
+.people {
+  display: flex;
+  gap: 56px;
+  align-items: flex-start;
+}
+
+.person { flex: 1; min-width: 0; text-align: center; }
+
+.person > img, .person > .avatar {
+  display: block;
+  width: 230px;
+  height: 230px;
+  margin: 0 auto 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+}
+
+.person > h3 { font-size: 0.92em; }
+
+.person .role {
+  font-size: 0.6em;
+  color: var(--hs-muted);
+  letter-spacing: 0.06em;
+  margin: 6px 0 16px;
+}
+
+.person > p { font-size: 0.7em; text-align: left; margin: 0; }
+
+/* ================= component: spec (label/value rows) ================= */
+
+.spec {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 20px 40px;
+  align-items: start;
+  margin: 0;
+}
+
+.spec > dt {
+  font-family: var(--hs-font-head);
+  font-size: 0.66em;
+  font-weight: 700;
+  color: var(--hs-accent);
+  background: var(--hs-accent-soft);
+  border-radius: 8px;
+  padding: 0.4em 1.2em;
+  justify-self: start;
+  margin-top: 0.25em;
+}
+
+.spec > dd { margin: 0; font-size: 0.9em; }
+
+/* ================= component: matrix (2×2 quadrant) ================= */
+
+.matrix {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 28px;
+}
+
+.matrix > .card { min-height: 0; overflow: hidden; }
+
+.axis {
+  position: absolute;
+  font-family: var(--hs-font-head);
+  font-size: 0.58em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--hs-muted);
+  white-space: nowrap;
+}
+
+.axis.is-top { top: -12px; left: 50%; transform: translate(-50%, -100%); }
+.axis.is-bottom { bottom: -12px; left: 50%; transform: translate(-50%, 100%); }
+.axis.is-left { left: -16px; top: 50%; transform: translate(-100%, -50%); writing-mode: vertical-rl; }
+.axis.is-right { right: -16px; top: 50%; transform: translate(100%, -50%); writing-mode: vertical-rl; }
+
+/* ================= component: plans (pricing tiers) ================= */
+
+.plans {
+  flex: 1;
+  display: flex;
+  gap: 44px;
+  align-items: stretch;
+}
+
+.plan {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 44px 40px 36px;
+}
+
+.plan.is-featured {
+  border-color: var(--hs-accent);
+  background: var(--hs-accent-soft);
+}
+
+.plan > h3 { font-size: 0.8em; }
+
+.plan .price {
+  font-family: var(--hs-font-head);
+  font-size: 1.8em;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--hs-heading, var(--hs-fg));
+  margin-top: 0.35em;
+}
+
+.plan .per { font-size: 0.58em; color: var(--hs-muted); margin-top: 0.3em; }
+
+.plan > ul {
+  list-style: none;
+  padding: 24px 0 0;
+  margin: 28px 0 0;
+  border-top: 1px solid var(--hs-border);
+  text-align: left;
+  font-size: 0.66em;
+}
+
+.plan .flag {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--hs-font-head);
+  font-size: 0.55em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.3em 1.2em;
+  border-radius: 999px;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  white-space: nowrap;
+}
+
+/* ================= component: gantt (schedule bars) ================= */
+
+.gantt {
+  display: grid;
+  grid-template-columns: max-content repeat(var(--gantt-cols, 6), 1fr);
+  gap: 20px 0;
+  align-content: center;
+  align-items: center;
+  flex: 1;
+  font-size: 0.64em;
+}
+
+.gantt .tick {
+  text-align: center;
+  font-family: var(--hs-font-head);
+  font-weight: 700;
+  font-size: 0.85em;
+  color: var(--hs-muted);
+  border-left: 1px solid var(--hs-border);
+}
+
+.gantt .tick:first-of-type { border-left: none; }
+
+.gantt .label {
+  grid-column: 1;
+  font-weight: 700;
+  padding-right: 1.6em;
+  white-space: nowrap;
+}
+
+.gantt .bar {
+  height: 1.9em;
+  border-radius: 999px;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  font-size: 0.78em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding: 0 1.2em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.gantt .bar.is-alt { background: var(--hs-accent-2, var(--hs-muted)); }
+
+/* ================= component: funnel ================= */
+
+.funnel {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.funnel > li {
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  border-radius: 999px;
+  padding: 0.35em 1.5em;
+  font-size: 0.82em;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 1.2em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.funnel > li:nth-child(1) { width: 88%; opacity: 0.55; }
+.funnel > li:nth-child(2) { width: 72%; opacity: 0.7; }
+.funnel > li:nth-child(3) { width: 56%; opacity: 0.85; }
+.funnel > li:nth-child(4) { width: 40%; }
+.funnel > li:nth-child(5) { width: 28%; }
+
+.funnel .n { font-family: var(--hs-font-head); font-size: 1.25em; }
+
+/* ================= component: checklist (do / don't) ================= */
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.checklist > li {
+  position: relative;
+  padding-left: 1.9em;
+  margin: 0;
+}
+
+.checklist > li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--hs-font-head);
+  font-weight: 800;
+  color: var(--hs-accent);
+}
+
+.checklist > li.is-no::before { content: '✕'; color: var(--hs-muted); }
+
+/* ================= component: gallery (photo grid) ================= */
+
+.gallery {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 36px;
+}
+
+.gallery.is-two-up { grid-template-columns: repeat(2, 1fr); }
+
+.gallery > figure {
+  margin: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery > figure > img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--hs-radius);
+}
+
+/* ================= component: tree (one-level org chart) ================= */
+
+.tree {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tree .node {
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 16px 36px;
+  font-size: 0.72em;
+  font-weight: 700;
+  text-align: center;
+}
+
+.tree .node .small { display: block; font-weight: 400; color: var(--hs-muted); }
+
+.tree > .node { border-color: var(--hs-accent); background: var(--hs-accent-soft); }
+
+.tree .stem { width: 2px; height: 40px; background: var(--hs-border); }
+
+.tree > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 52px;
+}
+
+.tree > ul > li {
+  position: relative;
+  margin: 0;
+  padding-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tree > ul > li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 40px;
+  background: var(--hs-border);
+}
+
+.tree > ul > li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(-26px - 1px);
+  right: calc(-26px - 1px);
+  height: 2px;
+  background: var(--hs-border);
+}
+
+.tree > ul > li:first-child::after { left: 50%; }
+.tree > ul > li:last-child::after { right: 50%; }
+.tree > ul > li:only-child::after { content: none; }
+
+/* ================= component: timeline alternating variant ================= */
+
+/* .is-alt runs the line through the middle and alternates entries
+ * above and below it — the "company story" figure. Fixed height keeps
+ * the geometry honest. */
+
+.timeline.is-alt { height: 560px; align-items: stretch; }
+
+.timeline.is-alt::before { top: calc(50% - 2px); }
+
+.timeline.is-alt > li:nth-child(odd) {
+  padding-top: 0;
+  padding-bottom: 322px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.timeline.is-alt > li:nth-child(even) { padding-top: 322px; }
+
+.timeline.is-alt > li::before { top: calc(50% - 13px); }
+
+/* ================= component: phases (chevron roadmap band) ================= */
+
+.phases {
+  list-style: none;
+  counter-reset: phase;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.phases > li {
+  flex: 1;
+  min-width: 0;
+  counter-increment: phase;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  padding: 30px 34px 26px 60px;
+  margin-left: -26px;
+  clip-path: polygon(0 0, calc(100% - 38px) 0, 100% 50%, calc(100% - 38px) 100%, 0 100%, 38px 50%);
+}
+
+.phases > li:first-child {
+  margin-left: 0;
+  padding-left: 44px;
+  clip-path: polygon(0 0, calc(100% - 38px) 0, 100% 50%, calc(100% - 38px) 100%, 0 100%);
+}
+
+.phases > li:nth-child(1) { opacity: 0.55; }
+.phases > li:nth-child(2) { opacity: 0.7; }
+.phases > li:nth-child(3) { opacity: 0.85; }
+
+.phases > li::before {
+  content: 'PHASE ' counter(phase);
+  display: block;
+  font-family: var(--hs-font-head);
+  font-size: 0.52em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+  margin-bottom: 0.4em;
+}
+
+.phases > li > h3 { color: inherit; font-size: 0.78em; }
+.phases > li > p { margin: 0.3em 0 0; font-size: 0.6em; opacity: 0.9; }
+
+/* ================= component: pyramid ================= */
+
+.pyramid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pyramid > li {
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.78em;
+  padding: 22px 60px;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.pyramid > li:nth-child(1) { width: 34%; opacity: 0.55; clip-path: polygon(16% 0, 84% 0, 100% 100%, 0 100%); }
+.pyramid > li:nth-child(2) { width: 56%; opacity: 0.7; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); }
+.pyramid > li:nth-child(3) { width: 78%; opacity: 0.85; clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%); }
+.pyramid > li:nth-child(4) { width: 100%; clip-path: polygon(5.5% 0, 94.5% 0, 100% 100%, 0 100%); }
+
+.pyramid .small { display: block; font-weight: 400; opacity: 0.85; }
+
+/* ================= component: venn (two overlapping sets) ================= */
+
+.venn {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.venn > .set {
+  width: 580px;
+  height: 580px;
+  border-radius: 50%;
+  border: 4px solid var(--hs-accent);
+  background: color-mix(in srgb, var(--hs-accent) 16%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95em;
+  line-height: 1.45;
+  padding-right: 190px;
+  text-align: center;
+}
+
+.venn > .set + .set {
+  margin-left: -190px;
+  padding-right: 0;
+  padding-left: 190px;
+  border-color: var(--hs-accent-2, var(--hs-muted));
+  background: color-mix(in srgb, var(--hs-accent-2, var(--hs-muted)) 16%, transparent);
+}
+
+.venn > .and {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--hs-font-head);
+  font-weight: 800;
+  font-size: 0.8em;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  border-radius: 999px;
+  padding: 0.5em 1.6em;
+  box-shadow: 0 0 0 8px var(--hs-bg);
+}
+
+/* ================= component: cycle (circular 4-step loop) ================= */
+
+.cycle {
+  list-style: none;
+  counter-reset: cycle;
+  position: relative;
+  width: 1420px;
+  height: 660px;
+  margin: auto;
+  padding: 0;
+  flex: none;
+}
+
+.cycle::before {
+  content: '';
+  position: absolute;
+  inset: 70px 160px;
+  border: 4px dashed var(--hs-border);
+  border-radius: 50%;
+}
+
+/* clockwise cue: one arrowhead on the ring's NE arc (a second one on
+ * the SW arc comes from .hub::before when a hub is present) */
+.cycle::after {
+  content: '\27a4';
+  position: absolute;
+  left: 1099px;
+  top: 146px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  color: var(--hs-accent);
+  font-size: 0.8em;
+  line-height: 1;
+}
+
+.cycle > .hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--hs-font-head);
+  font-weight: 800;
+  font-size: 1em;
+  text-align: center;
+}
+
+.cycle > .hub::before {
+  content: '\27a4';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 184px 0 0 -389px;
+  transform: translate(-50%, -50%) rotate(225deg);
+  color: var(--hs-accent);
+  font-size: 0.8em;
+  line-height: 1;
+}
+
+.cycle > li {
+  counter-increment: cycle;
+  position: absolute;
+  width: 320px;
+  margin: 0;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 26px 34px;
+  text-align: center;
+}
+
+.cycle > li::before {
+  content: counter(cycle, decimal-leading-zero);
+  display: block;
+  font-family: var(--hs-font-head);
+  font-size: 0.58em;
+  font-weight: 800;
+  color: var(--hs-accent);
+  margin-bottom: 0.3em;
+}
+
+.cycle > li:nth-of-type(1) { top: 0; left: 50%; transform: translateX(-50%); }
+.cycle > li:nth-of-type(2) { right: 0; top: 50%; transform: translateY(-50%); }
+.cycle > li:nth-of-type(3) { bottom: 0; left: 50%; transform: translateX(-50%); }
+.cycle > li:nth-of-type(4) { left: 0; top: 50%; transform: translateY(-50%); }
+
+.cycle h3 { font-size: 0.88em; }
+.cycle p { margin: 0.25em 0 0; font-size: 0.66em; color: var(--hs-muted); }
+
+/* ================= component: tabs (CSS-only, radio-driven) ================= */
+
+/* Structure: pairs of <input type=radio>+<label>, then one .tab-panels
+ * holding a <section> per tab, in the same order. The nth-of-type
+ * selectors below are functional plumbing, not override targets. */
+
+.tabs {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.tabs > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tabs > label {
+  font-family: var(--hs-font-head);
+  font-weight: 700;
+  font-size: 0.68em;
+  color: var(--hs-muted);
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-bottom: none;
+  border-radius: var(--hs-radius) var(--hs-radius) 0 0;
+  padding: 0.6em 1.8em;
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.tabs > input:checked + label {
+  color: var(--hs-accent);
+  background: var(--hs-bg);
+  border-color: var(--hs-accent);
+}
+
+.tabs > .tab-panels {
+  flex: 1 1 100%;
+  min-height: 0;
+  border: 1px solid var(--hs-border);
+  border-radius: 0 var(--hs-radius) var(--hs-radius) var(--hs-radius);
+  padding: 44px 52px;
+  background: var(--hs-bg);
+}
+
+.tabs > .tab-panels > section { display: none; }
+
+.tabs > input:nth-of-type(1):checked ~ .tab-panels > section:nth-of-type(1),
+.tabs > input:nth-of-type(2):checked ~ .tab-panels > section:nth-of-type(2),
+.tabs > input:nth-of-type(3):checked ~ .tab-panels > section:nth-of-type(3),
+.tabs > input:nth-of-type(4):checked ~ .tab-panels > section:nth-of-type(4) { display: block; }
+
+/* ================= component: reveal (styled disclosure) ================= */
+
+details.reveal {
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+details.reveal > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-weight: 700;
+  font-size: 0.85em;
+  padding: 22px 34px;
+}
+
+details.reveal > summary::-webkit-details-marker { display: none; }
+
+details.reveal > summary::before {
+  content: '▸';
+  color: var(--hs-accent);
+  transition: transform 0.25s;
+}
+
+details.reveal[open] > summary::before { transform: rotate(90deg); }
+
+details.reveal > *:not(summary) {
+  margin: 0 34px 24px;
+  padding-left: 2.1em;
+  font-size: 0.78em;
+}
+
+/* ================= component: flip (hover flip card) ================= */
+
+.flip { perspective: 1400px; min-height: 0; }
+
+.flip > div {
+  position: relative;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip:hover > div, .flip:focus-within > div { transform: rotateY(180deg); }
+
+.flip .front, .flip .back {
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip .back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* ================= component: bento (mosaic dashboard grid) ================= */
+
+.bento {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 30px;
+}
+
+.bento > .is-wide { grid-column: span 2; }
+.bento > .is-tall { grid-row: span 2; }
+.bento > .is-big { grid-column: span 2; grid-row: span 2; }
+
+.bento > .card {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px;
+}
+
+/* ================= component: window (app / browser chrome) ================= */
+
+.window {
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.window > .bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--hs-border);
+  font-family: var(--hs-font-mono);
+  font-size: 0.55em;
+  color: var(--hs-muted);
+}
+
+.window > .bar::before {
+  content: '';
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #f0605c;
+  box-shadow: 26px 0 0 #f6bd3c, 52px 0 0 #46c646;
+  margin-right: 44px;
+}
+
+.window .url {
+  flex: 1;
+  background: var(--hs-bg);
+  border: 1px solid var(--hs-border);
+  border-radius: 999px;
+  padding: 0.35em 1.4em;
+}
+
+.window > pre {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  flex: 1;
+  min-height: 0;
+}
+
+.window > img { border-radius: 0; }
+
+/* ================= component: bubble (speech balloon) ================= */
+
+.bubble {
+  position: relative;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: calc(var(--hs-radius) * 1.6);
+  padding: 28px 40px;
+  font-size: 0.85em;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 60px;
+  width: 22px;
+  height: 22px;
+  background: var(--hs-surface);
+  border-right: 1px solid var(--hs-border);
+  border-bottom: 1px solid var(--hs-border);
+  transform: rotate(45deg);
+}
+
+.bubble.is-accent { background: var(--hs-accent-soft); border-color: var(--hs-accent); }
+.bubble.is-accent::after { background: var(--hs-accent-soft); border-color: var(--hs-accent); }
+.bubble.is-right::after { left: auto; right: 60px; }
+
+/* ================= component: meter (animated progress bar) ================= */
+
+/* <div class="meter" data-value="72"></div> — core/effects.js animates
+ * the bar to data-value% each time the slide becomes active. */
+
+.meter {
+  height: 24px;
+  border-radius: 999px;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  overflow: hidden;
+}
+
+.meter > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--hs-accent);
+}
+
+.meter-row {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content;
+  gap: 14px 32px;
+  align-items: center;
+  font-size: 0.72em;
+}
+
+.meter-row > .meter { min-width: 0; }
+
+/* ================= component: delta (up/down badge) ================= */
+
+.delta {
+  display: inline-block;
+  font-family: var(--hs-font-head);
+  font-size: 0.5em;
+  font-weight: 700;
+  padding: 0.25em 0.9em;
+  border-radius: 999px;
+  background: var(--hs-accent-soft);
+  color: var(--hs-accent);
+  vertical-align: middle;
+}
+
+.delta.is-down { background: var(--hs-surface); color: var(--hs-muted); }
+
+/* ================= web-design garnish ================= */
+
+.gradient-text {
+  background: linear-gradient(100deg, var(--hs-accent), var(--hs-accent-2, var(--hs-accent)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-panel.is-glass {
+  background: color-mix(in srgb, var(--hs-bg) 62%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid color-mix(in srgb, var(--hs-border) 55%, transparent);
+}
+
+.slide kbd {
+  font-family: var(--hs-font-mono);
+  font-size: 0.72em;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-bottom-width: 3px;
+  border-radius: 8px;
+  padding: 0.1em 0.55em;
+}
+
+.arrow {
+  flex: none;
+  align-self: center;
+  font-family: var(--hs-font-head);
+  font-weight: 800;
+  font-size: 1.6em;
+  color: var(--hs-accent);
+}
+
+/* List-based components above fight the base `.slide ol/ul` margins;
+ * restate the resets at matching specificity so they win the tie. */
+.slide .agenda, .slide .flow, .slide .timeline, .slide .funnel,
+.slide .pyramid, .slide .phases, .slide .steps, .slide .checklist {
+  margin: 0;
+  padding: 0;
+}
+
+.slide .cycle { margin: auto; padding: 0; }
+
+/* ================= table: highlighted column ================= */
+
+.slide th.is-highlight, .slide td.is-highlight {
+  background: var(--hs-accent-soft);
+}
+
 /* ================= layout: end ================= */
 
 .slide.layout-end {
