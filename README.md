@@ -164,7 +164,8 @@ photo grid, `.is-two-up`), `.tree` (one-level org chart), and
 
 Diagram figures: `.phases` (chevron roadmap band), `.pyramid` (4-layer
 stack), `.venn` (two overlapping sets + `.and`), `.cycle` (circular
-4-step loop + `.hub`), `.timeline.is-alt` (zigzag stagger), `.arrow`
+4-step loop + `.hub`), `.timeline.is-alt` (entries alternate above/below a center line),
+`.arrow`
 (a big → between flex children).
 
 Interactive, CSS-only: `.tabs` (radio-driven tab switch inside one

@@ -995,9 +995,27 @@
 .tree > ul > li:last-child::after { right: 50%; }
 .tree > ul > li:only-child::after { content: none; }
 
-/* ================= component: timeline zigzag variant ================= */
+/* ================= component: timeline alternating variant ================= */
 
-.timeline.is-alt > li:nth-child(even) { padding-top: 190px; }
+/* .is-alt runs the line through the middle and alternates entries
+ * above and below it — the "company story" figure. Fixed height keeps
+ * the geometry honest. */
+
+.timeline.is-alt { height: 560px; align-items: stretch; }
+
+.timeline.is-alt::before { top: calc(50% - 2px); }
+
+.timeline.is-alt > li:nth-child(odd) {
+  padding-top: 0;
+  padding-bottom: 322px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.timeline.is-alt > li:nth-child(even) { padding-top: 322px; }
+
+.timeline.is-alt > li::before { top: calc(50% - 13px); }
 
 /* ================= component: phases (chevron roadmap band) ================= */
 
@@ -1088,26 +1106,27 @@
 }
 
 .venn > .set {
-  width: 440px;
-  height: 440px;
+  width: 580px;
+  height: 580px;
   border-radius: 50%;
-  border: 3px solid var(--hs-accent);
-  background: color-mix(in srgb, var(--hs-accent) 18%, transparent);
+  border: 4px solid var(--hs-accent);
+  background: color-mix(in srgb, var(--hs-accent) 16%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.85em;
-  padding-right: 150px;
+  font-size: 0.95em;
+  line-height: 1.45;
+  padding-right: 190px;
   text-align: center;
 }
 
 .venn > .set + .set {
-  margin-left: -150px;
+  margin-left: -190px;
   padding-right: 0;
-  padding-left: 150px;
+  padding-left: 190px;
   border-color: var(--hs-accent-2, var(--hs-muted));
-  background: color-mix(in srgb, var(--hs-accent-2, var(--hs-muted)) 18%, transparent);
+  background: color-mix(in srgb, var(--hs-accent-2, var(--hs-muted)) 16%, transparent);
 }
 
 .venn > .and {
@@ -1117,11 +1136,12 @@
   transform: translate(-50%, -50%);
   font-family: var(--hs-font-head);
   font-weight: 800;
-  font-size: 0.75em;
-  background: var(--hs-bg);
-  border: 1px solid var(--hs-border);
+  font-size: 0.8em;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
   border-radius: 999px;
-  padding: 0.4em 1.3em;
+  padding: 0.5em 1.6em;
+  box-shadow: 0 0 0 8px var(--hs-bg);
 }
 
 /* ================= component: cycle (circular 4-step loop) ================= */
@@ -1130,8 +1150,8 @@
   list-style: none;
   counter-reset: cycle;
   position: relative;
-  width: 820px;
-  height: 600px;
+  width: 1420px;
+  height: 660px;
   margin: auto;
   padding: 0;
   flex: none;
@@ -1140,9 +1160,22 @@
 .cycle::before {
   content: '';
   position: absolute;
-  inset: 100px 200px;
-  border: 3px dashed var(--hs-border);
+  inset: 70px 160px;
+  border: 4px dashed var(--hs-border);
   border-radius: 50%;
+}
+
+/* clockwise cue: one arrowhead on the ring's NE arc (a second one on
+ * the SW arc comes from .hub::before when a hub is present) */
+.cycle::after {
+  content: '\27a4';
+  position: absolute;
+  left: 1099px;
+  top: 146px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  color: var(--hs-accent);
+  font-size: 0.8em;
+  line-height: 1;
 }
 
 .cycle > .hub {
@@ -1152,19 +1185,31 @@
   transform: translate(-50%, -50%);
   font-family: var(--hs-font-head);
   font-weight: 800;
-  font-size: 0.9em;
+  font-size: 1em;
   text-align: center;
+}
+
+.cycle > .hub::before {
+  content: '\27a4';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 184px 0 0 -389px;
+  transform: translate(-50%, -50%) rotate(225deg);
+  color: var(--hs-accent);
+  font-size: 0.8em;
+  line-height: 1;
 }
 
 .cycle > li {
   counter-increment: cycle;
   position: absolute;
-  width: 260px;
+  width: 320px;
   margin: 0;
   background: var(--hs-surface);
   border: 1px solid var(--hs-border);
   border-radius: var(--hs-radius);
-  padding: 20px 28px;
+  padding: 26px 34px;
   text-align: center;
 }
 
@@ -1183,8 +1228,8 @@
 .cycle > li:nth-of-type(3) { bottom: 0; left: 50%; transform: translateX(-50%); }
 .cycle > li:nth-of-type(4) { left: 0; top: 50%; transform: translateY(-50%); }
 
-.cycle h3 { font-size: 0.78em; }
-.cycle p { margin: 0.2em 0 0; font-size: 0.6em; color: var(--hs-muted); }
+.cycle h3 { font-size: 0.88em; }
+.cycle p { margin: 0.25em 0 0; font-size: 0.66em; color: var(--hs-muted); }
 
 /* ================= component: tabs (CSS-only, radio-driven) ================= */
 
