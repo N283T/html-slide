@@ -219,17 +219,13 @@
 <!-- ============ 10 · hero cover ============ -->
 <section class="slide layout-hero" data-page-number="off">
   <div class="media">
-    <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="placeholder cover image">
-      <rect width="1920" height="1080" fill="var(--hs-surface)"></rect>
-      <circle cx="1500" cy="240" r="420" fill="var(--hs-accent-soft)"></circle>
-      <circle cx="360" cy="920" r="300" fill="var(--hs-accent-soft)"></circle>
-    </svg>
+    <img src="assets/photo-wide.jpg" alt="sample cover photo">
   </div>
   <div class="body">
     <div class="hero-panel">
       <div class="kicker">Layouts</div>
       <h1>A cover over a full-bleed image</h1>
-      <p class="subtitle"><code>layout-hero</code> — swap the SVG for a photo; the panel keeps the title readable.</p>
+      <p class="subtitle"><code>layout-hero</code> — any image in <code>.media</code> goes full-bleed; the panel keeps the title readable.</p>
     </div>
   </div>
 </section>
@@ -382,13 +378,200 @@
   <p class="support"><code>layout-message</code> is for the sentence the whole deck argues. If it needs a chart, it isn't this slide.</p>
 </section>
 
-<!-- ============ 19 · quote ============ -->
+<!-- ============ 19 · plans ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Three tiers, one obvious pick</h2>
+  </header>
+  <div class="body">
+    <div class="plans">
+      <div class="plan">
+        <h3>Light</h3>
+        <div class="price">¥9,800</div>
+        <div class="per">per month</div>
+        <ul>
+          <li>Core features</li>
+          <li>Email support</li>
+        </ul>
+      </div>
+      <div class="plan is-featured">
+        <div class="flag">RECOMMENDED</div>
+        <h3>Standard</h3>
+        <div class="price">¥29,800</div>
+        <div class="per">per month</div>
+        <ul>
+          <li>Everything in Light</li>
+          <li>Priority support</li>
+          <li>The feature people actually pay for</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <h3>Enterprise</h3>
+        <div class="price">お見積り</div>
+        <div class="per">annual contract</div>
+        <ul>
+          <li>Everything in Standard</li>
+          <li>SSO / audit logs</li>
+          <li>A human who answers the phone</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 20 · gantt ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Who does what, and when</h2>
+  </header>
+  <div class="body">
+    <div class="gantt" style="--gantt-cols: 6;">
+      <span class="label"></span>
+      <span class="tick">Apr</span><span class="tick">May</span><span class="tick">Jun</span>
+      <span class="tick">Jul</span><span class="tick">Aug</span><span class="tick">Sep</span>
+      <span class="label">Design</span>
+      <div class="bar" style="grid-column: 2 / 4;">wireframe → spec</div>
+      <span class="label">Build</span>
+      <div class="bar" style="grid-column: 3 / 6;">core implementation</div>
+      <span class="label">Pilot</span>
+      <div class="bar is-alt" style="grid-column: 5 / 7;">two sites</div>
+      <span class="label">Rollout</span>
+      <div class="bar" style="grid-column: 6 / 8;">all sites</div>
+    </div>
+    <div class="takeaway">A <code>.gantt</code> is a grid: <code>--gantt-cols</code> sets the periods, each bar picks its <code>grid-column</code>.</div>
+  </div>
+</section>
+
+<!-- ============ 21 · funnel ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Where the audience leaks out</h2>
+  </header>
+  <div class="body">
+    <ol class="funnel">
+      <li>Visited <span class="n">12,400</span></li>
+      <li>Signed up <span class="n">3,100</span></li>
+      <li>Activated <span class="n">1,150</span></li>
+      <li>Paid <span class="n">240</span></li>
+      <li>Renewed <span class="n">180</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 22 · checklist ============ -->
+<section class="slide layout-two-col">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Do this, not that</h2>
+  </header>
+  <div class="body">
+    <div class="col">
+      <h3 class="small muted" style="margin-bottom: 24px;">DO</h3>
+      <ul class="checklist">
+        <li>One claim per slide, stated in the title</li>
+        <li>Numbers with their source attached</li>
+        <li>A conclusion band the room can photograph</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3 class="small muted" style="margin-bottom: 24px;">DON'T</h3>
+      <ul class="checklist">
+        <li class="is-no">Paragraphs nobody will read aloud</li>
+        <li class="is-no">A legend with eleven colors</li>
+        <li class="is-no">"Sorry, this slide is a bit busy"</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 23 · gallery ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Three photos, three captions</h2>
+  </header>
+  <div class="body">
+    <div class="gallery">
+      <figure>
+        <img src="assets/photo-a.jpg" alt="sample photo A">
+        <figcaption>A <code>.gallery</code> crops every image to the same box.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/photo-b.jpg" alt="sample photo B">
+        <figcaption>Swap in your own shots; <code>object-fit: cover</code> does the rest.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/photo-c.jpg" alt="sample photo C">
+        <figcaption><code>.is-two-up</code> switches to two larger tiles.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 24 · org tree ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Who reports to whom</h2>
+  </header>
+  <div class="body">
+    <div class="tree">
+      <div class="node">Project Lead<span class="small">R. Director</span></div>
+      <div class="stem"></div>
+      <ul>
+        <li><div class="node">Method<span class="small">2 people</span></div></li>
+        <li><div class="node">Platform<span class="small">3 people</span></div></li>
+        <li><div class="node">Analysis<span class="small">2 people</span></div></li>
+        <li><div class="node">Field<span class="small">4 people</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 25 · comparison table ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>A table that already made the decision</h2>
+  </header>
+  <div class="body" style="justify-content: center;">
+    <table>
+      <thead>
+        <tr>
+          <th></th><th>Tool A</th><th class="is-highlight">Ours</th><th>Tool B</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Setup time</td><td>2 days</td><td class="is-highlight"><strong>10 min</strong></td><td>half a day</td></tr>
+        <tr><td>Runs offline</td><td>—</td><td class="is-highlight"><strong>✓</strong></td><td>✓</td></tr>
+        <tr><td>Edits in git</td><td>—</td><td class="is-highlight"><strong>✓</strong></td><td>—</td></tr>
+        <tr><td>Price</td><td>¥50k/yr</td><td class="is-highlight"><strong>free</strong></td><td>¥120k/yr</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted" style="margin-top: 28px;"><code>.is-highlight</code> on the cells lifts one column; <code>tr.is-highlight</code> does the same for a row.</p>
+  </div>
+</section>
+
+<!-- ============ 26 · big number ============ -->
+<section class="slide layout-message">
+  <div class="kicker">Results</div>
+  <div class="stat">
+    <div class="stat-value" style="font-size: 5.2em;">−83%</div>
+    <div class="stat-label" style="font-size: 1em;">time from draft to finished deck</div>
+  </div>
+  <p class="support">A headline number can be the whole slide — <code>layout-message</code> with a <code>.stat</code> scaled up.</p>
+</section>
+
+<!-- ============ 27 · quote ============ -->
 <section class="slide layout-quote">
   <blockquote>The slide is not the talk; it is the thing the talk points at.</blockquote>
   <p class="attribution">— someone who sat through too many bullet lists</p>
 </section>
 
-<!-- ============ 20 · end ============ -->
+<!-- ============ 28 · end ============ -->
 <section class="slide layout-end" data-page-number="off">
   <h2>Thank you</h2>
   <p class="subtitle">questions welcome · yourname@example.org</p>

@@ -154,8 +154,13 @@ practice: `.agenda` (numbered contents), `.flow` (arrowed process
 steps), `.timeline` (horizontal milestones + `.when`), `.people` /
 `.person` (profile grid with `.avatar` and `.role`), `.spec`
 (label/value definition rows), `.matrix` + `.axis` (2×2 quadrant with
-axis labels), and `.takeaway` (a conclusion band that pins to the
-bottom of the body).
+axis labels), `.takeaway` (a conclusion band that pins to the bottom
+of the body), `.plans` / `.plan` (pricing tiers, `.is-featured` +
+`.flag`), `.gantt` (schedule bars — `--gantt-cols` sets the periods,
+each `.bar` picks its `grid-column`), `.funnel` (narrowing stages),
+`.checklist` (✓ rows, `.is-no` for ✕), `.gallery` (uniformly cropped
+photo grid, `.is-two-up`), `.tree` (one-level org chart), and
+`th/td.is-highlight` (lift one table column).
 
 Speaker notes go in `<aside class="notes">` inside a slide; they render
 only in the presenter console. `data-page-number="off"` hides a slide's

@@ -722,6 +722,285 @@
 .axis.is-left { left: -16px; top: 50%; transform: translate(-100%, -50%); writing-mode: vertical-rl; }
 .axis.is-right { right: -16px; top: 50%; transform: translate(100%, -50%); writing-mode: vertical-rl; }
 
+/* ================= component: plans (pricing tiers) ================= */
+
+.plans {
+  flex: 1;
+  display: flex;
+  gap: 44px;
+  align-items: stretch;
+}
+
+.plan {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 44px 40px 36px;
+}
+
+.plan.is-featured {
+  border-color: var(--hs-accent);
+  background: var(--hs-accent-soft);
+}
+
+.plan > h3 { font-size: 0.8em; }
+
+.plan .price {
+  font-family: var(--hs-font-head);
+  font-size: 1.8em;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--hs-heading, var(--hs-fg));
+  margin-top: 0.35em;
+}
+
+.plan .per { font-size: 0.58em; color: var(--hs-muted); margin-top: 0.3em; }
+
+.plan > ul {
+  list-style: none;
+  padding: 24px 0 0;
+  margin: 28px 0 0;
+  border-top: 1px solid var(--hs-border);
+  text-align: left;
+  font-size: 0.66em;
+}
+
+.plan .flag {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--hs-font-head);
+  font-size: 0.55em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.3em 1.2em;
+  border-radius: 999px;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  white-space: nowrap;
+}
+
+/* ================= component: gantt (schedule bars) ================= */
+
+.gantt {
+  display: grid;
+  grid-template-columns: max-content repeat(var(--gantt-cols, 6), 1fr);
+  gap: 20px 0;
+  align-content: center;
+  align-items: center;
+  flex: 1;
+  font-size: 0.64em;
+}
+
+.gantt .tick {
+  text-align: center;
+  font-family: var(--hs-font-head);
+  font-weight: 700;
+  font-size: 0.85em;
+  color: var(--hs-muted);
+  border-left: 1px solid var(--hs-border);
+}
+
+.gantt .tick:first-of-type { border-left: none; }
+
+.gantt .label {
+  grid-column: 1;
+  font-weight: 700;
+  padding-right: 1.6em;
+  white-space: nowrap;
+}
+
+.gantt .bar {
+  height: 1.9em;
+  border-radius: 999px;
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  font-size: 0.78em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding: 0 1.2em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.gantt .bar.is-alt { background: var(--hs-accent-2, var(--hs-muted)); }
+
+/* ================= component: funnel ================= */
+
+.funnel {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.funnel > li {
+  background: var(--hs-accent);
+  color: var(--hs-on-accent, #fff);
+  border-radius: 999px;
+  padding: 0.35em 1.5em;
+  font-size: 0.82em;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 1.2em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.funnel > li:nth-child(1) { width: 88%; opacity: 0.55; }
+.funnel > li:nth-child(2) { width: 72%; opacity: 0.7; }
+.funnel > li:nth-child(3) { width: 56%; opacity: 0.85; }
+.funnel > li:nth-child(4) { width: 40%; }
+.funnel > li:nth-child(5) { width: 28%; }
+
+.funnel .n { font-family: var(--hs-font-head); font-size: 1.25em; }
+
+/* ================= component: checklist (do / don't) ================= */
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.checklist > li {
+  position: relative;
+  padding-left: 1.9em;
+  margin: 0;
+}
+
+.checklist > li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--hs-font-head);
+  font-weight: 800;
+  color: var(--hs-accent);
+}
+
+.checklist > li.is-no::before { content: '✕'; color: var(--hs-muted); }
+
+/* ================= component: gallery (photo grid) ================= */
+
+.gallery {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 36px;
+}
+
+.gallery.is-two-up { grid-template-columns: repeat(2, 1fr); }
+
+.gallery > figure {
+  margin: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery > figure > img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--hs-radius);
+}
+
+/* ================= component: tree (one-level org chart) ================= */
+
+.tree {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tree .node {
+  background: var(--hs-surface);
+  border: 1px solid var(--hs-border);
+  border-radius: var(--hs-radius);
+  padding: 16px 36px;
+  font-size: 0.72em;
+  font-weight: 700;
+  text-align: center;
+}
+
+.tree .node .small { display: block; font-weight: 400; color: var(--hs-muted); }
+
+.tree > .node { border-color: var(--hs-accent); background: var(--hs-accent-soft); }
+
+.tree .stem { width: 2px; height: 40px; background: var(--hs-border); }
+
+.tree > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 52px;
+}
+
+.tree > ul > li {
+  position: relative;
+  margin: 0;
+  padding-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tree > ul > li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 40px;
+  background: var(--hs-border);
+}
+
+.tree > ul > li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(-26px - 1px);
+  right: calc(-26px - 1px);
+  height: 2px;
+  background: var(--hs-border);
+}
+
+.tree > ul > li:first-child::after { left: 50%; }
+.tree > ul > li:last-child::after { right: 50%; }
+.tree > ul > li:only-child::after { content: none; }
+
+/* ================= table: highlighted column ================= */
+
+.slide th.is-highlight, .slide td.is-highlight {
+  background: var(--hs-accent-soft);
+}
+
 /* ================= layout: end ================= */
 
 .slide.layout-end {
