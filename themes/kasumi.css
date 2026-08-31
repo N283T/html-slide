@@ -1,0 +1,30 @@
+/* Theme: kasumi — dusty pink × warm gray, soft and rounded. Good for
+ * community talks, portfolios, anything that should feel gentle.
+ * Suggested Google Fonts:
+ *   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+ */
+:root {
+  --hs-page-bg: #2b2426;
+
+  --hs-bg: #faf6f5;
+  --hs-surface: #f2eae9;
+  --hs-fg: #4c4347;
+  --hs-heading: #40373b;
+  --hs-muted: #a19195;
+  --hs-border: #e4d5d6;
+
+  --hs-accent: #b56e83;
+  --hs-accent-2: #7d8a96;
+  --hs-accent-soft: #f5e2e7;
+  --hs-on-accent: #fdf7f8;
+  --hs-em: #b56e83;
+
+  --hs-title-bg: linear-gradient(150deg, #faf6f5 50%, #f5e2e7 100%);
+  --hs-section-bg: #f2eae9;
+
+  --hs-radius: 22px;
+
+  --hs-font-head: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  --hs-font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --hs-font-mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+}

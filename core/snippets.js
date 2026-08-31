@@ -433,6 +433,223 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
+    name: 'フェーズ帯',
+    desc: '矢羽根のロードマップ (.phases)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Roadmap</h2>',
+      '  </header>',
+      '  <div class="body" style="justify-content: center;">',
+      '    <ol class="phases">',
+      '      <li><h3>Phase name</h3><p>one line</p></li>',
+      '      <li><h3>Phase name</h3><p>one line</p></li>',
+      '      <li><h3>Phase name</h3><p>one line</p></li>',
+      '      <li><h3>Phase name</h3><p>one line</p></li>',
+      '    </ol>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'ピラミッド',
+    desc: '4層の積み上げ図 (.pyramid)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>What rests on what</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <ol class="pyramid">',
+      '      <li>Top<span class="small">one line</span></li>',
+      '      <li>Layer<span class="small">one line</span></li>',
+      '      <li>Layer<span class="small">one line</span></li>',
+      '      <li>Base<span class="small">one line</span></li>',
+      '    </ol>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'ベン図',
+    desc: '2円の重なり (.venn)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Overlap</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <div class="venn">',
+      '      <div class="set">Set A</div>',
+      '      <div class="set">Set B</div>',
+      '      <div class="and">BOTH</div>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'サイクル図',
+    desc: '4ステップの循環 (.cycle)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>The loop</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <ol class="cycle">',
+      '      <div class="hub">label</div>',
+      '      <li><h3>Plan</h3><p>one line</p></li>',
+      '      <li><h3>Do</h3><p>one line</p></li>',
+      '      <li><h3>Check</h3><p>one line</p></li>',
+      '      <li><h3>Act</h3><p>one line</p></li>',
+      '    </ol>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'タブ切替',
+    desc: '1枚の中で3面を切り替え (.tabs / CSSのみ)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Three views, one slide</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <div class="tabs">',
+      '      <input type="radio" name="tabs-N" id="tabs-N-a" checked>',
+      '      <label for="tabs-N-a">Tab A</label>',
+      '      <input type="radio" name="tabs-N" id="tabs-N-b">',
+      '      <label for="tabs-N-b">Tab B</label>',
+      '      <input type="radio" name="tabs-N" id="tabs-N-c">',
+      '      <label for="tabs-N-c">Tab C</label>',
+      '      <div class="tab-panels">',
+      '        <section><p>Panel A.</p></section>',
+      '        <section><p>Panel B.</p></section>',
+      '        <section><p>Panel C.</p></section>',
+      '      </div>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'FAQ開閉',
+    desc: 'クリックで開く問答 (details.reveal)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Q&A</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <details class="reveal" open>',
+      '      <summary>Question one?</summary>',
+      '      <p>Answer.</p>',
+      '    </details>',
+      '    <details class="reveal">',
+      '      <summary>Question two?</summary>',
+      '      <p>Answer.</p>',
+      '    </details>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'ベントグリッド',
+    desc: 'タイルを敷き詰めるダッシュボード (.bento)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Dashboard</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <div class="bento">',
+      '      <div class="card is-big"><h3>Main</h3><div class="stat"><div class="stat-value" data-countup>12,400</div><div class="stat-label">headline metric</div></div></div>',
+      '      <div class="card"><h3>KPI</h3><div class="stat"><div class="stat-value">99%</div></div></div>',
+      '      <div class="card"><h3>KPI</h3><div class="stat"><div class="stat-value">42</div></div></div>',
+      '      <div class="card is-wide"><h3>Progress</h3><div class="meter" data-value="70"></div></div>',
+      '      <div class="card is-wide"><h3>Note</h3><p class="small">Support line.</p></div>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'KPIメーター',
+    desc: 'カウントアップ＋バー (.meter / data-countup)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Progress</h2>',
+      '  </header>',
+      '  <div class="body" style="justify-content: center; gap: 26px;">',
+      '    <div class="meter-row">',
+      '      <strong>Metric</strong> <div class="meter" data-value="80"></div> <span class="muted" data-countup>80%</span>',
+      '      <strong>Metric</strong> <div class="meter" data-value="55"></div> <span class="muted" data-countup>55%</span>',
+      '      <strong>Metric</strong> <div class="meter" data-value="30"></div> <span class="muted" data-countup>30%</span>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'ウィンドウ枠',
+    desc: 'アプリ風の枠でコードや画面を見せる (.window)',
+    html: [
+      '<section class="slide layout-two-col">',
+      '  <header class="slide-head">',
+      '    <h2>The code</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <div class="col is-wide">',
+      '      <div class="window">',
+      '        <div class="bar"><span class="url">file.ext</span></div>',
+      '        <pre>code here</pre>',
+      '      </div>',
+      '    </div>',
+      '    <div class="col">',
+      '      <p>What to notice.</p>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: '吹き出し',
+    desc: '声・会話の見せ方 (.bubble)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>What they said</h2>',
+      '  </header>',
+      '  <div class="body" style="justify-content: center; gap: 44px;">',
+      '    <div class="bubble" style="max-width: 62%;">"Quote goes here."<div class="small muted" style="margin-top: 10px;">— who said it</div></div>',
+      '    <div class="bubble is-accent is-right" style="max-width: 62%; align-self: flex-end;">"The reply."</div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'フリップカード',
+    desc: 'ホバーで裏返るQ&Aカード (.flip)',
+    html: [
+      '<section class="slide layout-cards">',
+      '  <header class="slide-head">',
+      '    <h2>Hover to reveal</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <div class="flip" style="flex: 1 1 calc(33% - 40px); min-height: 420px;">',
+      '      <div>',
+      '        <div class="card front"><h3>Question</h3><p class="small">Front side.</p></div>',
+      '        <div class="card back is-accent"><h3>Answer</h3><p class="small">Back side.</p></div>',
+      '      </div>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
     name: '引用',
     desc: 'ひとつの引用を中央に (layout-quote)',
     html: [

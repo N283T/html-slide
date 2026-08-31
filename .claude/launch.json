@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "html-slide-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["cli/html-slide.js", "dev", "."],
+      "port": 8000
+    }
+  ]
+}

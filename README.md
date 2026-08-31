@@ -162,6 +162,26 @@ each `.bar` picks its `grid-column`), `.funnel` (narrowing stages),
 photo grid, `.is-two-up`), `.tree` (one-level org chart), and
 `th/td.is-highlight` (lift one table column).
 
+Diagram figures: `.phases` (chevron roadmap band), `.pyramid` (4-layer
+stack), `.venn` (two overlapping sets + `.and`), `.cycle` (circular
+4-step loop + `.hub`), `.timeline.is-alt` (zigzag stagger), `.arrow`
+(a big → between flex children).
+
+Interactive, CSS-only: `.tabs` (radio-driven tab switch inside one
+slide), `details.reveal` (styled click-to-open Q&A), `.flip` (hover
+flip card — front face prints, back is live-only).
+
+Web-design garnish: `.bento` (mosaic grid with `.is-wide/.is-tall/
+.is-big` spans), `.window` (app/browser chrome with traffic lights and
+a `.url` pill), `.bubble` (speech balloon, `.is-accent`/`.is-right`),
+`.delta` (▲/▼ badge), `.gradient-text`, `.hero-panel.is-glass`
+(frosted glass), and styled `kbd` keys.
+
+JS entrance effects (`core/effects.js`): `data-countup` numbers count
+from zero and `.meter[data-value]` bars fill whenever their slide
+becomes active; exports and reduced-motion get the final state
+instantly.
+
 Speaker notes go in `<aside class="notes">` inside a slide; they render
 only in the presenter console. `data-page-number="off"` hides a slide's
 number (title slides hide it by default).
@@ -175,6 +195,8 @@ color or type, so any layout works under any theme.
 - `paper` — warm light, editorial serif headings
 - `aurora` — dark, cold gradient accents
 - `lab` — cool light, high-contrast, data-first
+- `kasumi` — dusty pink × warm gray, rounded and soft
+- `ink` — near-monochrome editorial, one red accent, sharp corners
 
 To make your own, copy a theme file and change the tokens.
 
