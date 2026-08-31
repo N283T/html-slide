@@ -216,13 +216,179 @@
   </div>
 </section>
 
-<!-- ============ 10 · quote ============ -->
+<!-- ============ 10 · hero cover ============ -->
+<section class="slide layout-hero" data-page-number="off">
+  <div class="media">
+    <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="placeholder cover image">
+      <rect width="1920" height="1080" fill="var(--hs-surface)"></rect>
+      <circle cx="1470" cy="330" r="330" fill="var(--hs-accent-soft)"></circle>
+      <circle cx="330" cy="750" r="240" fill="var(--hs-accent-soft)"></circle>
+    </svg>
+  </div>
+  <div class="body">
+    <div class="hero-panel">
+      <div class="kicker">Layouts</div>
+      <h1>A cover over a full-bleed image</h1>
+      <p class="subtitle"><code>layout-hero</code> — swap the SVG for a photo; the panel keeps the title readable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 · split ============ -->
+<section class="slide layout-split">
+  <div class="media">
+    <svg viewBox="0 0 900 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="placeholder side image">
+      <rect width="900" height="1080" fill="var(--hs-surface)"></rect>
+      <circle cx="450" cy="420" r="260" fill="var(--hs-accent-soft)"></circle>
+      <rect x="150" y="740" width="600" height="18" rx="9" fill="var(--hs-border)"></rect>
+      <rect x="150" y="800" width="440" height="18" rx="9" fill="var(--hs-border)"></rect>
+    </svg>
+  </div>
+  <div class="body">
+    <div class="kicker">Layouts</div>
+    <h2>Half media, half words</h2>
+    <p class="subtitle"><code>layout-split</code> works as a cover, a section break, or a content slide. <code>.is-media-right</code> flips it.</p>
+  </div>
+</section>
+
+<!-- ============ 12 · agenda ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Agenda</div>
+    <h2>What the next 15 minutes hold</h2>
+  </header>
+  <div class="body">
+    <ol class="agenda">
+      <li><h3>The problem</h3><p>why the current way costs more than it looks</p></li>
+      <li><h3>The approach</h3><p>one idea, three consequences</p></li>
+      <li><h3>The evidence</h3><p>what we measured and what moved</p></li>
+      <li><h3>What's next</h3><p>the ask, in one slide</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 13 · flow + takeaway ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>A process the audience can walk</h2>
+  </header>
+  <div class="body">
+    <ol class="flow" style="margin-top: 40px;">
+      <li><h3>Collect</h3><p class="small">where the input comes from</p></li>
+      <li><h3>Refine</h3><p class="small">what we throw away, and why</p></li>
+      <li><h3>Decide</h3><p class="small">the rule that picks a winner</p></li>
+      <li><h3>Deliver</h3><p class="small">what the user finally sees</p></li>
+    </ol>
+    <div class="takeaway">A <code>.takeaway</code> pins the conclusion to the bottom of any slide — the line people photograph.</div>
+  </div>
+</section>
+
+<!-- ============ 14 · timeline ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Milestones on a line</h2>
+  </header>
+  <div class="body" style="justify-content: center;">
+    <ol class="timeline">
+      <li><div class="when">2023</div><h3>Prototype</h3><p class="small">A weekend script that refused to die.</p></li>
+      <li><div class="when">2024</div><h3>First users</h3><p class="small">Three labs, one shared spreadsheet.</p></li>
+      <li><div class="when">2025</div><h3>Rebuild</h3><p class="small">The version we don't apologize for.</p></li>
+      <li><div class="when">2026</div><h3>Today</h3><p class="small">Where this talk picks up.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 15 · people ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>The people behind it</h2>
+  </header>
+  <div class="body" style="justify-content: center;">
+    <div class="people">
+      <div class="person">
+        <div class="avatar"></div>
+        <h3>A. Researcher</h3>
+        <div class="role">METHOD · ANALYSIS</div>
+        <p>Replace <code>.avatar</code> with an <code>&lt;img&gt;</code>; it crops to a circle either way.</p>
+      </div>
+      <div class="person">
+        <div class="avatar"></div>
+        <h3>B. Engineer</h3>
+        <div class="role">PIPELINE · INFRA</div>
+        <p>One line each — a team slide is a courtesy, not a biography.</p>
+      </div>
+      <div class="person">
+        <div class="avatar"></div>
+        <h3>C. Designer</h3>
+        <div class="role">FIGURES · DECK</div>
+        <p>Three to five people fit; beyond that, use two rows of smaller cards.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 16 · spec ============ -->
+<section class="slide layout-two-col">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Facts in label/value rows</h2>
+  </header>
+  <div class="body">
+    <div class="col is-wide">
+      <dl class="spec">
+        <dt>Project</dt><dd>html-slide</dd>
+        <dt>Started</dt><dd>2026</dd>
+        <dt>Stack</dt><dd>HTML + CSS + a small Node dev server — no dependencies</dd>
+        <dt>Scope</dt><dd>Layouts × themes, presenter console, edit mode, PDF/PNG export</dd>
+      </dl>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Why a .spec list</h3>
+        <p class="small">Company overviews, dataset cards, experiment settings —
+          anything that is really a table of two columns reads better as labelled rows.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17 · matrix ============ -->
+<section class="slide layout-std">
+  <header class="slide-head">
+    <div class="kicker">Components</div>
+    <h2>Four quadrants, one decision</h2>
+  </header>
+  <div class="body">
+    <div class="matrix">
+      <span class="axis is-top">HIGH IMPACT</span>
+      <span class="axis is-bottom">LOW IMPACT</span>
+      <span class="axis is-left">HARD</span>
+      <span class="axis is-right">EASY</span>
+      <div class="card"><h3>Plan carefully</h3><p class="small">Worth it, but budget the pain.</p></div>
+      <div class="card is-accent"><h3>Do first</h3><p class="small">The quadrant this slide exists to point at.</p></div>
+      <div class="card"><h3>Skip</h3><p class="small">Expensive and forgettable.</p></div>
+      <div class="card"><h3>Batch later</h3><p class="small">Cheap, so save it for a slow week.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 18 · message ============ -->
+<section class="slide layout-message">
+  <div class="kicker">The point</div>
+  <h2>One slide, one claim —<br>said plainly enough to disagree with.</h2>
+  <p class="support"><code>layout-message</code> is for the sentence the whole deck argues. If it needs a chart, it isn't this slide.</p>
+</section>
+
+<!-- ============ 19 · quote ============ -->
 <section class="slide layout-quote">
   <blockquote>The slide is not the talk; it is the thing the talk points at.</blockquote>
   <p class="attribution">— someone who sat through too many bullet lists</p>
 </section>
 
-<!-- ============ 11 · end ============ -->
+<!-- ============ 20 · end ============ -->
 <section class="slide layout-end" data-page-number="off">
   <h2>Thank you</h2>
   <p class="subtitle">questions welcome · yourname@example.org</p>

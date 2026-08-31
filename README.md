@@ -135,18 +135,27 @@ working example of each.
 | Class | Use for |
 |---|---|
 | `layout-title` | cover slide (`h1`, `.subtitle`, `.meta`) |
+| `layout-hero` | cover over a full-bleed image (`.media`, `.hero-panel`) |
+| `layout-split` | media half / text half (`.media`, `.is-media-right`) |
 | `layout-section` | chapter dividers |
 | `layout-std` | heading + free-form body |
 | `layout-two-col` | text/figure pairs (`.col`, `.is-narrow`, `.is-wide`) |
 | `layout-figure` | figure-first slides (`figure` + `.aside`) |
 | `layout-compare` | before/after, ours/theirs (`.panel`, `.is-accent`, `.vs`) |
 | `layout-cards` | 2–3 parallel points (`.card`, `.is-two-up`) |
+| `layout-message` | one big claim (`h2` + `.support`) |
 | `layout-quote` | one quotation (`blockquote`, `.attribution`) |
 | `layout-end` | closing slide |
 
 Components usable anywhere: `.kicker`, `.card`, `.callout`, `.stat`,
 `.tag`, `.steps`, `.em`, `.muted`, `.small`, `.foot`, plus styled
-tables and `pre`/`code`.
+tables and `pre`/`code`. Pattern components extracted from good deck
+practice: `.agenda` (numbered contents), `.flow` (arrowed process
+steps), `.timeline` (horizontal milestones + `.when`), `.people` /
+`.person` (profile grid with `.avatar` and `.role`), `.spec`
+(label/value definition rows), `.matrix` + `.axis` (2×2 quadrant with
+axis labels), and `.takeaway` (a conclusion band that pins to the
+bottom of the body).
 
 Speaker notes go in `<aside class="notes">` inside a slide; they render
 only in the presenter console. `data-page-number="off"` hides a slide's

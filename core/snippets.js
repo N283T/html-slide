@@ -126,6 +126,188 @@ window.HSSnippets = [
     ].join('\n')
   },
   {
+    name: 'ヒーロー表紙',
+    desc: '全面メディア＋パネル (layout-hero)',
+    html: [
+      '<section class="slide layout-hero" data-page-number="off">',
+      '  <div class="media">',
+      '    <img src="" alt="cover background">',
+      '  </div>',
+      '  <div class="body">',
+      '    <div class="hero-panel">',
+      '      <div class="kicker">Kicker</div>',
+      '      <h1>Deck title</h1>',
+      '      <p class="subtitle">Subtitle / speaker / date</p>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: '左右分割',
+    desc: 'メディア半分＋テキスト半分 (layout-split)',
+    html: [
+      '<section class="slide layout-split">',
+      '  <div class="media">',
+      '    <img src="" alt="side image">',
+      '  </div>',
+      '  <div class="body">',
+      '    <div class="kicker">Kicker</div>',
+      '    <h2>Slide title</h2>',
+      '    <p class="subtitle">One supporting line.</p>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'メッセージ',
+    desc: '主張ひとつを大きく (layout-message)',
+    html: [
+      '<section class="slide layout-message">',
+      '  <div class="kicker">Kicker</div>',
+      '  <h2>The one claim this slide exists to make.</h2>',
+      '  <p class="support">A quieter sentence that backs it up.</p>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'アジェンダ',
+    desc: '番号付きの目次・本日の流れ (.agenda)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <div class="kicker">Agenda</div>',
+      '    <h2>本日の流れ</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <ol class="agenda">',
+      '      <li><h3>First topic</h3><p>One-line preview.</p></li>',
+      '      <li><h3>Second topic</h3><p>One-line preview.</p></li>',
+      '      <li><h3>Third topic</h3><p>One-line preview.</p></li>',
+      '    </ol>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'プロセス',
+    desc: '矢印でつなぐステップ (.flow)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>How it works</h2>',
+      '  </header>',
+      '  <div class="body" style="justify-content: center;">',
+      '    <ol class="flow">',
+      '      <li><h3>Ask</h3><p class="small">What happens first.</p></li>',
+      '      <li><h3>Build</h3><p class="small">Then this.</p></li>',
+      '      <li><h3>Check</h3><p class="small">Then this.</p></li>',
+      '      <li><h3>Ship</h3><p class="small">And finally.</p></li>',
+      '    </ol>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: '年表',
+    desc: '横に流れるマイルストーン (.timeline)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>History</h2>',
+      '  </header>',
+      '  <div class="body" style="justify-content: center;">',
+      '    <ol class="timeline">',
+      '      <li><div class="when">2019</div><h3>Founded</h3><p class="small">What happened.</p></li>',
+      '      <li><div class="when">2022</div><h3>Grew</h3><p class="small">What happened.</p></li>',
+      '      <li><div class="when">2026</div><h3>Now</h3><p class="small">Where we are.</p></li>',
+      '    </ol>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'メンバー',
+    desc: '顔写真＋名前＋ひとこと (.people)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Team</h2>',
+      '  </header>',
+      '  <div class="body" style="justify-content: center;">',
+      '    <div class="people">',
+      '      <div class="person"><div class="avatar"></div><h3>Name</h3><div class="role">ROLE</div><p>One line about them.</p></div>',
+      '      <div class="person"><div class="avatar"></div><h3>Name</h3><div class="role">ROLE</div><p>One line about them.</p></div>',
+      '      <div class="person"><div class="avatar"></div><h3>Name</h3><div class="role">ROLE</div><p>One line about them.</p></div>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: '概要表',
+    desc: 'ラベル＋値の定義リスト (.spec)',
+    html: [
+      '<section class="slide layout-two-col">',
+      '  <header class="slide-head">',
+      '    <div class="kicker">Overview</div>',
+      '    <h2>会社概要</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <div class="col is-wide">',
+      '      <dl class="spec">',
+      '        <dt>会社名</dt><dd>株式会社◯◯</dd>',
+      '        <dt>設立</dt><dd>2020年4月</dd>',
+      '        <dt>所在地</dt><dd>東京都◯◯区</dd>',
+      '        <dt>事業内容</dt><dd>◯◯の開発・運用</dd>',
+      '      </dl>',
+      '    </div>',
+      '    <div class="col">',
+      '      <figure><img src="" alt="" style="background: var(--hs-surface); min-height: 420px; border-radius: var(--hs-radius);"></figure>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: 'マトリクス',
+    desc: '2×2の整理図 (.matrix + .axis)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>Where things sit</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <div class="matrix">',
+      '      <span class="axis is-top">HIGH IMPACT</span>',
+      '      <span class="axis is-bottom">LOW IMPACT</span>',
+      '      <span class="axis is-left">HARD</span>',
+      '      <span class="axis is-right">EASY</span>',
+      '      <div class="card"><h3>Quadrant</h3><p class="small">Point.</p></div>',
+      '      <div class="card is-accent"><h3>Quadrant</h3><p class="small">Point.</p></div>',
+      '      <div class="card"><h3>Quadrant</h3><p class="small">Point.</p></div>',
+      '      <div class="card"><h3>Quadrant</h3><p class="small">Point.</p></div>',
+      '    </div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
+    name: '結論バンド',
+    desc: '本文＋下端の結論帯 (.takeaway)',
+    html: [
+      '<section class="slide layout-std">',
+      '  <header class="slide-head">',
+      '    <h2>The evidence</h2>',
+      '  </header>',
+      '  <div class="body">',
+      '    <p>Body content that builds the case.</p>',
+      '    <div class="takeaway">したがって、◯◯である — the one line to remember.</div>',
+      '  </div>',
+      '</section>'
+    ].join('\n')
+  },
+  {
     name: '引用',
     desc: 'ひとつの引用を中央に (layout-quote)',
     html: [

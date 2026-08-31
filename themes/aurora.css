@@ -15,6 +15,7 @@
   --hs-accent: #4fd6c2;
   --hs-accent-2: #8b7bff;
   --hs-accent-soft: rgba(79, 214, 194, 0.12);
+  --hs-on-accent: #06211c;
   --hs-em: #4fd6c2;
 
   --hs-title-bg: radial-gradient(circle at 82% 12%, rgba(139, 123, 255, 0.22), transparent 45%),
