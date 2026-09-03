@@ -139,25 +139,50 @@ export async function exportPdf(root, out) {
   console.log('wrote %s', out);
 }
 
-export async function exportPngs(root, outDir) {
+/* "51" -> [51], "48-51" -> [48..51], "1,3,7" -> [1,3,7]. */
+function parseSlideSpec(spec, total) {
+  const picks = new Set();
+  for (const token of String(spec).split(',')) {
+    const m = token.trim().match(/^(\d+)(?:-(\d+))?$/);
+    if (!m) throw new Error('bad --slide value: ' + token);
+    const from = Number(m[1]);
+    const to = Number(m[2] || m[1]);
+    for (let i = from; i <= to; i++) {
+      if (i < 1 || i > total) {
+        throw new Error('slide ' + i + ' out of range (deck has ' + total + ')');
+      }
+      picks.add(i);
+    }
+  }
+  return [...picks].sort((a, b) => a - b);
+}
+
+export async function exportPngs(root, outDir, slideSpec, width) {
+  width = Math.round(Number(width) || 1920);
+  if (width < 320 || width > 3840) throw new Error('--width out of range (320-3840)');
+  const height = Math.round(width * 9 / 16);
   const chrome = await findChrome();
   outDir = path.resolve(outDir || 'slide-captures');
   await fs.mkdir(outDir, { recursive: true });
   const total = await countSlides(root);
+  const picks = slideSpec
+    ? parseSlideSpec(slideSpec, total)
+    : Array.from({ length: total }, (_, k) => k + 1);
   await withServer(root, (url) => withProfile(async (profile) => {
-    for (let i = 1; i <= total; i++) {
+    for (const i of picks) {
       const file = path.join(outDir,
         'slide-' + String(i).padStart(2, '0') + '.png');
       await fs.rm(file, { force: true });
       await render(chrome, [
         ...COMMON_FLAGS,
         profile,
-        '--window-size=1920,1080',
+        '--window-size=' + width + ',' + height,
         '--screenshot=' + file,
         url + '?s=' + i + '&capture=1'
       ], file);
       console.log('wrote %s', path.relative(process.cwd(), file));
     }
   }));
-  console.log('captured %d slides -> %s', total, outDir);
+  console.log('captured %d slide%s -> %s',
+    picks.length, picks.length === 1 ? '' : 's', outDir);
 }

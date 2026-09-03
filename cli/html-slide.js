@@ -3,7 +3,7 @@
  *   html-slide dev [dir] [--port N]      serve a deck with live reload + edit mode
  *   html-slide new <dir> [--theme T]     scaffold a self-contained deck
  *   html-slide pdf [dir] [--out F]       render the deck to a PDF
- *   html-slide capture [dir] [--out D]   render every slide to a PNG
+ *   html-slide capture [dir] [--out D] [--slide N]   render slides to PNGs
  */
 
 import { startDevServer } from './dev-server.js';
@@ -30,8 +30,10 @@ Usage:
                                        Themes: paper (default), aurora, lab.
   html-slide pdf [dir] [--out F]       Export the deck to a PDF (default deck.pdf).
   html-slide capture [dir] [--out D]   Export slide-NN.png files (default
-                                       slide-captures/). Both exporters use a
-                                       local Chrome/Chromium/Edge install.
+                     [--slide N|N-M|a,b] slide-captures/); --slide limits to
+                     [--width W]       one slide, a range, or a list; --width
+                                       sets PNG width (default 1920, 16:9).
+                                       Both exporters use a local Chrome install.
 `;
 
 function fail(err) {
@@ -61,7 +63,9 @@ switch (command) {
   }
   case 'capture': {
     const out = flag('out', 'slide-captures');
-    exportPngs(rest[0] || '.', out).then(() => process.exit(0)).catch(fail);
+    const slide = flag('slide', null);
+    const width = flag('width', 1920);
+    exportPngs(rest[0] || '.', out, slide, width).then(() => process.exit(0)).catch(fail);
     break;
   }
   default:
