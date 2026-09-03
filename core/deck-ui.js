@@ -46,10 +46,13 @@
   button('▦ 一覧', 'スライド一覧・管理 (o)', function () {
     if (window.HSOverview) window.HSOverview.toggle();
   });
-  button('⌚ ノート', '発表者コンソール (t)', function () {
-    const url = location.pathname.replace(/[^/]*$/, '') + 'presenter.html';
-    open(url, 'hs-presenter', 'width=1100,height=700');
-  });
+  /* A built deck ships without notes or presenter.html. */
+  if (document.querySelector('.slide .notes')) {
+    button('⌚ ノート', '発表者コンソール (t)', function () {
+      const url = location.pathname.replace(/[^/]*$/, '') + 'presenter.html';
+      open(url, 'hs-presenter', 'width=1100,height=700');
+    });
+  }
   button('⛶', 'フルスクリーン (f)', function () {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen();

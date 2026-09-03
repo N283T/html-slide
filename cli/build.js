@@ -9,8 +9,13 @@ import path from 'node:path';
 /* Modules that only make sense with the dev server attached. */
 const DEV_SCRIPTS = ['livereload.js', 'snippets.js', 'authoring.js', 'editor.js'];
 
-/* Working files that never belong in a published deck. */
-const SKIP_NAMES = new Set(['slide-captures', 'deck.pdf', '.DS_Store']);
+/* Working files that never belong in a published deck. The presenter
+ * console goes too: speaker notes are stripped from the build. */
+const SKIP_NAMES = new Set(['slide-captures', 'deck.pdf', '.DS_Store', 'presenter.html']);
+
+function stripNotes(html) {
+  return html.replace(/[ \t]*<aside class="notes">[\s\S]*?<\/aside>\n?/g, '');
+}
 
 function stripDevScripts(html) {
   for (const name of DEV_SCRIPTS) {
@@ -40,12 +45,8 @@ export async function buildStatic(root, outDir) {
   if (outDir === root) throw new Error('--out must differ from the deck directory');
   await fs.rm(outDir, { recursive: true, force: true });
   await copyTree(root, outDir, outDir);
-  for (const page of ['index.html', 'presenter.html']) {
-    const file = path.join(outDir, page);
-    try {
-      const html = await fs.readFile(file, 'utf8');
-      await fs.writeFile(file, stripDevScripts(html));
-    } catch { /* page not present in this deck */ }
-  }
+  const file = path.join(outDir, 'index.html');
+  const html = await fs.readFile(file, 'utf8');
+  await fs.writeFile(file, stripNotes(stripDevScripts(html)));
   console.log('built static deck -> %s', outDir);
 }

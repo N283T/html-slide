@@ -188,6 +188,8 @@
       case 'End':
         e.preventDefault(); goto(total - 1, 0); break;
       case 't': {
+        /* No-op on a built deck: notes and presenter.html are stripped. */
+        if (!document.querySelector('.slide .notes')) break;
         const url = location.pathname.replace(/[^/]*$/, '') + 'presenter.html';
         open(url, 'hs-presenter', 'width=1100,height=700');
         break;
