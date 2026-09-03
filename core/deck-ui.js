@@ -37,11 +37,11 @@
 
   button('▶', '次へ (→)', function () { D.next(); });
   sep();
-  const editBtn = button('✎ 編集', '編集モード (e)', function (b) {
-    if (window.HSEditor) {
-      window.HSEditor.toggle();
-      b.classList.toggle('is-on', window.HSEditor.isEditing());
-    }
+  /* Editing ships only with the dev bundle; a built deck has no
+   * editor.js, so the button would be dead weight. */
+  const editBtn = window.HSEditor && button('✎ 編集', '編集モード (e)', function (b) {
+    window.HSEditor.toggle();
+    b.classList.toggle('is-on', window.HSEditor.isEditing());
   });
   button('▦ 一覧', 'スライド一覧・管理 (o)', function () {
     if (window.HSOverview) window.HSOverview.toggle();
@@ -79,7 +79,7 @@
 
   function refresh() {
     counter.textContent = (D.state.index + 1) + ' / ' + D.state.total;
-    if (window.HSEditor) editBtn.classList.toggle('is-on', window.HSEditor.isEditing());
+    if (editBtn) editBtn.classList.toggle('is-on', window.HSEditor.isEditing());
   }
   D.on('change', refresh);
   refresh();

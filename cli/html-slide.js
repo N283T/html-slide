@@ -2,6 +2,7 @@
 /* html-slide CLI.
  *   html-slide dev [dir] [--port N]      serve a deck with live reload + edit mode
  *   html-slide new <dir> [--theme T]     scaffold a self-contained deck
+ *   html-slide build [dir] [--out D]     emit a static deck for plain hosting
  *   html-slide pdf [dir] [--out F]       render the deck to a PDF
  *   html-slide capture [dir] [--out D] [--slide N]   render slides to PNGs
  */
@@ -9,6 +10,7 @@
 import { startDevServer } from './dev-server.js';
 import { scaffold } from './new.js';
 import { exportPdf, exportPngs } from './export.js';
+import { buildStatic } from './build.js';
 
 const [, , command, ...rest] = process.argv;
 
@@ -29,6 +31,9 @@ Usage:
   html-slide new <dir> [--theme T]     Scaffold a self-contained deck.
                                        Themes: paper (default), aurora, lab.
   html-slide pdf [dir] [--out F]       Export the deck to a PDF (default deck.pdf).
+  html-slide build [dir] [--out D]     Emit a static copy for plain hosting
+                                       (default dist/): edit mode, live reload
+                                       and management UI are stripped.
   html-slide capture [dir] [--out D]   Export slide-NN.png files (default
                      [--slide N|N-M|a,b] slide-captures/); --slide limits to
                      [--width W]       one slide, a range, or a list; --width
@@ -54,6 +59,11 @@ switch (command) {
       process.exit(1);
     }
     scaffold(rest[0], { theme }).catch(fail);
+    break;
+  }
+  case 'build': {
+    const out = flag('out', 'dist');
+    buildStatic(rest[0] || '.', out).then(() => process.exit(0)).catch(fail);
     break;
   }
   case 'pdf': {
