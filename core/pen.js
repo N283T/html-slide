@@ -1,7 +1,6 @@
 /* Pen mode: press `p` while presenting to draw on the current slide,
  * like scribbling on a printed handout. Strokes are ephemeral — they
- * clear on slide change (`c` clears by hand, `p` or Esc puts the pen
- * away). Nothing is ever written to the source. */
+ * clear on slide change (`c` clears by hand, `p` puts the pen away). Nothing is ever written to the source. */
 (function () {
   'use strict';
 
@@ -80,8 +79,9 @@
   addEventListener('keydown', function (e) {
     if (e.target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    /* No Escape binding: the browser owns Esc for leaving fullscreen,
+     * so the pen toggles on p alone to avoid double meanings. */
     if (e.key === 'p') { active ? exit() : enter(); }
     else if (e.key === 'c' && active) clear();
-    else if (e.key === 'Escape' && active) exit();
   });
 })();
