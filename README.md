@@ -1,5 +1,9 @@
 # html-slide
 
+> **v2 (alpha)** is a from-scratch rewrite in [`v2/`](v2/README.md): a
+> direct-manipulation editor, morph transitions and an agent review loop.
+> This README describes v1.
+
 A dependency-free HTML/CSS slide framework: fixed 1920×1080 canvas,
 layout templates × swappable themes, a presenter console, built-in
 SVG charts, PDF/PNG export, and an in-browser **editing suite** —

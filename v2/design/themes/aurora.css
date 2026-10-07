@@ -1,0 +1,77 @@
+/* Theme: aurora — deep night, violet-to-cyan light, translucent surfaces. */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=Inter:wght@400..700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+:root {
+  --stage: #05060c;
+
+  --bg: #0b0c17;
+  --bg-soft: #131527;
+  --surface: rgb(255 255 255 / .07);
+  --fg: #c6c9e0;
+  --heading: #f6f6ff;
+  --muted: #868bb0;
+  --line: rgb(255 255 255 / .14);
+  --accent: #9b8cff;
+  --accent-2: #3ddbd9;
+  --accent-soft: rgb(155 140 255 / .18);
+  --on-accent: #0b0c17;
+
+  --c1: #9b8cff;
+  --c2: #3ddbd9;
+  --c3: #ffb86b;
+  --c4: #ff7ab8;
+  --c5: #7ee787;
+  --c6: #6b7099;
+
+  --code-bg: rgb(0 0 0 / .4);
+
+  --font-display: "Space Grotesk", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-sans: "Inter", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  --display-weight: 600;
+  --display-tracking: -0.025em;
+
+  --radius: 20px;
+  --radius-s: 10px;
+  --card-line: rgb(255 255 255 / .1);
+  --shadow: 0 20px 60px rgb(0 0 0 / .5);
+
+  --cover-bg:
+    radial-gradient(55% 75% at 88% 8%, rgb(155 140 255 / .5), transparent 62%),
+    radial-gradient(50% 70% at 6% 100%, rgb(61 219 217 / .32), transparent 60%),
+    radial-gradient(40% 50% at 60% 110%, rgb(255 122 184 / .2), transparent 60%),
+    #0b0c17;
+}
+
+[data-tone="invert"] {
+  --bg: #f3f2fb;
+  --bg-soft: #e9e8f6;
+  --surface: #ffffff;
+  --fg: #36384f;
+  --heading: #11122b;
+  --muted: #73769a;
+  --line: #d9d9ec;
+  --accent: #5a45ee;
+  --accent-2: #0f9d9b;
+  --accent-soft: #e2deff;
+  --on-accent: #ffffff;
+  --card-line: #e3e3f2;
+  --c1: #5a45ee;
+  --c2: #0f9d9b;
+  --code-bg: #15161b;
+  --shadow: 0 16px 40px rgb(40 30 120 / .14);
+}
+
+[data-tone="accent"] {
+  --bg: #5a45ee;
+  --bg-soft: #4f3be0;
+  --surface: rgb(255 255 255 / .14);
+  --fg: #ecebff;
+  --heading: #ffffff;
+  --muted: #c9c3ff;
+  --line: rgb(255 255 255 / .3);
+  --accent: #ffffff;
+  --accent-2: #9ff5f3;
+  --accent-soft: rgb(255 255 255 / .18);
+  --on-accent: #5a45ee;
+}

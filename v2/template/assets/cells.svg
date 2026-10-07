@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="22"/></filter>
+    <filter id="softer" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+    <radialGradient id="vig" cx=".5" cy=".5" r=".75">
+      <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".65"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="#060912"/>
+  <g filter="url(#soft)" opacity=".9">
+    <ellipse cx="250" cy="230" rx="130" ry="96" fill="#1fd17a" transform="rotate(-18 250 230)"/>
+    <ellipse cx="560" cy="170" rx="110" ry="84" fill="#19b86b" transform="rotate(24 560 170)"/>
+    <ellipse cx="880" cy="270" rx="150" ry="104" fill="#23dc84" transform="rotate(-8 880 270)"/>
+    <ellipse cx="380" cy="520" rx="140" ry="100" fill="#18a862" transform="rotate(30 380 520)"/>
+    <ellipse cx="720" cy="560" rx="170" ry="120" fill="#27e08a" transform="rotate(-22 720 560)"/>
+    <ellipse cx="1030" cy="610" rx="110" ry="86" fill="#1bbf70" transform="rotate(12 1030 610)"/>
+    <ellipse cx="130" cy="640" rx="100" ry="76" fill="#159a59" transform="rotate(-30 130 640)"/>
+  </g>
+  <g filter="url(#softer)">
+    <ellipse cx="250" cy="230" rx="50" ry="40" fill="#3b6bff"/>
+    <ellipse cx="560" cy="170" rx="44" ry="36" fill="#3b6bff"/>
+    <ellipse cx="880" cy="270" rx="56" ry="42" fill="#3b6bff"/>
+    <ellipse cx="380" cy="520" rx="52" ry="40" fill="#3b6bff"/>
+    <ellipse cx="720" cy="560" rx="62" ry="48" fill="#4f7dff"/>
+    <ellipse cx="1030" cy="610" rx="42" ry="34" fill="#3b6bff"/>
+    <ellipse cx="130" cy="640" rx="40" ry="32" fill="#3b6bff"/>
+  </g>
+  <g filter="url(#softer)" fill="#ff4fa3">
+    <circle cx="690" cy="500" r="9"/><circle cx="770" cy="530" r="11"/><circle cx="740" cy="620" r="8"/>
+    <circle cx="660" cy="590" r="10"/><circle cx="800" cy="600" r="7"/><circle cx="715" cy="455" r="6"/>
+    <circle cx="300" cy="200" r="5"/><circle cx="920" cy="230" r="6"/><circle cx="410" cy="560" r="5"/>
+  </g>
+  <rect width="1200" height="800" fill="url(#vig)"/>
+  <rect x="1010" y="736" width="130" height="8" fill="#fff"/>
+  <text x="1075" y="722" fill="#fff" font-family="Helvetica, Arial, sans-serif" font-size="24" text-anchor="middle">20 µm</text>
+</svg>
