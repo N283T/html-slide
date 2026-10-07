@@ -1,0 +1,74 @@
+/* Theme: lab — cool paper, engineering blue, Plex. Built for data. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+:root {
+  --stage: #0a0e13;
+
+  --bg: #f7f9fb;
+  --bg-soft: #edf1f5;
+  --surface: #ffffff;
+  --fg: #2c3642;
+  --heading: #0e1620;
+  --muted: #677587;
+  --line: #d5dde6;
+  --accent: #0b5fd0;
+  --accent-2: #0d8a6a;
+  --accent-soft: #dce9fb;
+  --on-accent: #ffffff;
+
+  --c1: #0b5fd0;
+  --c2: #0d8a6a;
+  --c3: #e08a00;
+  --c4: #8250df;
+  --c5: #cf3f4f;
+  --c6: #7a8797;
+
+  --font-display: "IBM Plex Sans", "IBM Plex Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-sans: "IBM Plex Sans", "IBM Plex Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+  --display-weight: 600;
+  --display-tracking: -0.02em;
+
+  --radius: 10px;
+  --radius-s: 6px;
+  --card-line: var(--line);
+  --shadow: 0 1px 2px rgb(14 22 32 / .06), 0 10px 28px rgb(14 22 32 / .09);
+
+  --cover-bg:
+    linear-gradient(to right, #f7f9fb 30%, transparent),
+    linear-gradient(rgb(11 95 208 / .1) 1px, transparent 1px) 0 0 / 60px 60px,
+    linear-gradient(90deg, rgb(11 95 208 / .1) 1px, transparent 1px) 0 0 / 60px 60px,
+    #f7f9fb;
+}
+
+[data-tone="invert"] {
+  --bg: #0c1a2b;
+  --bg-soft: #12233a;
+  --surface: #14263d;
+  --fg: #c8d4e2;
+  --heading: #f3f7fb;
+  --muted: #8598ad;
+  --line: #24384f;
+  --accent: #62a8ff;
+  --accent-2: #4fd1a8;
+  --accent-soft: #15304f;
+  --on-accent: #0c1a2b;
+  --card-line: #24384f;
+  --c1: #62a8ff;
+  --c2: #4fd1a8;
+}
+
+[data-tone="accent"] {
+  --bg: #0b5fd0;
+  --bg-soft: #0a55bb;
+  --surface: rgb(255 255 255 / .13);
+  --fg: #e6f0ff;
+  --heading: #ffffff;
+  --muted: #b9d3f7;
+  --line: rgb(255 255 255 / .3);
+  --accent: #ffffff;
+  --accent-2: #9df0d3;
+  --accent-soft: rgb(255 255 255 / .17);
+  --on-accent: #0b5fd0;
+  --card-line: transparent;
+}

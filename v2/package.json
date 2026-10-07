@@ -1,0 +1,13 @@
+{
+  "name": "html-slide",
+  "version": "2.0.0-alpha.1",
+  "description": "HTML slides with a direct-manipulation editor, morph transitions and an agent review loop. No dependencies.",
+  "type": "module",
+  "bin": {
+    "hs": "bin/hs.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,70 @@
+/* Theme: paper — warm off-white, serif display, terracotta accent. */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400..700&family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+:root {
+  --stage: #16130f;
+
+  --bg: #faf6ef;
+  --bg-soft: #f1eadd;
+  --surface: #f0e8da;
+  --fg: #40382f;
+  --heading: #1d1814;
+  --muted: #8b7f70;
+  --line: #ddd1bf;
+  --accent: #b54d17;
+  --accent-2: #1f6f5c;
+  --accent-soft: #f5e0cd;
+  --on-accent: #fffaf3;
+
+  --c1: #b54d17;
+  --c2: #1f6f5c;
+  --c3: #d8a03a;
+  --c4: #56688f;
+  --c5: #8f3a4e;
+  --c6: #9a8f80;
+
+  --font-display: "Fraunces", "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-sans: "Inter", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  --display-weight: 600;
+  --display-tracking: -0.015em;
+
+  --radius: 14px;
+  --radius-s: 8px;
+  --shadow: 0 2px 4px rgb(60 40 20 / .06), 0 16px 40px rgb(60 40 20 / .12);
+
+  --cover-bg:
+    radial-gradient(90% 80% at 100% 100%, #f0d5ba 0%, transparent 60%),
+    radial-gradient(60% 50% at 0% 0%, #f6ecdb 0%, transparent 70%),
+    #faf6ef;
+}
+
+[data-tone="invert"] {
+  --bg: #1f1a15;
+  --bg-soft: #29231c;
+  --surface: #2d261f;
+  --fg: #e6dccd;
+  --heading: #fbf5ea;
+  --muted: #a69a88;
+  --line: #40372d;
+  --accent: #ea9460;
+  --accent-2: #74c4ae;
+  --accent-soft: #3b2a1e;
+  --on-accent: #1f1a15;
+  --c1: #ea9460;
+  --c2: #74c4ae;
+}
+
+[data-tone="accent"] {
+  --bg: #b54d17;
+  --bg-soft: #a84512;
+  --surface: rgb(255 250 243 / .14);
+  --fg: #ffeedd;
+  --heading: #fffaf3;
+  --muted: #f4cdb0;
+  --line: rgb(255 250 243 / .3);
+  --accent: #fffaf3;
+  --accent-2: #ffe2a8;
+  --accent-soft: rgb(255 250 243 / .16);
+  --on-accent: #b54d17;
+}

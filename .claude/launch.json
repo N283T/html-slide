@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["cli/html-slide.js", "dev", "."],
       "port": 8000
+    },
+    {
+      "name": "hs2-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["v2/bin/hs.js", "dev", "v2", "--port", "4100"],
+      "port": 4100
     }
   ]
 }

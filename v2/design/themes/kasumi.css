@@ -1,0 +1,70 @@
+/* Theme: kasumi — haze pink and blue-grey, rounded and soft. */
+@import url("https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Nunito:wght@400..800&family=JetBrains+Mono:wght@400;600&display=swap");
+
+:root {
+  --stage: #1d171a;
+
+  --bg: #fbf6f4;
+  --bg-soft: #f5e9e6;
+  --surface: #f4e7e4;
+  --fg: #4d4347;
+  --heading: #2f262a;
+  --muted: #9a8c91;
+  --line: #e7d6d3;
+  --accent: #c25d77;
+  --accent-2: #6a8da8;
+  --accent-soft: #f7dde3;
+  --on-accent: #ffffff;
+
+  --c1: #c25d77;
+  --c2: #6a8da8;
+  --c3: #e0b060;
+  --c4: #9a84c0;
+  --c5: #7fb5a0;
+  --c6: #b3a5a9;
+
+  --font-display: "Nunito", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  --font-sans: "Nunito", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  --display-weight: 800;
+  --display-tracking: -0.01em;
+
+  --radius: 30px;
+  --radius-s: 16px;
+  --shadow: 0 16px 44px rgb(150 80 100 / .16);
+
+  --cover-bg:
+    radial-gradient(60% 70% at 95% 5%, #f9d3dc 0%, transparent 65%),
+    radial-gradient(55% 65% at 0% 100%, #d5e3ee 0%, transparent 65%),
+    #fbf6f4;
+}
+
+[data-tone="invert"] {
+  --bg: #382d32;
+  --bg-soft: #43363c;
+  --surface: #463940;
+  --fg: #ecdfe2;
+  --heading: #fff6f7;
+  --muted: #b5a3a9;
+  --line: #57484f;
+  --accent: #f29db2;
+  --accent-2: #a4c6de;
+  --accent-soft: #553842;
+  --on-accent: #382d32;
+  --c1: #f29db2;
+  --c2: #a4c6de;
+}
+
+[data-tone="accent"] {
+  --bg: #c25d77;
+  --bg-soft: #b6516b;
+  --surface: rgb(255 255 255 / .16);
+  --fg: #fff0f3;
+  --heading: #ffffff;
+  --muted: #f8cdd7;
+  --line: rgb(255 255 255 / .34);
+  --accent: #ffffff;
+  --accent-2: #dcefff;
+  --accent-soft: rgb(255 255 255 / .2);
+  --on-accent: #c25d77;
+}

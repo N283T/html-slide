@@ -1,0 +1,69 @@
+/* Theme: ink — black on white, tight grotesque, one red. Sharp corners. */
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600..900&family=Inter:wght@400..700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap");
+
+:root {
+  --stage: #050505;
+
+  --bg: #ffffff;
+  --bg-soft: #f2f2ef;
+  --surface: #f0f0ed;
+  --fg: #1c1c1c;
+  --heading: #000000;
+  --muted: #757575;
+  --line: #d6d6d2;
+  --accent: #e4281f;
+  --accent-2: #111111;
+  --accent-soft: #fde6e4;
+  --on-accent: #ffffff;
+
+  --c1: #e4281f;
+  --c2: #111111;
+  --c3: #8a8a8a;
+  --c4: #c9c9c5;
+  --c5: #f29a94;
+  --c6: #4a4a4a;
+
+  --font-display: "Inter Tight", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-sans: "Inter", "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  --display-weight: 800;
+  --display-tracking: -0.035em;
+
+  --radius: 0px;
+  --radius-s: 0px;
+  --shadow: 0 0 0 1px #000;
+
+  --cover-bg: #ffffff;
+}
+
+[data-tone="invert"] {
+  --bg: #0a0a0a;
+  --bg-soft: #141414;
+  --surface: #1a1a1a;
+  --fg: #e4e4e4;
+  --heading: #ffffff;
+  --muted: #8f8f8f;
+  --line: #2e2e2e;
+  --accent: #ff4b40;
+  --accent-2: #ffffff;
+  --accent-soft: #2b1210;
+  --on-accent: #0a0a0a;
+  --c1: #ff4b40;
+  --c2: #ffffff;
+  --c6: #b5b5b5;
+  --shadow: 0 0 0 1px #fff;
+}
+
+[data-tone="accent"] {
+  --bg: #e4281f;
+  --bg-soft: #d32119;
+  --surface: rgb(255 255 255 / .14);
+  --fg: #fff1f0;
+  --heading: #ffffff;
+  --muted: #ffc9c5;
+  --line: rgb(255 255 255 / .35);
+  --accent: #ffffff;
+  --accent-2: #000000;
+  --accent-soft: rgb(255 255 255 / .18);
+  --on-accent: #e4281f;
+}
