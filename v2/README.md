@@ -51,6 +51,7 @@ Slides mix two kinds of element, and each is handled the way it behaves:
 | ⌘K | command palette (every command, insert, layout, theme, slide) |
 | `N` | new slide from the layout gallery |
 | `C` | place an `@fix` review note |
+| `M` | speaker-notes pane under the stage |
 | ⌘Z / ⇧⌘Z · ⌘D · ⌘C/X/V | undo / redo · duplicate · clipboard |
 | ⌘-wheel · Space-drag · ⌘0 | zoom · pan · fit |
 | ⌘↵ | present |
@@ -59,6 +60,12 @@ Paste or drop an image and it is saved to `assets/` and placed. The right
 panel has three tabs: **Design** (contextual properties; colours are theme
 tokens, so they follow a theme change), **Layers** (the slide's tree) and
 **Review** (every layout problem and open note in the deck).
+
+Speaker notes (`<aside class="notes">`) are edited in a pane under the
+stage (`M`, or the notes button in the toolbar). It edits them as rich
+text, so paragraphs, lists and rules survive, and new paragraphs become
+`<p>`. Drag its top edge to resize it and use `A−`/`A＋` for the text size;
+both are remembered.
 
 Everything is saved to the source about half a second after you stop.
 Styles land as inline `style` and classes — the same thing a person or

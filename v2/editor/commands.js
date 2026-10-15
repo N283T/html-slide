@@ -14,6 +14,7 @@ import {
   selectParent, selectChild, selectSibling, toggleFree, align, distribute,
   setTool, openNoteEditor, resetZoom, zoomBy, isInlineEl, canEditText
 } from './stage.js';
+import { toggleNotes } from './notes.js';
 
 /* ================= snippets ================= */
 
@@ -324,6 +325,7 @@ add('del-slide', 'スライド', 'スライドを削除', () => deleteSlide(HS.s
 add('present', '表示', '発表する', () => present(), { keys: MOD + '↵' });
 add('present-here', '表示', '発表する（ウィンドウのまま）', () => present(false));
 add('presenter', '表示', '発表者ビューを開く', () => HS.present.openPresenter());
+add('notes', '表示', 'ノート欄', () => toggleNotes(), { keys: 'M' });
 add('zoom-fit', '表示', '全体を表示', resetZoom, { keys: MOD + '0' });
 add('zoom-in', '表示', '拡大', () => zoomBy(1.25), { keys: MOD + '+' });
 add('zoom-out', '表示', '縮小', () => zoomBy(0.8), { keys: MOD + '−' });
@@ -472,7 +474,7 @@ const SHORTCUTS = [
   ['矢印（⇧で10px）', '位置の微調整'], ['Esc / Enter / Tab', '親・子・隣の要素へ'],
   [MOD + 'K', 'コマンドパレット'], [MOD + 'Z', '元に戻す'], [MOD + 'D', '複製'],
   ['T R O A L I', 'テキスト・四角・楕円・矢印・線・画像'], ['C', '@fix コメント'],
-  ['N', '新しいスライド'], [MOD + '↵', '発表する'], [MOD + 'ホイール', '拡大縮小'], ['Space + ドラッグ', '表示位置を動かす']
+  ['N', '新しいスライド'], ['M', 'ノート欄'], [MOD + '↵', '発表する'], [MOD + 'ホイール', '拡大縮小'], ['Space + ドラッグ', '表示位置を動かす']
 ];
 
 export function openHelp() {
@@ -547,6 +549,7 @@ function onKey(e) {
     case 'i': stop(); chooseImage(); break;
     case 'c': stop(); run('note'); break;
     case 'n': stop(); openGallery(); break;
+    case 'm': stop(); toggleNotes(); break;
     case 'v': stop(); setTool('select'); break;
     case '?': stop(); openHelp(); break;
   }

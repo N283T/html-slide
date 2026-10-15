@@ -16,8 +16,9 @@ import {
   BLOCKS, OBJECTS, insertBlock, insertObject, chooseImage, openGallery, openPalette, openHelp,
   present, getThemes
 } from './commands.js';
+import { initNotes, notesOpen, notesToggleButton, toggleNotes } from './notes.js';
 
-let root, film, side, sideBody, statusEl, barInfo, barIssues, barZoom;
+let root, film, side, sideBody, statusEl, barInfo, barIssues, barZoom, notesPane;
 let tab = 'design';
 
 /* replaceChildren, minus the nulls a conditional leaves behind. */
@@ -559,25 +560,13 @@ function slidePanel() {
   };
 
   const notesEl = slide.querySelector(':scope > .notes');
-  const notes = h('textarea', {
-    class: 'hse-input', rows: 5, placeholder: '話すこと。発表者ビューにだけ出ます',
-    value: notesEl ? notesEl.textContent.replace(/^\s+|\s+$/g, '').replace(/\n\s+/g, '\n') : ''
-  });
-  notes.addEventListener('input', () => {
-    mutate(() => {
-      let aside = slide.querySelector(':scope > .notes');
-      const text = notes.value.trim();
-      if (!text) {
-        if (aside) aside.remove();
-        return;
-      }
-      if (!aside) {
-        aside = h('aside', { class: 'notes' });
-        slide.append(document.createTextNode('  '), aside, document.createTextNode('\n'));
-      }
-      aside.textContent = text;
-    }, { key: 'slide:notes', source: 'inspector' });
-  });
+  const notesText = notesEl ? notesEl.textContent.trim() : '';
+  const notes = h('div', { class: 'hse-notes-preview' },
+    h('p', { class: notesText ? '' : 'is-empty', text: notesText || 'ノートはまだありません' }),
+    h('button', {
+      class: 'hse-btn', type: 'button', text: notesOpen() ? 'ノート欄を閉じる (M)' : 'ノート欄で編集 (M)',
+      onclick: () => toggleNotes()
+    }));
 
   const issues = (ed.issues.get(slide) || []).filter((i) => i.level !== 'note');
   const themes = getThemes();
@@ -771,7 +760,8 @@ function toolbar() {
       h('span', { class: 'hse-sep' }),
       tool('plus', '新しいスライド (N)', (e) => openGallery(undefined, e.currentTarget)),
       h('span', { class: 'hse-sep' }),
-      noteBtn),
+      noteBtn,
+      notesToggleButton()),
     h('div', { class: 'hse-top-right' },
       tool('undo', '元に戻す (' + MOD + 'Z)', undo),
       tool('redo', 'やり直す (⇧' + MOD + 'Z)', redo),
@@ -788,7 +778,7 @@ function viewport() {
   const left = film.getBoundingClientRect().right;
   const right = side.getBoundingClientRect().left;
   const top = root.firstElementChild.getBoundingClientRect().bottom;
-  const bottom = root.lastElementChild.getBoundingClientRect().top;
+  const bottom = (notesOpen() ? notesPane : root.lastElementChild).getBoundingClientRect().top;
   return {
     x: left + pad,
     y: top + pad,
@@ -825,6 +815,7 @@ export function initPanels() {
     toolbar(),
     film,
     side,
+    notesPane = initNotes(),
     h('div', { class: 'hse-bar' }, barInfo, barIssues, h('span', { class: 'hse-bar-space' }),
       h('span', { class: 'hse-bar-hint', text: 'ドラッグで並べ替え ・ ⌥ドラッグで自由配置 ・ ダブルクリックで文字 ・ ' + MOD + 'K でコマンド' }),
       barZoom));
@@ -841,6 +832,7 @@ export function initPanels() {
     rebuild();
   });
   ed.on('select', rebuild);
+  ed.on('notes', rebuild);
   ed.on('slides', () => { syncFilm(); rebuild(); updateBar(); });
   ed.on('issues', () => {
     updateBar();
