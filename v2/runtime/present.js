@@ -274,18 +274,69 @@
     const count = el('div', 'hs-pv-count');
     bar.append(timer, clock, count);
 
-    const main = el('div', 'hs-pv-main');
-    const side = el('div', 'hs-pv-side');
+    /* Notes take the main area; the slides sit in a narrower column
+     * whose width (splitter) and the notes text size are adjustable
+     * and remembered. */
+    const notesPane = el('div', 'hs-pv-notes-pane');
+    const notesHead = el('div', 'hs-pv-head');
     const notes = el('div', 'hs-pv-notes');
+    const sizeLabel = el('span', 'hs-pv-size');
+    notesPane.append(notesHead, notes);
+    const splitter = el('div', 'hs-pv-split');
+    splitter.title = 'ドラッグで幅を調整';
+    const side = el('div', 'hs-pv-side');
+
+    function noFocus(b) {
+      b.type = 'button';
+      /* No focus, so Space/Enter keep meaning "next" and never re-press it. */
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      return b;
+    }
+
+    const prefs = { notes: 28, side: 34 };
+    try { Object.assign(prefs, JSON.parse(localStorage.getItem('hs-pv-prefs')) || {}); } catch (_) {}
+    function savePrefs() {
+      try { localStorage.setItem('hs-pv-prefs', JSON.stringify(prefs)); } catch (_) {}
+    }
+    function setNotesSize(px) {
+      prefs.notes = Math.max(16, Math.min(64, px));
+      view.style.setProperty('--pv-notes', prefs.notes + 'px');
+      sizeLabel.textContent = prefs.notes + 'px';
+      savePrefs();
+    }
+    function setSideWidth(pct) {
+      prefs.side = Math.max(18, Math.min(60, pct));
+      view.style.setProperty('--pv-side', prefs.side + '%');
+      savePrefs();
+    }
+    const smaller = noFocus(el('button', null, 'A−'));
+    const larger = noFocus(el('button', null, 'A＋'));
+    smaller.title = '文字を小さく (-)';
+    larger.title = '文字を大きく (+)';
+    smaller.addEventListener('click', function () { setNotesSize(prefs.notes - 2); });
+    larger.addEventListener('click', function () { setNotesSize(prefs.notes + 2); });
+    notesHead.append(el('div', 'hs-pv-label', 'NOTES'), smaller, sizeLabel, larger);
+
+    splitter.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      splitter.setPointerCapture(e.pointerId);
+      const box = view.getBoundingClientRect();
+      function move(ev) {
+        setSideWidth(Math.round((box.right - ev.clientX) / box.width * 100));
+      }
+      function up() {
+        splitter.removeEventListener('pointermove', move);
+        splitter.removeEventListener('pointerup', up);
+      }
+      splitter.addEventListener('pointermove', move);
+      splitter.addEventListener('pointerup', up);
+    });
 
     /* Same navigation as the keys; the channel carries it to the
      * audience window. */
     const controls = el('div', 'hs-pv-controls');
     function button(label, className, run) {
-      const b = el('button', className, label);
-      b.type = 'button';
-      /* No focus, so Space/Enter keep meaning "next" and never re-press it. */
-      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      const b = noFocus(el('button', className, label));
       b.addEventListener('click', run);
       controls.appendChild(b);
       return b;
@@ -296,8 +347,16 @@
     const btnPrev = button('← 前へ', 'is-prev', function () { HS.prev(); });
     const btnNext = button('次へ →', 'is-next', function () { HS.next(); });
 
-    view.append(bar, main, side, controls);
+    view.append(bar, notesPane, splitter, side, controls);
     document.body.appendChild(view);
+    setNotesSize(prefs.notes);
+    setSideWidth(prefs.side);
+
+    addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey || overview) return;
+      if (e.key === '+' || e.key === '=') setNotesSize(prefs.notes + 2);
+      else if (e.key === '-') setNotesSize(prefs.notes - 2);
+    });
 
     let started = null;
     timer.addEventListener('click', function () { started = null; tick(); });
@@ -326,13 +385,13 @@
       btnLast.disabled = HS.state.index === list.length - 1;
       count.replaceChildren(el('b', null, String(HS.state.index + 1)),
         document.createTextNode(' / ' + list.length));
-      main.replaceChildren(el('div', 'hs-pv-label', 'CURRENT'), HS.thumb(current, { all: false }));
+      if (!e || e.slideChanged) notes.scrollTop = 0;
       notes.innerHTML = HS.notesOf(current);
       side.replaceChildren(
+        el('div', 'hs-pv-label', 'CURRENT'),
+        HS.thumb(current, { all: false }),
         el('div', 'hs-pv-label', 'NEXT'),
-        next ? HS.thumb(next) : el('div', 'hs-pv-end', '最後のスライド'),
-        el('div', 'hs-pv-label', 'NOTES'),
-        notes
+        next ? HS.thumb(next) : el('div', 'hs-pv-end', '最後のスライド')
       );
     }
     HS.on('change', render);

@@ -110,8 +110,10 @@ the DevTools protocol (`CHROME_PATH` overrides discovery).
 ## Presenting
 
 `→`/`Space` next (steps first), `←` back, digits + `Enter` jump, `o`
-overview, `p` presenter window (current, next, notes, timer, and
-first / last / overview / previous / next buttons — synced), `f`
+overview, `p` presenter window (notes in the main area, current and
+next slides in a side column, timer, and first / last / overview /
+previous / next buttons — synced; `A−`/`A＋` or `-`/`+` resize the
+notes and the splitter resizes the side column, both remembered), `f`
 fullscreen, `l` laser, `b` blackout, `?` help. Clicking the outer edges
 of the screen and swiping also navigate.
 
