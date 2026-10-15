@@ -26,10 +26,18 @@
   const channel = 'BroadcastChannel' in window
     ? new BroadcastChannel('hs:' + location.pathname) : null;
 
+  /* Whether a presenter view of this deck is open, so `p` never opens a
+   * second one, even after the audience window reloads. */
+  let presenterOpen = false;
+
   if (channel) {
     channel.onmessage = function (e) {
       const msg = e.data || {};
-      if (msg.hello) {
+      if (msg.presenter === 'ping') {
+        if (HS.flags.presenter) channel.postMessage({ presenter: true });
+      } else if (typeof msg.presenter === 'boolean') {
+        presenterOpen = msg.presenter;
+      } else if (msg.hello) {
         channel.postMessage({ index: HS.state.index, step: HS.state.step });
       } else if (typeof msg.index === 'number') {
         HS.go(msg.index, msg.step, { remote: true });
@@ -38,6 +46,12 @@
     HS.on('change', function (e) {
       if (!e.remote) channel.postMessage({ index: HS.state.index, step: HS.state.step });
     });
+    if (HS.flags.presenter) {
+      channel.postMessage({ presenter: true });
+      addEventListener('pagehide', function () { channel.postMessage({ presenter: false }); });
+    } else {
+      channel.postMessage({ presenter: 'ping' });
+    }
   }
 
   /* ---- progress bar (opt in with <main id="deck" data-progress>) ---- */
@@ -172,8 +186,82 @@
 
   /* ---- presenter view ---- */
 
-  function openPresenter() {
-    open(location.pathname + '?presenter' + location.hash, 'hs-presenter', 'width=1280,height=780');
+  /* Chrome drops a page's fullscreen whenever it opens a popup on the
+   * same display or focuses another window. So from fullscreen the
+   * presenter window opens on another screen (Window Management API),
+   * and one that is already open is left alone rather than focused.
+   * With a single screen the drop is unavoidable; the audience window
+   * then returns to fullscreen on its next key press or click. */
+  let presenterWin = null;
+  let refullscreen = false;
+
+  async function otherScreen() {
+    if (!('getScreenDetails' in window)) return null;
+    try {
+      const status = await navigator.permissions.query({ name: 'window-management' });
+      if (status.state === 'denied') return null;
+    } catch (_) { /* not queryable here; getScreenDetails decides */ }
+    try {
+      const details = await getScreenDetails();
+      return details.screens.find(function (s) { return s !== details.currentScreen; }) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function openPresenter() {
+    const url = location.pathname + '?presenter' + location.hash;
+    const fullscreen = !!document.fullscreenElement;
+    if (presenterOpen || (presenterWin && !presenterWin.closed)) {
+      if (fullscreen) {
+        toast('発表者ビューは別ウィンドウで開いています');
+        return;
+      }
+      /* An empty URL returns the named window without reloading it; a
+       * blank one means the open presenter has another name. */
+      if (!presenterWin || presenterWin.closed) presenterWin = open('', 'hs-presenter');
+      if (!presenterWin) return;
+      if (presenterWin.location.href === 'about:blank') presenterWin.location.replace(url);
+      presenterWin.focus();
+      return;
+    }
+    let features = 'width=1280,height=780';
+    const other = fullscreen ? await otherScreen() : null;
+    if (other) {
+      features = 'left=' + other.availLeft + ',top=' + other.availTop +
+        ',width=' + other.availWidth + ',height=' + other.availHeight;
+    }
+    presenterWin = open(url, 'hs-presenter', features);
+    if (!presenterWin) {
+      toast('発表者ビューを開けませんでした  もう一度 p を押してください');
+      return;
+    }
+    /* Set before the (asynchronous) fullscreenchange, which the editor
+     * reads to tell this drop from the presenter leaving fullscreen. */
+    if (fullscreen && !other) refullscreen = true;
+  }
+
+  function restoreFullscreen(e) {
+    if (!refullscreen || !e.isTrusted) return;
+    refullscreen = false;
+    if (document.fullscreenElement || !presenting()) return;
+    if (e.type === 'keydown' && (e.key === 'f' || e.key === 'Escape')) return;
+    root.requestFullscreen().catch(function () {});
+  }
+  addEventListener('keydown', restoreFullscreen, true);
+  addEventListener('pointerdown', restoreFullscreen, true);
+
+  let toastEl = null;
+  let toastTimer = null;
+  function toast(text) {
+    if (!toastEl) {
+      toastEl = el('div', 'hs-ui');
+      toastEl.id = 'hs-toast';
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = text;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.remove(); toastEl = null; }, 4000);
   }
 
   function initPresenterView() {
@@ -189,6 +277,7 @@
     const main = el('div', 'hs-pv-main');
     const side = el('div', 'hs-pv-side');
     const notes = el('div', 'hs-pv-notes');
+
     view.append(bar, main, side);
     document.body.appendChild(view);
 
@@ -288,7 +377,14 @@
     }
   });
 
-  HS.present = { openOverview: openOverview, openPresenter: openPresenter, toggleHelp: toggleHelp };
+  HS.present = {
+    openOverview: openOverview,
+    openPresenter: openPresenter,
+    toggleHelp: toggleHelp,
+    /* true while fullscreen was lost to the presenter popup and will
+     * come back on the next input */
+    get restoringFullscreen() { return refullscreen; }
+  };
 
   if (HS.flags.presenter) initPresenterView();
   updateProgress();

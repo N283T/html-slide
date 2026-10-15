@@ -114,6 +114,13 @@ overview, `p` presenter window (current, next, notes, timer — synced),
 `f` fullscreen, `l` laser, `b` blackout, `?` help. Clicking the outer
 edges of the screen and swiping also navigate.
 
+Chrome leaves fullscreen whenever a page opens a window on the same
+display, so `p` pressed in fullscreen opens the presenter window on
+another screen (it asks once for the window-management permission). With
+a single screen the slides return to fullscreen on the next key press or
+click. Pressing `p` while a presenter window is already open only focuses
+it, and in fullscreen just says it is open.
+
 Slide changes use the View Transitions API. With the default `morph`,
 elements two consecutive slides share — same text, same image, or the same
 `data-morph` name — glide to their new position and size, and the rest

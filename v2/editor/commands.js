@@ -265,7 +265,8 @@ export function edit() {
 }
 
 document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement && HS.state.mode === 'present' && cameFromEditor) edit();
+  if (!document.fullscreenElement && HS.state.mode === 'present' && cameFromEditor &&
+      !HS.present.restoringFullscreen) edit();
 });
 
 /* ================= new-slide gallery ================= */
