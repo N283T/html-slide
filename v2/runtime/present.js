@@ -278,7 +278,25 @@
     const side = el('div', 'hs-pv-side');
     const notes = el('div', 'hs-pv-notes');
 
-    view.append(bar, main, side);
+    /* Same navigation as the keys; the channel carries it to the
+     * audience window. */
+    const controls = el('div', 'hs-pv-controls');
+    function button(label, className, run) {
+      const b = el('button', className, label);
+      b.type = 'button';
+      /* No focus, so Space/Enter keep meaning "next" and never re-press it. */
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      b.addEventListener('click', run);
+      controls.appendChild(b);
+      return b;
+    }
+    const btnFirst = button('先頭', null, function () { HS.go(0, 0); });
+    const btnLast = button('末尾', null, function () { HS.go(HS.slides.length - 1, 0); });
+    button('一覧', 'is-overview', openOverview);
+    const btnPrev = button('← 前へ', 'is-prev', function () { HS.prev(); });
+    const btnNext = button('次へ →', 'is-next', function () { HS.next(); });
+
+    view.append(bar, main, side, controls);
     document.body.appendChild(view);
 
     let started = null;
@@ -301,6 +319,11 @@
       const current = HS.current;
       if (!current) return;
       const next = list[HS.state.index + 1];
+      const atStart = HS.state.index === 0 && HS.state.step === 0;
+      const atEnd = HS.state.index === list.length - 1 && HS.state.step >= HS.stepsOf(current).count;
+      btnFirst.disabled = btnPrev.disabled = atStart;
+      btnNext.disabled = atEnd;
+      btnLast.disabled = HS.state.index === list.length - 1;
       count.replaceChildren(el('b', null, String(HS.state.index + 1)),
         document.createTextNode(' / ' + list.length));
       main.replaceChildren(el('div', 'hs-pv-label', 'CURRENT'), HS.thumb(current, { all: false }));

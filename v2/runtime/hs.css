@@ -255,7 +255,7 @@ html.hs-presenter body { background: #0e0e10; }
   inset: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 20px 28px;
   padding: 24px 28px;
 }
@@ -283,6 +283,30 @@ html.hs-presenter body { background: #0e0e10; }
   white-space: pre-line;
 }
 #hs-pv .hs-pv-notes:empty::before { content: "ノートなし"; color: #55555c; }
+#hs-pv .hs-pv-controls {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+}
+#hs-pv .hs-pv-controls button {
+  flex: 1 1 0;
+  padding: 14px 0;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1;
+  color: #dcdce0;
+  background: #1c1c20;
+  border: 1px solid #34343a;
+  border-radius: 8px;
+  cursor: pointer;
+}
+#hs-pv .hs-pv-controls button:hover:not(:disabled) { background: #26262b; }
+#hs-pv .hs-pv-controls button:disabled { opacity: .35; cursor: default; }
+#hs-pv .hs-pv-controls .is-overview { border-color: #2f8f82; color: #6fd8c8; }
+#hs-pv .hs-pv-controls .is-prev { border-color: #4a6fae; }
+#hs-pv .hs-pv-controls .is-next { flex-grow: 2; background: #2f6fdc; border-color: #2f6fdc; color: #fff; }
+#hs-pv .hs-pv-controls .is-next:hover:not(:disabled) { background: #3d7ff0; }
 #hs-pv .hs-pv-end {
   aspect-ratio: 16 / 9;
   display: grid;
