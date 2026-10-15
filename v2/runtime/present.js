@@ -130,7 +130,8 @@
     ['f', 'フルスクリーン'],
     ['l', 'レーザーポインター'],
     ['b', 'ブラックアウト'],
-    ['?', 'このヘルプ']
+    ['?', 'このヘルプ'],
+    ['右クリック', '操作メニュー']
   ];
 
   function toggleHelp() {
@@ -406,6 +407,14 @@
     if (!presenting()) return;
     const t = e.target;
     if (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+    if (menu) {
+      closeMenu();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+    }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
 
     if (overview) {
@@ -450,8 +459,93 @@
     }
   }, true);
 
+  /* ---- right-click menu: every action with its key, for when the keys
+   * slip your mind mid-talk ---- */
+
+  let menu = null;
+  let swallowClick = false;
+
+  function closeMenu() {
+    if (!menu) return;
+    menu.remove();
+    menu = null;
+  }
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else root.requestFullscreen().catch(function () {});
+  }
+
+  function openMenu(x, y) {
+    closeMenu();
+    const audience = !HS.flags.presenter;
+    const editor = !!document.querySelector('.hse-root');
+    const rows = [
+      ['次へ', '→ Space', HS.next],
+      ['前へ', '←', HS.prev],
+      ['最初のスライドへ', 'Home', function () { HS.go(0, 0); }],
+      ['一覧', 'O', openOverview],
+      null,
+      audience && ['発表者ビュー', 'P', openPresenter],
+      [document.fullscreenElement ? 'フルスクリーンを終了' : 'フルスクリーン', 'F', toggleFullscreen],
+      audience && ['レーザーポインター', 'L', toggleLaser, !!laser],
+      audience && ['ブラックアウト', 'B', toggleBlackout, !!blackout],
+      null,
+      ['ショートカット一覧', '?', toggleHelp],
+      audience && editor && ['編集に戻る', 'E', function () {
+        if (document.fullscreenElement) document.exitFullscreen();
+        HS.setMode('edit');
+      }]
+    ].filter(function (row) { return row !== false; });
+
+    menu = el('div', 'hs-ui');
+    menu.id = 'hs-menu';
+    rows.forEach(function (row, i) {
+      if (!row) {
+        if (i > 0 && rows[i - 1]) menu.appendChild(el('div', 'hs-menu-sep'));
+        return;
+      }
+      const item = el('button', 'hs-menu-item' + (row[3] ? ' is-on' : ''));
+      item.type = 'button';
+      item.append(el('span', null, row[0]), el('kbd', null, row[1]));
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeMenu();
+        row[2]();
+      });
+      menu.appendChild(item);
+    });
+    document.body.appendChild(menu);
+    const box = menu.getBoundingClientRect();
+    menu.style.left = Math.max(8, Math.min(x, innerWidth - box.width - 8)) + 'px';
+    menu.style.top = Math.max(8, Math.min(y, innerHeight - box.height - 8)) + 'px';
+  }
+
+  addEventListener('contextmenu', function (e) {
+    if (!presenting() || e.target.closest('a, input, textarea, [contenteditable]')) return;
+    e.preventDefault();
+    openMenu(e.clientX, e.clientY);
+  });
+  /* A press outside closes the menu and does nothing else, so it never
+   * also turns the slide. */
+  addEventListener('pointerdown', function (e) {
+    if (!menu || menu.contains(e.target)) return;
+    closeMenu();
+    if (e.button === 0) swallowClick = true;
+    e.stopPropagation();
+  }, true);
+  addEventListener('click', function (e) {
+    if (!swallowClick) return;
+    swallowClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+  addEventListener('blur', closeMenu);
+  addEventListener('resize', closeMenu);
+
   HS.on('mode', function () {
     if (!presenting()) {
+      closeMenu();
       closeOverview();
       if (help) toggleHelp();
       if (blackout) toggleBlackout();

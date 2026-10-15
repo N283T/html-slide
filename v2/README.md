@@ -121,7 +121,8 @@ overview, `p` presenter window (notes in the main area, current and
 next slides in a side column, timer, and first / last / overview /
 previous / next buttons — synced; `A−`/`A＋` or `-`/`+` resize the
 notes and the splitter resizes the side column, both remembered), `f`
-fullscreen, `l` laser, `b` blackout, `?` help. Clicking the outer edges
+fullscreen, `l` laser, `b` blackout, `?` help. Right-click opens a menu
+of the same actions with their keys, for when one slips your mind. Clicking the outer edges
 of the screen and swiping also navigate.
 
 Chrome leaves fullscreen whenever a page opens a window on the same
