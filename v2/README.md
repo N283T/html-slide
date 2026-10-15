@@ -51,6 +51,7 @@ Slides mix two kinds of element, and each is handled the way it behaves:
 | ⌘K | command palette (every command, insert, layout, theme, slide) |
 | `N` | new slide from the layout gallery |
 | `C` | place an `@fix` review note |
+| `M` | speaker-notes pane under the stage |
 | ⌘Z / ⇧⌘Z · ⌘D · ⌘C/X/V | undo / redo · duplicate · clipboard |
 | ⌘-wheel · Space-drag · ⌘0 | zoom · pan · fit |
 | ⌘↵ | present |
@@ -59,6 +60,12 @@ Paste or drop an image and it is saved to `assets/` and placed. The right
 panel has three tabs: **Design** (contextual properties; colours are theme
 tokens, so they follow a theme change), **Layers** (the slide's tree) and
 **Review** (every layout problem and open note in the deck).
+
+Speaker notes (`<aside class="notes">`) are edited in a pane under the
+stage (`M`, or the notes button in the toolbar). It edits them as rich
+text, so paragraphs, lists and rules survive, and new paragraphs become
+`<p>`. Drag its top edge to resize it and use `A−`/`A＋` for the text size;
+both are remembered.
 
 Everything is saved to the source about half a second after you stop.
 Styles land as inline `style` and classes — the same thing a person or
@@ -110,9 +117,20 @@ the DevTools protocol (`CHROME_PATH` overrides discovery).
 ## Presenting
 
 `→`/`Space` next (steps first), `←` back, digits + `Enter` jump, `o`
-overview, `p` presenter window (current, next, notes, timer — synced),
-`f` fullscreen, `l` laser, `b` blackout, `?` help. Clicking the outer
-edges of the screen and swiping also navigate.
+overview, `p` presenter window (notes in the main area, current and
+next slides in a side column, timer, and first / last / overview /
+previous / next buttons — synced; `A−`/`A＋` or `-`/`+` resize the
+notes and the splitter resizes the side column, both remembered), `f`
+fullscreen, `l` laser, `b` blackout, `?` help. Right-click opens a menu
+of the same actions with their keys, for when one slips your mind. Clicking the outer edges
+of the screen and swiping also navigate.
+
+Chrome leaves fullscreen whenever a page opens a window on the same
+display, so `p` pressed in fullscreen opens the presenter window on
+another screen (it asks once for the window-management permission). With
+a single screen the slides return to fullscreen on the next key press or
+click. Pressing `p` while a presenter window is already open only focuses
+it, and in fullscreen just says it is open.
 
 Slide changes use the View Transitions API. With the default `morph`,
 elements two consecutive slides share — same text, same image, or the same

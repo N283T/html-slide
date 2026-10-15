@@ -6,7 +6,8 @@
  *   slides   the slide list changed (added, removed, reordered, swapped)
  *   sync     the save status changed
  *   tool     the active tool changed
- *   issues   audit results were refreshed */
+ *   issues   audit results were refreshed
+ *   notes    the notes pane opened or closed */
 
 export const HS = window.HS;
 

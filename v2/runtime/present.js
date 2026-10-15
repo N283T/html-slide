@@ -26,10 +26,18 @@
   const channel = 'BroadcastChannel' in window
     ? new BroadcastChannel('hs:' + location.pathname) : null;
 
+  /* Whether a presenter view of this deck is open, so `p` never opens a
+   * second one, even after the audience window reloads. */
+  let presenterOpen = false;
+
   if (channel) {
     channel.onmessage = function (e) {
       const msg = e.data || {};
-      if (msg.hello) {
+      if (msg.presenter === 'ping') {
+        if (HS.flags.presenter) channel.postMessage({ presenter: true });
+      } else if (typeof msg.presenter === 'boolean') {
+        presenterOpen = msg.presenter;
+      } else if (msg.hello) {
         channel.postMessage({ index: HS.state.index, step: HS.state.step });
       } else if (typeof msg.index === 'number') {
         HS.go(msg.index, msg.step, { remote: true });
@@ -38,6 +46,12 @@
     HS.on('change', function (e) {
       if (!e.remote) channel.postMessage({ index: HS.state.index, step: HS.state.step });
     });
+    if (HS.flags.presenter) {
+      channel.postMessage({ presenter: true });
+      addEventListener('pagehide', function () { channel.postMessage({ presenter: false }); });
+    } else {
+      channel.postMessage({ presenter: 'ping' });
+    }
   }
 
   /* ---- progress bar (opt in with <main id="deck" data-progress>) ---- */
@@ -116,7 +130,8 @@
     ['f', 'フルスクリーン'],
     ['l', 'レーザーポインター'],
     ['b', 'ブラックアウト'],
-    ['?', 'このヘルプ']
+    ['?', 'このヘルプ'],
+    ['右クリック', '操作メニュー']
   ];
 
   function toggleHelp() {
@@ -172,8 +187,82 @@
 
   /* ---- presenter view ---- */
 
-  function openPresenter() {
-    open(location.pathname + '?presenter' + location.hash, 'hs-presenter', 'width=1280,height=780');
+  /* Chrome drops a page's fullscreen whenever it opens a popup on the
+   * same display or focuses another window. So from fullscreen the
+   * presenter window opens on another screen (Window Management API),
+   * and one that is already open is left alone rather than focused.
+   * With a single screen the drop is unavoidable; the audience window
+   * then returns to fullscreen on its next key press or click. */
+  let presenterWin = null;
+  let refullscreen = false;
+
+  async function otherScreen() {
+    if (!('getScreenDetails' in window)) return null;
+    try {
+      const status = await navigator.permissions.query({ name: 'window-management' });
+      if (status.state === 'denied') return null;
+    } catch (_) { /* not queryable here; getScreenDetails decides */ }
+    try {
+      const details = await getScreenDetails();
+      return details.screens.find(function (s) { return s !== details.currentScreen; }) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function openPresenter() {
+    const url = location.pathname + '?presenter' + location.hash;
+    const fullscreen = !!document.fullscreenElement;
+    if (presenterOpen || (presenterWin && !presenterWin.closed)) {
+      if (fullscreen) {
+        toast('発表者ビューは別ウィンドウで開いています');
+        return;
+      }
+      /* An empty URL returns the named window without reloading it; a
+       * blank one means the open presenter has another name. */
+      if (!presenterWin || presenterWin.closed) presenterWin = open('', 'hs-presenter');
+      if (!presenterWin) return;
+      if (presenterWin.location.href === 'about:blank') presenterWin.location.replace(url);
+      presenterWin.focus();
+      return;
+    }
+    let features = 'width=1280,height=780';
+    const other = fullscreen ? await otherScreen() : null;
+    if (other) {
+      features = 'left=' + other.availLeft + ',top=' + other.availTop +
+        ',width=' + other.availWidth + ',height=' + other.availHeight;
+    }
+    presenterWin = open(url, 'hs-presenter', features);
+    if (!presenterWin) {
+      toast('発表者ビューを開けませんでした  もう一度 p を押してください');
+      return;
+    }
+    /* Set before the (asynchronous) fullscreenchange, which the editor
+     * reads to tell this drop from the presenter leaving fullscreen. */
+    if (fullscreen && !other) refullscreen = true;
+  }
+
+  function restoreFullscreen(e) {
+    if (!refullscreen || !e.isTrusted) return;
+    refullscreen = false;
+    if (document.fullscreenElement || !presenting()) return;
+    if (e.type === 'keydown' && (e.key === 'f' || e.key === 'Escape')) return;
+    root.requestFullscreen().catch(function () {});
+  }
+  addEventListener('keydown', restoreFullscreen, true);
+  addEventListener('pointerdown', restoreFullscreen, true);
+
+  let toastEl = null;
+  let toastTimer = null;
+  function toast(text) {
+    if (!toastEl) {
+      toastEl = el('div', 'hs-ui');
+      toastEl.id = 'hs-toast';
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = text;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.remove(); toastEl = null; }, 4000);
   }
 
   function initPresenterView() {
@@ -186,11 +275,89 @@
     const count = el('div', 'hs-pv-count');
     bar.append(timer, clock, count);
 
-    const main = el('div', 'hs-pv-main');
-    const side = el('div', 'hs-pv-side');
+    /* Notes take the main area; the slides sit in a narrower column
+     * whose width (splitter) and the notes text size are adjustable
+     * and remembered. */
+    const notesPane = el('div', 'hs-pv-notes-pane');
+    const notesHead = el('div', 'hs-pv-head');
     const notes = el('div', 'hs-pv-notes');
-    view.append(bar, main, side);
+    const sizeLabel = el('span', 'hs-pv-size');
+    notesPane.append(notesHead, notes);
+    const splitter = el('div', 'hs-pv-split');
+    splitter.title = 'ドラッグで幅を調整';
+    const side = el('div', 'hs-pv-side');
+
+    function noFocus(b) {
+      b.type = 'button';
+      /* No focus, so Space/Enter keep meaning "next" and never re-press it. */
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      return b;
+    }
+
+    const prefs = { notes: 28, side: 34 };
+    try { Object.assign(prefs, JSON.parse(localStorage.getItem('hs-pv-prefs')) || {}); } catch (_) {}
+    function savePrefs() {
+      try { localStorage.setItem('hs-pv-prefs', JSON.stringify(prefs)); } catch (_) {}
+    }
+    function setNotesSize(px) {
+      prefs.notes = Math.max(16, Math.min(64, px));
+      view.style.setProperty('--pv-notes', prefs.notes + 'px');
+      sizeLabel.textContent = prefs.notes + 'px';
+      savePrefs();
+    }
+    function setSideWidth(pct) {
+      prefs.side = Math.max(18, Math.min(60, pct));
+      view.style.setProperty('--pv-side', prefs.side + '%');
+      savePrefs();
+    }
+    const smaller = noFocus(el('button', null, 'A−'));
+    const larger = noFocus(el('button', null, 'A＋'));
+    smaller.title = '文字を小さく (-)';
+    larger.title = '文字を大きく (+)';
+    smaller.addEventListener('click', function () { setNotesSize(prefs.notes - 2); });
+    larger.addEventListener('click', function () { setNotesSize(prefs.notes + 2); });
+    notesHead.append(el('div', 'hs-pv-label', 'NOTES'), smaller, sizeLabel, larger);
+
+    splitter.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      splitter.setPointerCapture(e.pointerId);
+      const box = view.getBoundingClientRect();
+      function move(ev) {
+        setSideWidth(Math.round((box.right - ev.clientX) / box.width * 100));
+      }
+      function up() {
+        splitter.removeEventListener('pointermove', move);
+        splitter.removeEventListener('pointerup', up);
+      }
+      splitter.addEventListener('pointermove', move);
+      splitter.addEventListener('pointerup', up);
+    });
+
+    /* Same navigation as the keys; the channel carries it to the
+     * audience window. */
+    const controls = el('div', 'hs-pv-controls');
+    function button(label, className, run) {
+      const b = noFocus(el('button', className, label));
+      b.addEventListener('click', run);
+      controls.appendChild(b);
+      return b;
+    }
+    const btnFirst = button('先頭', null, function () { HS.go(0, 0); });
+    const btnLast = button('末尾', null, function () { HS.go(HS.slides.length - 1, 0); });
+    button('一覧', 'is-overview', openOverview);
+    const btnPrev = button('← 前へ', 'is-prev', function () { HS.prev(); });
+    const btnNext = button('次へ →', 'is-next', function () { HS.next(); });
+
+    view.append(bar, notesPane, splitter, side, controls);
     document.body.appendChild(view);
+    setNotesSize(prefs.notes);
+    setSideWidth(prefs.side);
+
+    addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey || overview) return;
+      if (e.key === '+' || e.key === '=') setNotesSize(prefs.notes + 2);
+      else if (e.key === '-') setNotesSize(prefs.notes - 2);
+    });
 
     let started = null;
     timer.addEventListener('click', function () { started = null; tick(); });
@@ -212,15 +379,20 @@
       const current = HS.current;
       if (!current) return;
       const next = list[HS.state.index + 1];
+      const atStart = HS.state.index === 0 && HS.state.step === 0;
+      const atEnd = HS.state.index === list.length - 1 && HS.state.step >= HS.stepsOf(current).count;
+      btnFirst.disabled = btnPrev.disabled = atStart;
+      btnNext.disabled = atEnd;
+      btnLast.disabled = HS.state.index === list.length - 1;
       count.replaceChildren(el('b', null, String(HS.state.index + 1)),
         document.createTextNode(' / ' + list.length));
-      main.replaceChildren(el('div', 'hs-pv-label', 'CURRENT'), HS.thumb(current, { all: false }));
+      if (!e || e.slideChanged) notes.scrollTop = 0;
       notes.innerHTML = HS.notesOf(current);
       side.replaceChildren(
+        el('div', 'hs-pv-label', 'CURRENT'),
+        HS.thumb(current, { all: false }),
         el('div', 'hs-pv-label', 'NEXT'),
-        next ? HS.thumb(next) : el('div', 'hs-pv-end', '最後のスライド'),
-        el('div', 'hs-pv-label', 'NOTES'),
-        notes
+        next ? HS.thumb(next) : el('div', 'hs-pv-end', '最後のスライド')
       );
     }
     HS.on('change', render);
@@ -235,6 +407,14 @@
     if (!presenting()) return;
     const t = e.target;
     if (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+    if (menu) {
+      closeMenu();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+    }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
 
     if (overview) {
@@ -279,8 +459,93 @@
     }
   }, true);
 
+  /* ---- right-click menu: every action with its key, for when the keys
+   * slip your mind mid-talk ---- */
+
+  let menu = null;
+  let swallowClick = false;
+
+  function closeMenu() {
+    if (!menu) return;
+    menu.remove();
+    menu = null;
+  }
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else root.requestFullscreen().catch(function () {});
+  }
+
+  function openMenu(x, y) {
+    closeMenu();
+    const audience = !HS.flags.presenter;
+    const editor = !!document.querySelector('.hse-root');
+    const rows = [
+      ['次へ', '→ Space', HS.next],
+      ['前へ', '←', HS.prev],
+      ['最初のスライドへ', 'Home', function () { HS.go(0, 0); }],
+      ['一覧', 'O', openOverview],
+      null,
+      audience && ['発表者ビュー', 'P', openPresenter],
+      [document.fullscreenElement ? 'フルスクリーンを終了' : 'フルスクリーン', 'F', toggleFullscreen],
+      audience && ['レーザーポインター', 'L', toggleLaser, !!laser],
+      audience && ['ブラックアウト', 'B', toggleBlackout, !!blackout],
+      null,
+      ['ショートカット一覧', '?', toggleHelp],
+      audience && editor && ['編集に戻る', 'E', function () {
+        if (document.fullscreenElement) document.exitFullscreen();
+        HS.setMode('edit');
+      }]
+    ].filter(function (row) { return row !== false; });
+
+    menu = el('div', 'hs-ui');
+    menu.id = 'hs-menu';
+    rows.forEach(function (row, i) {
+      if (!row) {
+        if (i > 0 && rows[i - 1]) menu.appendChild(el('div', 'hs-menu-sep'));
+        return;
+      }
+      const item = el('button', 'hs-menu-item' + (row[3] ? ' is-on' : ''));
+      item.type = 'button';
+      item.append(el('span', null, row[0]), el('kbd', null, row[1]));
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeMenu();
+        row[2]();
+      });
+      menu.appendChild(item);
+    });
+    document.body.appendChild(menu);
+    const box = menu.getBoundingClientRect();
+    menu.style.left = Math.max(8, Math.min(x, innerWidth - box.width - 8)) + 'px';
+    menu.style.top = Math.max(8, Math.min(y, innerHeight - box.height - 8)) + 'px';
+  }
+
+  addEventListener('contextmenu', function (e) {
+    if (!presenting() || e.target.closest('a, input, textarea, [contenteditable]')) return;
+    e.preventDefault();
+    openMenu(e.clientX, e.clientY);
+  });
+  /* A press outside closes the menu and does nothing else, so it never
+   * also turns the slide. */
+  addEventListener('pointerdown', function (e) {
+    if (!menu || menu.contains(e.target)) return;
+    closeMenu();
+    if (e.button === 0) swallowClick = true;
+    e.stopPropagation();
+  }, true);
+  addEventListener('click', function (e) {
+    if (!swallowClick) return;
+    swallowClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+  addEventListener('blur', closeMenu);
+  addEventListener('resize', closeMenu);
+
   HS.on('mode', function () {
     if (!presenting()) {
+      closeMenu();
       closeOverview();
       if (help) toggleHelp();
       if (blackout) toggleBlackout();
@@ -288,7 +553,14 @@
     }
   });
 
-  HS.present = { openOverview: openOverview, openPresenter: openPresenter, toggleHelp: toggleHelp };
+  HS.present = {
+    openOverview: openOverview,
+    openPresenter: openPresenter,
+    toggleHelp: toggleHelp,
+    /* true while fullscreen was lost to the presenter popup and will
+     * come back on the next input */
+    get restoringFullscreen() { return refullscreen; }
+  };
 
   if (HS.flags.presenter) initPresenterView();
   updateProgress();
