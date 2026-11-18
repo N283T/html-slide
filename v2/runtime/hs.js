@@ -248,6 +248,13 @@
     const vp = viewport ? viewport() : { x: 0, y: 0, w: innerWidth, h: innerHeight };
     view.fit = Math.max(0.01, Math.min(vp.w / W, vp.h / H));
     view.scale = view.fit * view.zoom;
+    /* Panning may reveal every edge of a zoomed-in slide plus a little
+     * slack, but never lose the slide off screen. */
+    const reach = function (size, room) { return Math.max(0, (size - room) / 2) + room * 0.1; };
+    const rx = reach(W * view.scale, vp.w);
+    const ry = reach(H * view.scale, vp.h);
+    view.panX = Math.max(-rx, Math.min(rx, view.panX));
+    view.panY = Math.max(-ry, Math.min(ry, view.panY));
     const x = vp.x + (vp.w - W * view.scale) / 2 + view.panX;
     const y = vp.y + (vp.h - H * view.scale) / 2 + view.panY;
     deck.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + view.scale + ')';
