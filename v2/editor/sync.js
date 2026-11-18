@@ -444,50 +444,6 @@ export function moveSlide(from, to) {
   HS.go(HS.slides.indexOf(current), 0, { animate: false, force: true });
 }
 
-/* ---- deck-level settings (outside any slide; not undoable) ---- */
-
-async function postHead(body) {
-  if (!enabled) return;
-  if (anyDirty()) await save();
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const { status, ok, data } = await post('/__hs/head', Object.assign({ path: filePath, rev }, body));
-    if (ok) {
-      rev = data.rev;
-      head = data.head;
-      return;
-    }
-    if (status === 409 && data.state) {
-      head = data.state.head;
-      merge(data.state);
-      continue;
-    }
-    toast('保存に失敗: ' + (data.error || status), 'error');
-    return;
-  }
-}
-
-export function currentTheme() {
-  const link = document.querySelector('link[href*="hs/themes/"]');
-  const m = link && link.getAttribute('href').match(/hs\/themes\/([\w-]+)\.css/);
-  return m ? m[1] : null;
-}
-
-export function setTheme(name) {
-  const link = document.querySelector('link[href*="hs/themes/"]');
-  if (!link) return toast('テーマの <link> が見つかりません', 'error');
-  link.setAttribute('href', link.getAttribute('href').replace(/(hs\/themes\/)[\w-]+(\.css)[^"]*/, '$1' + name + '$2'));
-  link.addEventListener('load', () => ed.emit('slides'), { once: true });
-  return postHead({ theme: name });
-}
-
-export function setDeckAttr(name, value) {
-  if (value == null || value === '') HS.deck.removeAttribute(name);
-  else HS.deck.setAttribute(name, value);
-  HS.refresh();
-  ed.emit('slides');
-  return postHead({ deck: { [name]: value == null || value === '' ? null : value } });
-}
-
 export async function upload(file, name) {
   const url = '/__hs/asset?path=' + encodeURIComponent(filePath) +
     '&name=' + encodeURIComponent(name || file.name || 'image.png');

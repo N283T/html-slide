@@ -1,6 +1,6 @@
 /* Dev server: static files, the editor, and the sync endpoints.
  *
- * GET  /__hs/ping             {ok, version, themes}
+ * GET  /__hs/ping             {ok, version, sandbox}
  * GET  /__hs/events           SSE: deck {path} | css {path} | asset {path} | reload
  * GET  /__hs/state?path=      {rev, head, slides: [{hash, html}]}
  * POST /__hs/save             {path, rev, slides: [{hash} | {hash?, html}]}
@@ -8,7 +8,6 @@
  *        source untouched. Applied only if the file still has revision
  *        `rev`; otherwise 409 with the current state, and the browser
  *        merges and retries.
- * POST /__hs/head             {path, rev, theme?, deck?: {attr: value|null}}
  * POST /__hs/asset?path=&name=  raw body -> <deck>/assets/<name>
  * POST /__hs/sandbox/reset    sandbox only: drop every unsaved edit
  *
@@ -24,7 +23,7 @@ import { createServer } from 'node:http';
 import { promises as fs, watch } from 'node:fs';
 import path from 'node:path';
 import { parseDeck, buildDeck, hash } from './source.js';
-import { FRAMEWORK, bundleJs, bundleCss, listThemes, themeFile } from './bundle.js';
+import { FRAMEWORK, bundleJs, bundleCss, themeFile } from './bundle.js';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -169,39 +168,6 @@ export function startServer({ root, port = 4100, quiet = false, inject = true, s
       await write(file, updated);
       if (!quiet) console.log('%s %s (%d slides)', sandbox ? 'kept  ' : 'saved ', urlOf(file), units.length);
       return { rev: hash(updated), slides: units.map((u) => u.hash) };
-    });
-  }
-
-  async function handleHead(body) {
-    const file = await deckFile(body.path);
-    return withLock(file, async () => {
-      const source = await readText(file);
-      if (hash(source) !== body.rev) {
-        throw new HttpError(409, 'file changed on disk', stateOf(source));
-      }
-      const deck = parseDeck(source);
-      let prefix = deck.prefix;
-      if (body.theme) {
-        if (!(await listThemes()).includes(body.theme)) throw new HttpError(400, 'unknown theme');
-        prefix = prefix.replace(/(hs\/themes\/)[\w-]+(\.css)/, '$1' + body.theme + '$2');
-      }
-      if (body.deck && typeof body.deck === 'object') {
-        prefix = prefix.replace(/<main\b[^>]*\bid\s*=\s*["']deck["'][^>]*>/i, (tag) => {
-          for (const [name, value] of Object.entries(body.deck)) {
-            if (!/^[a-z][\w-]*$/i.test(name)) continue;
-            tag = tag.replace(new RegExp('\\s+' + name + '(?:\\s*=\\s*(?:"[^"]*"|\'[^\']*\'))?(?=[\\s>])', 'i'), '');
-            if (value != null && value !== '') {
-              const escaped = String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-              tag = tag.replace(/>$/, ' ' + name + '="' + escaped + '">');
-            }
-          }
-          return tag;
-        });
-      }
-      const updated = prefix + source.slice(deck.prefix.length);
-      await write(file, updated);
-      const next = parseDeck(updated);
-      return { rev: hash(updated), head: next.head };
     });
   }
 
@@ -374,7 +340,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true, s
         return;
       }
       if (urlPath === '/__hs/ping') {
-        return json(200, { ok: true, version: VERSION, themes: await listThemes(), sandbox });
+        return json(200, { ok: true, version: VERSION, sandbox });
       }
       if (sandbox && req.method === 'POST' && urlPath === '/__hs/sandbox/reset') {
         overlay.clear();
@@ -386,9 +352,6 @@ export function startServer({ root, port = 4100, quiet = false, inject = true, s
       if (urlPath === '/__hs/state') return json(200, await handleState(url));
       if (req.method === 'POST' && urlPath === '/__hs/save') {
         return json(200, await handleSave(JSON.parse(await readBody(req))));
-      }
-      if (req.method === 'POST' && urlPath === '/__hs/head') {
-        return json(200, await handleHead(JSON.parse(await readBody(req))));
       }
       if (req.method === 'POST' && urlPath === '/__hs/asset') {
         return json(200, await handleAsset(req, url));

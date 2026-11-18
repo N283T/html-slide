@@ -9,7 +9,7 @@
 import { HS } from './core.js';
 import * as sync from './sync.js';
 import { initStage } from './stage.js';
-import { initCommands, setThemes } from './commands.js';
+import { initCommands } from './commands.js';
 import { initPanels } from './panels.js';
 
 async function boot() {
@@ -26,7 +26,6 @@ async function boot() {
 
   const ping = await fetch('/__hs/ping').then((r) => r.json()).catch(() => null);
   if (!ping || !ping.ok) return;
-  setThemes(ping.themes);
   HS.flags.sandbox = !!ping.sandbox;
 
   try {

@@ -7,7 +7,7 @@ import { HS, ed, isFree, fromHTML, indentFor, place } from './core.js';
 import { h, menu, popover, closeFloating, toast, isChrome, MOD } from './ui.js';
 import {
   mutate, undo, redo, save, cleanClone, serialize, upload,
-  insertSlide, duplicateSlide, deleteSlide, setTheme, setDeckAttr, currentTheme
+  insertSlide, duplicateSlide, deleteSlide
 } from './sync.js';
 import {
   select, pick, startText, commitText, removeSelected, duplicateSelected, reorder, nudge,
@@ -334,16 +334,6 @@ add('image', '挿入', '画像…', chooseImage, { keys: 'I' });
 OBJECTS.forEach((o) => add('obj-' + o.id, '挿入', o.label, () => insertObject(o, pointer), { keys: o.key }));
 BLOCKS.forEach((b) => add('block-' + b.id, '挿入', b.label, () => insertBlock(b)));
 LAYOUTS.forEach((l) => add('slide-' + l.id, 'スライド', '新しいスライド: ' + l.label, () => insertSlide(l.html)));
-['標準:', '反転:invert', 'アクセント:accent', 'ソフト:soft'].forEach((pair) => {
-  const [label, value] = pair.split(':');
-  add('tone-' + (value || 'none'), 'スライド', 'トーン: ' + label, () => mutate(() => {
-    if (value) ed.slide.setAttribute('data-tone', value);
-    else ed.slide.removeAttribute('data-tone');
-  }));
-});
-['morph', 'fade', 'slide', 'zoom', 'none'].forEach((t) => {
-  add('transition-' + t, 'デッキ', '既定の切り替え: ' + t, () => setDeckAttr('data-transition', t === 'morph' ? null : t));
-});
 
 export const run = (id) => {
   const c = commands.find((x) => x.id === id);
@@ -352,15 +342,8 @@ export const run = (id) => {
 
 export const command = (id) => commands.find((x) => x.id === id);
 
-let themes = [];
-export function setThemes(list) { themes = list || []; }
-export const getThemes = () => themes;
-
 function allCommands() {
   const dynamic = [];
-  themes.forEach((t) => dynamic.push({
-    group: 'デッキ', title: 'テーマ: ' + t + (t === currentTheme() ? '（現在）' : ''), run: () => setTheme(t)
-  }));
   HS.slides.forEach((slide, i) => dynamic.push({
     group: '移動', title: (i + 1) + '  ' + (HS.titleOf(slide) || '（無題）'), run: () => HS.go(i, 0)
   }));
