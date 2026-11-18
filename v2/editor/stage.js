@@ -398,6 +398,16 @@ export function styleSelection(prop, value) {
   if (value) target.style.setProperty(prop, value);
   else target.style.removeProperty(prop);
   if (!target.getAttribute('style')) target.removeAttribute('style');
+  /* Elements inside that set their own value (a theme colours <strong>,
+   * for one) would ignore the run's; make them inherit it. Document
+   * order visits parents first, so each check sees its parent's result. */
+  if (value) {
+    target.querySelectorAll('*').forEach((n) => {
+      if (getComputedStyle(n).getPropertyValue(prop) !== getComputedStyle(n.parentElement).getPropertyValue(prop)) {
+        n.style.setProperty(prop, 'inherit');
+      }
+    });
+  }
 
   const next = document.createRange();
   if (target.tagName === 'SPAN' && !target.attributes.length) {
