@@ -27,6 +27,7 @@ async function boot() {
   const ping = await fetch('/__hs/ping').then((r) => r.json()).catch(() => null);
   if (!ping || !ping.ok) return;
   setThemes(ping.themes);
+  HS.flags.sandbox = !!ping.sandbox;
 
   try {
     await sync.init();

@@ -26,6 +26,15 @@ To work on the framework itself, serve this folder and open the template:
 node v2/bin/hs.js dev v2      # http://127.0.0.1:4100/template/
 ```
 
+To try the editor without touching any file, add `--sandbox`. Saves then
+stay in the server's memory: the editor behaves as usual, the files on disk
+never change, and the **サンドボックス** button in the editor (or restarting
+the server) drops every edit.
+
+```bash
+node v2/bin/hs.js dev v2 --port 4101 --sandbox
+```
+
 ## The editor
 
 Opening a deck through `hs dev` starts in the editor (`?present` opens it
@@ -106,6 +115,7 @@ that teaches this loop and the markup.
 hs dev [dir] [--port 4100]       serve a deck, or a folder of decks, with the editor
 hs new <dir> [--theme paper]     scaffold a self-contained deck
 hs check <deck> [--json]         audit + open @fix notes; exit 1 on errors
+hs dev … --sandbox               same, but edits stay in memory (files never written)
 hs shot <deck> [--slide N] [--out shots] [--scale 2]   1920×1080 PNGs
 hs pdf <deck> [--out file.pdf]   one page per slide
 hs build <deck> [--out dist]     static copy: notes and @fix comments removed

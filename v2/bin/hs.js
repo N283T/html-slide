@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* hs — the html-slide command line.
  *
- *   hs dev [dir] [--port N]           serve a deck (or a folder of decks) with the editor
+ *   hs dev [dir] [--port N] [--sandbox]   serve a deck (or a folder of decks) with the editor;
+ *                                     --sandbox keeps edits in memory, never on disk
  *   hs new <dir> [--theme name]       scaffold a self-contained deck
  *   hs check <deck> [--json]          layout/legibility audit + open @fix notes
  *   hs shot <deck> [--slide N] [--out dir] [--scale N]   PNG per slide
@@ -30,7 +31,9 @@ function parseArgs(argv) {
 
 const USAGE = `hs — html-slide
 
-  hs dev [dir] [--port 4100]      serve with the editor (default dir: .)
+  hs dev [dir] [--port 4100] [--sandbox]
+                                  serve with the editor (default dir: .);
+                                  --sandbox: try edits without writing files
   hs new <dir> [--theme paper]    scaffold a self-contained deck
   hs check <deck> [--json]        audit layout and list open @fix notes
   hs shot <deck> [--slide N] [--out shots] [--scale 1]
@@ -56,7 +59,7 @@ try {
   switch (command) {
     case 'dev': {
       const { startServer } = await import('../cli/server.js');
-      startServer({ root: path.resolve(target || '.'), port: Number(args.port) || 4100 });
+      startServer({ root: path.resolve(target || '.'), port: Number(args.port) || 4100, sandbox: !!args.sandbox });
       break;
     }
     case 'new': {

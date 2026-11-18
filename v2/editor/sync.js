@@ -288,6 +288,15 @@ export async function init() {
   return true;
 }
 
+/* Sandbox only: the server forgets every edit; start over from the
+ * files on disk. Nothing pending may be saved on the way out. */
+export async function resetSandbox() {
+  enabled = false;
+  clearTimeout(saveTimer);
+  await fetch('/__hs/sandbox/reset', { method: 'POST' });
+  location.reload();
+}
+
 addEventListener('beforeunload', (e) => {
   if (enabled && anyDirty()) {
     save();

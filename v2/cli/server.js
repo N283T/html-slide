@@ -10,6 +10,12 @@
  *        merges and retries.
  * POST /__hs/head             {path, rev, theme?, deck?: {attr: value|null}}
  * POST /__hs/asset?path=&name=  raw body -> <deck>/assets/<name>
+ * POST /__hs/sandbox/reset    sandbox only: drop every unsaved edit
+ *
+ * With `sandbox`, writes go to an in-memory overlay instead of the disk:
+ * the editor behaves exactly as usual, but the files never change, and
+ * restarting the server (or the reset endpoint) starts from the source
+ * again. Use it to try the editor out on a real deck.
  *
  * Deck pages get the editor module injected at serve time, so the deck
  * source never references it. */
@@ -69,11 +75,12 @@ async function readBody(req, limit = 32 * 1024 * 1024) {
   return Buffer.concat(chunks);
 }
 
-export function startServer({ root, port = 4100, quiet = false, inject = true }) {
+export function startServer({ root, port = 4100, quiet = false, inject = true, sandbox = false }) {
   root = path.resolve(root);
   const clients = new Set();
   const ownWrites = new Map();   /* file -> rev this server last wrote */
   const locks = new Map();
+  const overlay = new Map();     /* sandbox: file -> contents written this run */
 
   const send = (event, data) => {
     const frame = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';
@@ -106,8 +113,14 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
 
   async function write(file, text) {
     ownWrites.set(file, hash(text));
-    await fs.writeFile(file, text, 'utf8');
+    if (sandbox) overlay.set(file, Buffer.from(text, 'utf8'));
+    else await fs.writeFile(file, text, 'utf8');
   }
+
+  /* Reads see the sandbox overlay first. */
+  const readFile = (file) => (overlay.has(file) ? Promise.resolve(overlay.get(file)) : fs.readFile(file));
+  const readText = async (file) => (await readFile(file)).toString('utf8');
+  const exists = async (file) => overlay.has(file) || !!(await fs.stat(file).catch(() => null));
 
   function stateOf(source) {
     const deck = parseDeck(source);
@@ -122,7 +135,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
 
   async function handleState(url) {
     const file = await deckFile(url.searchParams.get('path'));
-    return stateOf(await fs.readFile(file, 'utf8'));
+    return stateOf(await readText(file));
   }
 
   async function handleSave(body) {
@@ -131,7 +144,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
     }
     const file = await deckFile(body.path);
     return withLock(file, async () => {
-      const source = await fs.readFile(file, 'utf8');
+      const source = await readText(file);
       if (hash(source) !== body.rev) {
         throw new HttpError(409, 'file changed on disk', stateOf(source));
       }
@@ -154,7 +167,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
       });
       const updated = buildDeck({ prefix: deck.prefix, suffix: deck.suffix, units });
       await write(file, updated);
-      if (!quiet) console.log('saved  %s (%d slides)', urlOf(file), units.length);
+      if (!quiet) console.log('%s %s (%d slides)', sandbox ? 'kept  ' : 'saved ', urlOf(file), units.length);
       return { rev: hash(updated), slides: units.map((u) => u.hash) };
     });
   }
@@ -162,7 +175,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
   async function handleHead(body) {
     const file = await deckFile(body.path);
     return withLock(file, async () => {
-      const source = await fs.readFile(file, 'utf8');
+      const source = await readText(file);
       if (hash(source) !== body.rev) {
         throw new HttpError(409, 'file changed on disk', stateOf(source));
       }
@@ -203,14 +216,18 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
     const stem = path.basename(raw, path.extname(raw))
       .replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '') || 'asset';
     const data = await readBody(req, MAX_ASSET);
-    await fs.mkdir(dir, { recursive: true });
     let name = stem + ext;
     for (let n = 2; ; n++) {
-      const existing = await fs.readFile(path.join(dir, name)).catch(() => null);
+      const existing = await readFile(path.join(dir, name)).catch(() => null);
       if (!existing || existing.equals(data)) break;
       name = stem + '-' + n + ext;
     }
-    await fs.writeFile(path.join(dir, name), data);
+    if (sandbox) {
+      overlay.set(path.join(dir, name), data);
+    } else {
+      await fs.mkdir(dir, { recursive: true });
+      await fs.writeFile(path.join(dir, name), data);
+    }
     if (!quiet) console.log('asset  %s', urlOf(path.join(dir, name)));
     return { url: 'assets/' + name };
   }
@@ -229,6 +246,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
       const ext = path.extname(file).toLowerCase();
       const inRoot = file === root || file.startsWith(root + path.sep);
       if (ext === '.html' && inRoot) {
+        if (overlay.has(file)) return;   /* the sandbox copy shadows the disk */
         const text = await fs.readFile(file, 'utf8').catch(() => null);
         if (text == null || hash(text) === ownWrites.get(file)) return;
         send('deck', { path: urlOf(file) });
@@ -292,15 +310,15 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
 
     let file = resolveFile(urlPath);
     if (!file) return reply(403, 'text/plain', 'forbidden');
-    let stat = await fs.stat(file).catch(() => null);
+    let stat = overlay.has(file) || await fs.stat(file).catch(() => null);
 
-    if (stat && stat.isDirectory()) {
+    if (stat && stat.isDirectory && stat.isDirectory()) {
       if (!urlPath.endsWith('/')) {
         res.writeHead(301, { Location: urlPath + '/' }).end();
         return;
       }
       const index = path.join(file, 'index.html');
-      if (await fs.stat(index).catch(() => null)) {
+      if (await exists(index)) {
         file = index;
         stat = true;
       } else {
@@ -321,7 +339,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
     }
 
     const ext = path.extname(file).toLowerCase();
-    let data = await fs.readFile(file);
+    let data = await readFile(file);
     if (ext === '.html') {
       let text = data.toString('utf8');
       if (inject && /\bid\s*=\s*["']deck["']/.test(text)) {
@@ -356,7 +374,14 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
         return;
       }
       if (urlPath === '/__hs/ping') {
-        return json(200, { ok: true, version: VERSION, themes: await listThemes() });
+        return json(200, { ok: true, version: VERSION, themes: await listThemes(), sandbox });
+      }
+      if (sandbox && req.method === 'POST' && urlPath === '/__hs/sandbox/reset') {
+        overlay.clear();
+        ownWrites.clear();
+        if (!quiet) console.log('sandbox reset');
+        send('reload', {});
+        return json(200, { ok: true });
       }
       if (urlPath === '/__hs/state') return json(200, await handleState(url));
       if (req.method === 'POST' && urlPath === '/__hs/save') {
@@ -384,6 +409,7 @@ export function startServer({ root, port = 4100, quiet = false, inject = true })
         console.log('html-slide %s', VERSION);
         console.log('  root  %s', root);
         console.log('  url   http://127.0.0.1:%d/', server.address().port);
+        if (sandbox) console.log('  sandbox: edits stay in memory; files on disk are never written');
       }
       resolve(server.address().port);
     });

@@ -5,7 +5,7 @@ import { HS, ed, isFree, isArrow, pathOf, fromPath } from './core.js';
 import { h, icon, iconButton, menu, toast, MOD } from './ui.js';
 import {
   mutate, sync, undo, redo, moveSlide, duplicateSlide, deleteSlide,
-  setTheme, setDeckAttr, currentTheme
+  setTheme, setDeckAttr, currentTheme, resetSandbox
 } from './sync.js';
 import {
   select, startText, setTool, removeSelected, duplicateSelected, reorder, toggleFree,
@@ -728,7 +728,7 @@ function updateBar() {
 
 function updateStatus() {
   const map = {
-    saved: ['保存済み', ''], dirty: ['編集中…', 'is-busy'], saving: ['保存中…', 'is-busy'],
+    saved: [HS.flags.sandbox ? '保存済み（メモリのみ）' : '保存済み', ''], dirty: ['編集中…', 'is-busy'], saving: ['保存中…', 'is-busy'],
     error: ['保存できません', 'is-error']
   };
   const [text, cls] = map[sync.status] || map.saved;
@@ -748,7 +748,14 @@ function toolbar() {
   return h('div', { class: 'hse-top' },
     h('div', { class: 'hse-top-left' },
       h('span', { class: 'hse-title', text: document.title || 'deck' }),
-      statusEl),
+      statusEl,
+      HS.flags.sandbox ? h('button', {
+        class: 'hse-sandbox', type: 'button', text: 'サンドボックス',
+        title: '編集はメモリ上だけでファイルには書きません。クリックで元のファイルの状態に戻します',
+        onclick: () => {
+          if (confirm('サンドボックスでの変更をすべて捨てて、ファイルの状態に戻しますか？')) resetSandbox();
+        }
+      }) : null),
     h('div', { class: 'hse-tools' },
       tool('text', 'テキスト (T)', () => insertObject(OBJECTS[0])),
       tool('rect', '図形', (e) => menu(OBJECTS.slice(1).map((o) => ({

@@ -77,6 +77,12 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
 .hse-status.is-busy::before { color: var(--e-warn); }
 .hse-status.is-error { color: var(--e-error); }
 .hse-status.is-error::before { color: var(--e-error); }
+.hse-sandbox {
+  margin-left: 10px; padding: 2px 9px; border: 1px solid var(--e-warn); border-radius: 999px;
+  background: transparent; color: var(--e-warn); font: inherit; font-size: 11.5px; cursor: pointer; white-space: nowrap;
+}
+.hse-sandbox:hover { background: color-mix(in srgb, var(--e-warn) 16%, transparent); }
+.hse-sandbox::after { content: " ↺"; }
 .hse-sep { width: 1px; height: 21.5px; margin: 0 7px; background: var(--e-line); }
 
 .hse-ib {
