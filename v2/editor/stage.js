@@ -336,6 +336,80 @@ export function startText(el, event) {
   requestDraw();
 }
 
+/* The text range selected while editing. Clicking the inspector moves
+ * focus away from the text, so the last selection inside it is kept
+ * here for the inspector to style. */
+let textRange = null;
+
+document.addEventListener('selectionchange', () => {
+  const had = !!textRange;
+  const selection = getSelection();
+  if (!ed.textEl) textRange = null;
+  else if (selection.rangeCount && ed.textEl.contains(selection.anchorNode)) {
+    const range = selection.getRangeAt(0);
+    textRange = range.collapsed ? null : range.cloneRange();
+  } else if (selection.rangeCount && selection.anchorNode && !isChrome(selection.anchorNode.parentElement || selection.anchorNode)) {
+    textRange = null;
+  }
+  if (had !== !!textRange) ed.emit('textsel');
+});
+
+/* The selected text range, if any, while editing text. */
+export function textSelection() {
+  const r = textRange;
+  if (!ed.textEl || !r || r.collapsed || !ed.textEl.contains(r.commonAncestorContainer)) return null;
+  return r;
+}
+
+/* Set one CSS property on just the selected text (null removes it),
+ * the way PowerPoint styles a run inside a text box. */
+export function styleSelection(prop, value) {
+  const range = textSelection();
+  if (!range) return false;
+  let node = range.commonAncestorContainer;
+  if (node.nodeType === 3) node = node.parentElement;
+  let target;
+  if (node !== ed.textEl && node.tagName === 'SPAN' && node.textContent === range.toString()) {
+    target = node;   /* restyle the run made last time */
+  } else {
+    target = document.createElement('span');
+    target.appendChild(range.extractContents());
+    range.insertNode(target);
+  }
+  /* The new value wins over the same property set further in. */
+  target.querySelectorAll('[style]').forEach((n) => {
+    n.style.removeProperty(prop);
+    if (!n.getAttribute('style')) n.removeAttribute('style');
+    if (n.tagName === 'SPAN' && !n.attributes.length) n.replaceWith(...n.childNodes);
+  });
+  if (value) target.style.setProperty(prop, value);
+  else target.style.removeProperty(prop);
+  if (!target.getAttribute('style')) target.removeAttribute('style');
+
+  const next = document.createRange();
+  if (target.tagName === 'SPAN' && !target.attributes.length) {
+    const first = target.firstChild;
+    const last = target.lastChild;
+    target.replaceWith(...target.childNodes);
+    if (first) { next.setStartBefore(first); next.setEndAfter(last); }
+  } else {
+    next.selectNodeContents(target);
+  }
+  textRange = next;
+  /* Show the selection again unless the user is typing in a field. */
+  const active = document.activeElement;
+  if (!(active && active.matches && active.matches('input, select, textarea'))) {
+    ed.textEl.focus({ preventScroll: true });
+    const selection = getSelection();
+    selection.removeAllRanges();
+    selection.addRange(next.cloneRange());
+  }
+  touch();
+  ed.emit('change', { source: 'text' });
+  requestDraw();
+  return true;
+}
+
 function splitItem(li) {
   const next = document.createElement('li');
   if (li.className) next.className = li.className.split(/\s+/).filter((c) => !c.startsWith('hs-')).join(' ');

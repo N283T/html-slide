@@ -10,7 +10,7 @@ import {
 import {
   select, startText, setTool, removeSelected, duplicateSelected, reorder, toggleFree,
   align, distribute, resetZoom, setHover, isInlineEl, canEditText, openNoteEditor, resolveNote,
-  requestDraw
+  requestDraw, textSelection, styleSelection
 } from './stage.js';
 import {
   BLOCKS, OBJECTS, insertBlock, insertObject, chooseImage, openGallery, openPalette, openHelp,
@@ -186,6 +186,11 @@ function field(label, control, onReset) {
 const edit = (fn, key) => mutate(fn, { key: 'insp:' + key, source: 'inspector' });
 
 /* A number bound to an inline style property. Drag the label to scrub. */
+/* Size, weight and colour go to the selected text when there is one
+ * (see styleSelection); everything else styles the element. */
+const RUN_PROPS = new Set(['font-size', 'font-weight', 'color']);
+const toRun = (prop, value) => RUN_PROPS.has(prop) && styleSelection(prop, value);
+
 function styleNum(label, prop, opts) {
   opts = opts || {};
   const els = ed.sel.slice();
@@ -200,7 +205,7 @@ function styleNum(label, prop, opts) {
   const apply = (v) => {
     if (opts.min != null) v = Math.max(opts.min, v);
     if (opts.max != null) v = Math.min(opts.max, v);
-    edit(() => els.forEach((el) => el.style.setProperty(prop, write(v))), prop);
+    if (!toRun(prop, write(v))) edit(() => els.forEach((el) => el.style.setProperty(prop, write(v))), prop);
     return v;
   };
   input.addEventListener('input', () => { if (input.value !== '') apply(Number(input.value)); });
@@ -224,6 +229,7 @@ function styleNum(label, prop, opts) {
   });
   const isSet = !!els[0].style.getPropertyValue(prop);
   return field(scrub, input, isSet ? () => {
+    if (toRun(prop, null)) return rebuild();
     edit(() => els.forEach((el) => { el.style.removeProperty(prop); tidy(el); }), prop);
     rebuild();
   } : null);
@@ -240,8 +246,9 @@ function styleSeg(label, prop, options, current) {
   const els = ed.sel.slice();
   const isSet = !!els[0].style.getPropertyValue(prop);
   return field(label, seg(options, current, (value) => {
-    edit(() => els.forEach((el) => el.style.setProperty(prop, value)), prop);
+    if (!toRun(prop, value)) edit(() => els.forEach((el) => el.style.setProperty(prop, value)), prop);
   }), isSet ? () => {
+    if (toRun(prop, null)) return rebuild();
     edit(() => els.forEach((el) => { el.style.removeProperty(prop); tidy(el); }), prop);
     rebuild();
   } : null);
@@ -261,6 +268,7 @@ function swatches(label, prop, tokens) {
   const slideStyle = getComputedStyle(ed.slide);
   const current = el.style.getPropertyValue(prop).trim();
   const set = (value) => {
+    if (toRun(prop, value)) return;
     edit(() => els.forEach((x) => {
       if (value) x.style.setProperty(prop, value);
       else { x.style.removeProperty(prop); tidy(x); }
@@ -463,10 +471,15 @@ function elementPanel() {
   if (hasText) {
     const fontPx = parseFloat(cs.fontSize) || 32;
     const lh = parseFloat(cs.lineHeight);
-    const weight = Number(cs.fontWeight) >= 650 ? '700' : Number(cs.fontWeight) >= 480 ? '500' : '400';
-    out.push(section('テキスト',
+    /* With text selected, show (and change) the selection's own style. */
+    const run = one && textSelection();
+    let runEl = run && run.startContainer;
+    if (runEl && runEl.nodeType === 3) runEl = runEl.parentElement;
+    const rcs = runEl ? getComputedStyle(runEl) : cs;
+    const weight = Number(rcs.fontWeight) >= 650 ? '700' : Number(rcs.fontWeight) >= 480 ? '500' : '400';
+    out.push(section(run ? 'テキスト（選択した文字）' : 'テキスト',
       h('div', { class: 'hse-grid2' },
-        styleNum('サイズ', 'font-size', { min: 8, max: 400 }),
+        styleNum('サイズ', 'font-size', { min: 8, max: 400, read: () => parseFloat(rcs.fontSize) || 0 }),
         styleNum('行間', 'line-height', { step: 0.05, min: 0.8, max: 3, unit: '', read: () => (isNaN(lh) ? 1.6 : lh / fontPx) })),
       styleSeg('太さ', 'font-weight', [['細', '400'], ['中', '500'], ['太', '700']], weight),
       styleSeg('揃え', 'text-align', [['左', 'left'], ['中', 'center'], ['右', 'right']],
@@ -861,6 +874,7 @@ export function initPanels() {
     rebuild();
   });
   ed.on('select', rebuild);
+  ed.on('textsel', rebuild);
   ed.on('notes', rebuild);
   ed.on('slides', () => { syncFilm(); rebuild(); updateBar(); });
   ed.on('issues', () => {
