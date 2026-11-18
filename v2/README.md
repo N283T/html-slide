@@ -31,14 +31,17 @@ node v2/bin/hs.js dev v2      # http://127.0.0.1:4100/template/
 Opening a deck through `hs dev` starts in the editor (`?present` opens it
 presenting; `e` switches).
 
-Slides mix two kinds of element, and each is handled the way it behaves:
+Slides mix two kinds of element: **flow elements**, placed by the layout
+(`.cols`, `.grow`, …), and **free elements** (`.free`) on the canvas. The
+layout is for writing a deck (by hand or with Claude); the editor is for
+fine adjustment, so it handles both the same way:
 
-- **Flow elements** keep their place in the layout. *Drag* one to reorder
-  it or drop it into another container; its *handles* set a size the layout
-  then honours.
-- **Free elements** (`.free`) sit on the canvas. *Drag* to move, with
-  snapping to the canvas, its margins and every other element. Arrows have
-  an endpoint handle at each end.
+- *Drag* to move and the *handles* to resize, snapping to the canvas, its
+  margins and every other element (hold ⌘ to turn snapping off). A flow
+  element is shifted from its layout position with `translate`, and a
+  resize keeps the edge opposite the handle in place, so its neighbours
+  never move. Reordering is a source edit (or ⌘[ / ⌘]).
+- Arrows have an endpoint handle at each end.
 - **⌥-drag** lifts a flow element out into a free one.
 
 | | |

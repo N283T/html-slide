@@ -441,9 +441,9 @@ function onContextMenu(e) {
       item('backward', '順序を前へ'),
       item('forward', '順序を後ろへ'),
       { label: isFree(el) ? 'フロー配置に戻す' : '自由配置にする', run: toggleFree },
-      ed.sel.some(isFree) ? '-' : null,
-      ed.sel.some(isFree) ? item('align-center', '左右中央に揃える') : null,
-      ed.sel.some(isFree) ? item('align-middle', '上下中央に揃える') : null,
+      '-',
+      item('align-center', '左右中央に揃える'),
+      item('align-middle', '上下中央に揃える'),
       '-',
       one ? { label: '@fix コメントを置く', keys: 'C', run: () => openNoteEditor(el, null, at) } : null,
       one ? { label: '親を選択', keys: 'Esc', run: selectParent } : null,
@@ -470,7 +470,7 @@ function onContextMenu(e) {
 
 const SHORTCUTS = [
   ['クリック / ⇧クリック', '選択 / 追加選択'], ['ダブルクリック', 'テキスト編集'],
-  ['ドラッグ', '並べ替え（フロー）・移動（自由配置）'], ['⌥ドラッグ', '自由配置にして動かす'],
+  ['ドラッグ', '移動（スナップあり、' + MOD + 'で無効）'], ['⌥ドラッグ', '自由配置にして動かす'],
   ['矢印（⇧で10px）', '位置の微調整'], ['Esc / Enter / Tab', '親・子・隣の要素へ'],
   [MOD + 'K', 'コマンドパレット'], [MOD + 'Z', '元に戻す'], [MOD + 'D', '複製'],
   ['T R O A L I', 'テキスト・四角・楕円・矢印・線・画像'], ['C', '@fix コメント'],

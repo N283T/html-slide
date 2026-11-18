@@ -1,16 +1,16 @@
 /* The stage: selection, the overlay drawn above the slide, and every
  * pointer gesture.
  *
- * A slide mixes two kinds of element, and they are manipulated the way
- * each one actually behaves:
- *   - flow elements keep their place in the layout. Dragging one
- *     reorders it (or moves it into another container); its handles set
- *     a size the layout then honours.
- *   - .free elements are positioned on the canvas. Dragging moves them
- *     and snaps to the canvas, its margins and every other element.
+ * A slide mixes two kinds of element. The layout (written by hand or
+ * by Claude) places flow elements; .free elements sit on the canvas.
+ * Hand editing treats both the same way, like a drawing app: dragging
+ * moves, handles resize, and both snap to the canvas, its margins and
+ * every other element. A flow element is moved with `translate` from
+ * where the layout puts it, so its neighbours never shift; reordering
+ * is left to the source (or Claude).
  * Alt-dragging a flow element lifts it out into a free one. */
 
-import { HS, ed, isFree, isArrow, indentFor, fromPath, place } from './core.js';
+import { HS, ed, isFree, isArrow, indentFor, fromPath } from './core.js';
 import { h, isChrome, popover, closeFloating, toast } from './ui.js';
 import { mutate, capture, touch, cleanClone } from './sync.js';
 
@@ -184,30 +184,45 @@ export function reorder(delta) {
   mutate(() => (delta < 0 ? other.before(el) : other.after(el)));
 }
 
-export function nudge(dx, dy) {
-  if (!ed.sel.length) return;
-  mutate(() => ed.sel.forEach((el) => {
-    if (isFree(el)) {
-      el.style.left = el.offsetLeft + dx + 'px';
-      el.style.top = el.offsetTop + dy + 'px';
-    } else {
-      const parts = (el.style.translate || '0px 0px').split(/\s+/);
-      const x = (parseFloat(parts[0]) || 0) + dx;
-      const y = (parseFloat(parts[1]) || 0) + dy;
-      if (x || y) el.style.translate = x + 'px ' + y + 'px';
-      else {
-        el.style.removeProperty('translate');
-        tidy(el);
-      }
-    }
-  }), { key: 'nudge' });
+/* Where the user has put an element. A free element's position is its
+ * left/top; a flow element keeps its place in the layout and is shifted
+ * from there with `translate`, so hand placement never moves its
+ * neighbours. */
+function getPos(el) {
+  if (isFree(el)) return { x: el.offsetLeft, y: el.offsetTop };
+  const parts = (el.style.translate || '0px 0px').split(/\s+/);
+  return { x: parseFloat(parts[0]) || 0, y: parseFloat(parts[1]) || 0 };
 }
 
-/* Align free elements: to each other when several are selected, to the
+function setPos(el, x, y) {
+  x = round(x);
+  y = round(y);
+  if (isFree(el)) {
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+  } else if (x || y) {
+    el.style.translate = x + 'px ' + y + 'px';
+  } else {
+    el.style.removeProperty('translate');
+    tidy(el);
+  }
+}
+
+function shift(el, dx, dy) {
+  const p = getPos(el);
+  setPos(el, p.x + dx, p.y + dy);
+}
+
+export function nudge(dx, dy) {
+  if (!ed.sel.length) return;
+  mutate(() => ed.sel.forEach((el) => shift(el, dx, dy)), { key: 'nudge' });
+}
+
+/* Align elements: to each other when several are selected, to the
  * slide's content box when one is. */
 export function align(mode) {
-  const els = ed.sel.filter(isFree);
-  if (!els.length) return toast('整列は自由配置の要素に使えます（⌥ドラッグで自由配置に）');
+  const els = ed.sel;
+  if (!els.length) return;
   const rects = els.map(rectOf);
   let frame = union(rects);
   if (els.length === 1) {
@@ -230,14 +245,13 @@ export function align(mode) {
     if (mode === 'top') dy = frame.y - r.y;
     if (mode === 'middle') dy = frame.y + frame.h / 2 - (r.y + r.h / 2);
     if (mode === 'bottom') dy = frame.y + frame.h - (r.y + r.h);
-    el.style.left = round(el.offsetLeft + dx) + 'px';
-    el.style.top = round(el.offsetTop + dy) + 'px';
+    shift(el, dx, dy);
   }));
 }
 
 export function distribute(axis) {
-  const els = ed.sel.filter(isFree);
-  if (els.length < 3) return toast('等間隔は自由配置の要素を3つ以上選んでください');
+  const els = ed.sel;
+  if (els.length < 3) return toast('等間隔は要素を3つ以上選んでください');
   const items = els.map((el) => ({ el, r: rectOf(el) }))
     .sort((a, b) => (axis === 'x' ? a.r.x - b.r.x : a.r.y - b.r.y));
   const size = (r) => (axis === 'x' ? r.w : r.h);
@@ -250,8 +264,8 @@ export function distribute(axis) {
     let cursor = pos(first);
     items.forEach((it) => {
       const delta = cursor - pos(it.r);
-      if (axis === 'x') it.el.style.left = round(it.el.offsetLeft + delta) + 'px';
-      else it.el.style.top = round(it.el.offsetTop + delta) + 'px';
+      if (axis === 'x') shift(it.el, delta, 0);
+      else shift(it.el, 0, delta);
       cursor += size(it.r) + gap;
     });
   });
@@ -533,12 +547,12 @@ export function setHover(el) {
   requestDraw();
 }
 
-function startMove(e) {
-  const els = ed.sel.filter(isFree);
+function startMove() {
+  const els = ed.sel.slice();
   const rects = els.map(rectOf);
   g = {
     type: 'move', key: 'g' + (++gestureId), x0: g.x0, y0: g.y0,
-    items: els.map((el) => ({ el, x: el.offsetLeft, y: el.offsetTop })),
+    items: els.map((el) => Object.assign({ el }, getPos(el))),
     bounds: union(rects),
     targets: snapTargets(els)
   };
@@ -559,10 +573,8 @@ function doMove(e) {
     dy += s.dy;
     g.guides = s;
   }
-  mutate(() => g.items.forEach((it) => {
-    it.el.style.left = round(it.x + dx) + 'px';
-    it.el.style.top = round(it.y + dy) + 'px';
-  }), { key: g.key, source: 'stage' });
+  mutate(() => g.items.forEach((it) => setPos(it.el, it.x + dx, it.y + dy)),
+    { key: g.key, source: 'stage' });
 }
 
 function startResize(e, dir) {
@@ -589,7 +601,9 @@ function startResize(e, dir) {
   } else {
     g = Object.assign(base, {
       type: 'flowsize', w: el.offsetWidth, h: el.offsetHeight,
-      media: /^(IMG|VIDEO)$/.test(el.tagName)
+      media: /^(IMG|VIDEO)$/.test(el.tagName),
+      r0: rectOf(el),
+      pos: getPos(el)
     });
   }
   document.documentElement.classList.add('hse-dragging');
@@ -670,10 +684,23 @@ function doFlowSize(e) {
       if (row) el.style.flex = '0 0 ' + w + 'px';
       else el.style.width = w + 'px';
     }
-    if (vertical && !(g.media && horizontal)) {
+    const sized = vertical && !(g.media && horizontal);
+    if (sized) {
       if (flex && !row) el.style.flex = '0 0 ' + hgt + 'px';
       else el.style.height = hgt + 'px';
     }
+    // The layout decides where a flow element sits, so a bigger box grows
+    // from wherever the layout anchors it (usually the top-left). Keep the
+    // edge opposite the dragged handle where it was, the way PowerPoint
+    // does, by shifting the element with translate (which leaves its
+    // neighbours alone).
+    setPos(el, g.pos.x, g.pos.y);
+    const r0 = g.r0;
+    const r = rectOf(el);
+    // Text reflow can move the undragged axis too; pin its start edge.
+    const fx = horizontal && dir.includes('w') ? (r0.x + r0.w) - (r.x + r.w) : r0.x - r.x;
+    const fy = sized && dir.includes('n') ? (r0.y + r0.h) - (r.y + r.h) : r0.y - r.y;
+    if (Math.abs(fx) >= 0.5 || Math.abs(fy) >= 0.5) setPos(el, g.pos.x + fx, g.pos.y + fy);
   }, { key: g.key, source: 'stage' });
 }
 
@@ -709,93 +736,8 @@ function doEndpoint(e) {
   }, { key: g.key, source: 'stage' });
 }
 
-/* ---- reordering flow elements ---- */
-
-const LIST_TAGS = new Set(['UL', 'OL']);
+/* Table cells move with their table, never on their own. */
 const TABLE_PART = 'table, thead, tbody, tr, td, th';
-
-const BIG = '.card, .cols, .bento, .steps, .timeline, .window, table, .takeaway, header, footer';
-
-/* Whether `el` may receive the dragged element. Lists take only list
- * items, and whole components never nest inside a card. */
-function isContainer(el, dragged) {
-  if (el === ed.slide) return el.getAttribute('data-layout') !== 'split';
-  if (el.matches(TABLE_PART) || el.closest('hs-chart, .notes') || isInlineEl(el)) return false;
-  const list = LIST_TAGS.has(el.tagName);
-  if ((dragged.tagName === 'LI') !== list) return false;
-  if (list) return true;
-  if (el.matches('.cols, .text, .bento')) return true;
-  if (el.matches('.cols > *') && !el.matches('.card')) return true;
-  if (dragged.matches(BIG)) return false;
-  if (el.matches('.card, header, footer, .bento > *, figure')) return true;
-  return !canEditText(el) && Array.prototype.some.call(el.children, (c) => c !== dragged && !isInlineEl(c));
-}
-
-function startReorder() {
-  const el = g.dragEl;
-  g = { type: 'reorder', el, x0: g.x0, y0: g.y0, drop: null };
-  el.classList.add('hs-dragging');
-}
-
-function doReorder(e) {
-  const el = g.el;
-  const slide = ed.slide;
-  let container = document.elementFromPoint(e.clientX, e.clientY);
-  if (!container || !slide.contains(container)) container = slide;
-  while (container !== slide && (el.contains(container) || !isContainer(container, el))) {
-    container = container.parentElement;
-  }
-  g.drop = null;
-  if (!isContainer(container, el)) return;
-  const kids = Array.prototype.filter.call(container.children,
-    (c) => c !== el && !isFree(c) && !c.matches('.notes') && !isInlineEl(c));
-  const s = scale();
-  if (!kids.length) {
-    const r = container.getBoundingClientRect();
-    g.drop = { container, before: null, line: { x: r.left + 8, y: r.top + 8, w: r.width - 16, h: 3 } };
-    return;
-  }
-  const rects = kids.map((k) => k.getBoundingClientRect());
-  let best = 0;
-  let bestDist = Infinity;
-  rects.forEach((r, i) => {
-    const cx = Math.max(r.left, Math.min(e.clientX, r.right));
-    const cy = Math.max(r.top, Math.min(e.clientY, r.bottom));
-    const d = Math.hypot(e.clientX - cx, e.clientY - cy);
-    if (d < bestDist) { bestDist = d; best = i; }
-  });
-  const r = rects[best];
-  const other = rects[best + 1] || rects[best - 1];
-  const horizontal = !!other && Math.abs(other.top - r.top) < Math.min(r.height, other.height) / 2 &&
-    Math.abs(other.left - r.left) > 4;
-  const after = horizontal ? e.clientX > r.left + r.width / 2 : e.clientY > r.top + r.height / 2;
-  const before = after ? kids[best].nextElementSibling : kids[best];
-  const neighbour = rects[best + (after ? 1 : -1)];
-  const gap = (a, b) => (neighbour ? Math.abs(a - b) / 2 : 6 * s);
-  let line;
-  if (horizontal) {
-    const x = after ? r.right + gap(neighbour && neighbour.left, r.right) : r.left - gap(r.left, neighbour && neighbour.right);
-    line = { x: x - 1.5, y: r.top, w: 3, h: r.height };
-  } else {
-    const y = after ? r.bottom + gap(neighbour && neighbour.top, r.bottom) : r.top - gap(r.top, neighbour && neighbour.bottom);
-    line = { x: r.left, y: y - 1.5, w: r.width, h: 3 };
-  }
-  g.drop = { container, before: before === el ? el.nextElementSibling : before, line };
-}
-
-function finishReorder(was) {
-  const el = was.el;
-  el.classList.remove('hs-dragging');
-  tidy(el);
-  const drop = was.drop;
-  if (!drop) return;
-  if (drop.container === el.parentElement && drop.before === el.nextElementSibling) return;
-  mutate(() => {
-    const prev = el.previousSibling;
-    if (prev && prev.nodeType === 3 && !prev.data.trim()) prev.remove();
-    place(drop.container, el, drop.before, ed.slide);
-  });
-}
 
 /* ---- marquee ---- */
 
@@ -871,8 +813,7 @@ function beginDrag() {
     mutate(() => toFree(el));
     ed.emit('select');
   }
-  if (isFree(el)) startMove();
-  else startReorder();
+  startMove();
 }
 
 function onPointerMove(e) {
@@ -894,7 +835,6 @@ function onPointerMove(e) {
     case 'resize': doResize(e); break;
     case 'flowsize': doFlowSize(e); break;
     case 'endpoint': doEndpoint(e); break;
-    case 'reorder': doReorder(e); break;
     case 'marquee': doMarquee(e); break;
     case 'pan':
       HS.view.panX = g.px + e.clientX - g.x0;
@@ -916,8 +856,6 @@ function onPointerUp() {
     } else {
       select([was.el]);
     }
-  } else if (was.type === 'reorder') {
-    finishReorder(was);
   } else if (was.type === 'move' || was.type === 'resize' || was.type === 'flowsize' || was.type === 'endpoint') {
     ed.emit('change', { source: 'stage-end' });
   }
@@ -1089,11 +1027,6 @@ function draw() {
     g.guides.ys.forEach((y) => {
       out.push(h('div', { class: 'hse-guide', style: 'left:' + R.left + 'px;top:' + (R.top + y * s) + 'px;height:1px;width:' + R.width + 'px' }));
     });
-  }
-  if (g && g.type === 'reorder' && g.drop) {
-    const line = g.drop.line;
-    out.push(boxEl({ left: line.x, top: line.y, width: line.w, height: line.h }, 'hse-drop'));
-    out.push(boxEl(g.drop.container.getBoundingClientRect(), 'hse-dropzone'));
   }
   if (g && g.type === 'marquee' && g.box) {
     out.push(boxEl({ left: g.box.l, top: g.box.t, width: g.box.r - g.box.l, height: g.box.b - g.box.t }, 'hse-marquee'));

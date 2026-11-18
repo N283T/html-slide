@@ -388,17 +388,18 @@ function elementPanel() {
     iconButton('trash', '削除 (⌫)', removeSelected, 'is-danger')));
 
   /* position and size */
+  const alignRow = h('div', { class: 'hse-actions is-tight' },
+    iconButton('alignL', '左揃え', () => align('left')),
+    iconButton('alignC', '左右中央', () => align('center')),
+    iconButton('alignR', '右揃え', () => align('right')),
+    iconButton('alignT', '上揃え', () => align('top')),
+    iconButton('alignM', '上下中央', () => align('middle')),
+    iconButton('alignB', '下揃え', () => align('bottom')),
+    els.length > 2 ? iconButton('distH', '左右に等間隔', () => distribute('x')) : null,
+    els.length > 2 ? iconButton('distV', '上下に等間隔', () => distribute('y')) : null);
   if (free) {
     out.push(section('配置',
-      h('div', { class: 'hse-actions is-tight' },
-        iconButton('alignL', '左揃え', () => align('left')),
-        iconButton('alignC', '左右中央', () => align('center')),
-        iconButton('alignR', '右揃え', () => align('right')),
-        iconButton('alignT', '上揃え', () => align('top')),
-        iconButton('alignM', '上下中央', () => align('middle')),
-        iconButton('alignB', '下揃え', () => align('bottom')),
-        els.length > 2 ? iconButton('distH', '左右に等間隔', () => distribute('x')) : null,
-        els.length > 2 ? iconButton('distV', '上下に等間隔', () => distribute('y')) : null),
+      alignRow,
       one ? h('div', { class: 'hse-grid2' },
         styleNum('X', 'left', { read: () => el.offsetLeft }),
         styleNum('Y', 'top', { read: () => el.offsetTop }),
@@ -410,7 +411,8 @@ function elementPanel() {
     const pcs = getComputedStyle(el.parentElement);
     const inFlex = pcs.display.includes('flex');
     const column = inFlex && pcs.flexDirection.startsWith('column');
-    out.push(section('サイズ',
+    out.push(section('配置とサイズ',
+      alignRow,
       h('div', { class: 'hse-grid2' },
         styleNum('W', 'width', { read: () => el.offsetWidth, min: 8 }),
         styleNum('H', 'height', { read: () => el.offsetHeight, min: 8 })),
@@ -422,6 +424,8 @@ function elementPanel() {
         edit(() => { el.style.removeProperty('translate'); tidy(el); }, 'translate');
         rebuild();
       }) : null));
+  } else {
+    out.push(section('配置', alignRow));
   }
 
   /* specific kinds */
@@ -817,7 +821,7 @@ export function initPanels() {
     side,
     notesPane = initNotes(),
     h('div', { class: 'hse-bar' }, barInfo, barIssues, h('span', { class: 'hse-bar-space' }),
-      h('span', { class: 'hse-bar-hint', text: 'ドラッグで並べ替え ・ ⌥ドラッグで自由配置 ・ ダブルクリックで文字 ・ ' + MOD + 'K でコマンド' }),
+      h('span', { class: 'hse-bar-hint', text: 'ドラッグで移動 ・ ⌥ドラッグで自由配置 ・ ダブルクリックで文字 ・ ' + MOD + 'K でコマンド' }),
       barZoom));
   document.body.appendChild(root);
 

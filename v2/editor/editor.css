@@ -38,7 +38,6 @@
 html.hs-edit body { background: #121214; }
 html.hs-edit #deck { box-shadow: 0 0 0 1px rgb(255 255 255 / .07), 0 24px 70px rgb(0 0 0 / .55); }
 html.hs-edit #deck [contenteditable] { outline: none; cursor: text; }
-html.hs-edit #deck .hs-dragging { opacity: .3; pointer-events: none; }
 html.hs-edit #deck .media:empty::before {
   content: "画像をここへドロップ";
   position: absolute;
@@ -446,8 +445,6 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
 }
 .hse-handle.is-round { width: 15.5px; height: 15.5px; margin: -8px 0 0 -8px; border-radius: 50%; border-color: #a06bff; cursor: move; }
 .hse-guide { background: #ff3ea5; }
-.hse-drop { background: var(--e-accent); border-radius: 2px; box-shadow: 0 0 0 2px rgb(79 140 255 / .3); }
-.hse-dropzone { outline: 1.5px dashed rgb(79 140 255 / .6); outline-offset: 3px; border-radius: 5px; }
 .hse-marquee { border: 1px solid var(--e-accent); background: rgb(79 140 255 / .12); }
 .hse-issue { outline: 1.5px dashed var(--e-warn); outline-offset: 2px; }
 .hse-issue.is-error { outline-color: var(--e-error); }
