@@ -51,6 +51,8 @@ fine adjustment, so it handles both the same way:
   resize keeps the edge opposite the handle in place, so its neighbours
   never move. Reordering is a source edit (or ⌘[ / ⌘]).
 - Arrows have an endpoint handle at each end.
+- Drag the inner edge of the slide strip or the inspector to resize it
+  (double-click the edge to restore the default width).
 - **⌥-drag** lifts a flow element out into a free one.
 
 | | |
@@ -113,9 +115,9 @@ that teaches this loop and the markup.
 
 ```
 hs dev [dir] [--port 4100]       serve a deck, or a folder of decks, with the editor
+hs dev … --sandbox               same, but edits stay in memory (files never written)
 hs new <dir> [--theme paper]     scaffold a self-contained deck
 hs check <deck> [--json]         audit + open @fix notes; exit 1 on errors
-hs dev … --sandbox               same, but edits stay in memory (files never written)
 hs shot <deck> [--slide N] [--out shots] [--scale 2]   1920×1080 PNGs
 hs pdf <deck> [--out file.pdf]   one page per slide
 hs build <deck> [--out dist]     static copy: notes and @fix comments removed

@@ -122,7 +122,7 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
   top: 55px;
   left: 0;
   bottom: 31px;
-  width: 211px;
+  width: var(--e-film-w, 211px);
   padding: 12px 12px 48px 0;
   border-right: 1px solid var(--e-line);
   overflow-y: auto;
@@ -193,7 +193,7 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
   top: 55px;
   right: 0;
   bottom: 31px;
-  width: 365px;
+  width: var(--e-side-w, 365px);
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--e-line);
@@ -204,6 +204,7 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
   align-items: center;
   gap: 7px;
   padding: 8.5px 12px 9.5px;
+  white-space: nowrap;
   color: var(--e-dim);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
@@ -344,8 +345,8 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
 /* ---- speaker notes pane ---- */
 
 .hse-notes {
-  left: 211px;
-  right: 365px;
+  left: var(--e-film-w, 211px);
+  right: var(--e-side-w, 365px);
   bottom: 31px;
   display: flex;
   flex-direction: column;
@@ -353,6 +354,12 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
 }
 .hse-notes-grip { position: absolute; left: 0; right: 0; top: -4px; height: 8px; cursor: row-resize; touch-action: none; }
 .hse-notes-grip:hover { background: rgb(79 140 255 / .35); }
+
+/* Width grips on the filmstrip's right edge and the inspector's left edge. */
+.hse-root > .hse-grip { top: 55px; bottom: 31px; width: 8px; z-index: 2; background: transparent; cursor: col-resize; touch-action: none; }
+.hse-grip.is-film { left: calc(var(--e-film-w, 211px) - 4px); }
+.hse-grip.is-side { right: calc(var(--e-side-w, 365px) - 4px); }
+.hse-root > .hse-grip:hover, .hse-root > .hse-grip.is-on { background: rgb(79 140 255 / .35); }
 .hse-notes-head {
   flex: none;
   display: flex;

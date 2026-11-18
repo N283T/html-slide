@@ -809,6 +809,57 @@ function applyMode() {
   }
 }
 
+/* ---- panel widths ---- */
+
+const WIDTHS_KEY = 'hs-editor-panels';
+const WIDTH = { film: [211, 120, 480], side: [365, 330, 640] };   /* default, min, max */
+const widths = { film: WIDTH.film[0], side: WIDTH.side[0] };
+try { Object.assign(widths, JSON.parse(localStorage.getItem(WIDTHS_KEY)) || {}); } catch { /* private mode */ }
+const clampWidth = (which, px) => Math.round(Math.max(WIDTH[which][1], Math.min(WIDTH[which][2], Number.isFinite(Number(px)) ? Number(px) : WIDTH[which][0])));
+widths.film = clampWidth('film', widths.film);
+widths.side = clampWidth('side', widths.side);
+
+function setWidth(which, px) {
+  widths[which] = clampWidth(which, px);
+  root.style.setProperty(which === 'film' ? '--e-film-w' : '--e-side-w', widths[which] + 'px');
+  HS.layout();
+  requestDraw();
+}
+
+function saveWidths() {
+  try { localStorage.setItem(WIDTHS_KEY, JSON.stringify(widths)); } catch { /* private mode */ }
+}
+
+/* Drag to resize the filmstrip or the inspector; double-click restores
+ * the default width. */
+function widthGrip(which) {
+  const grip = h('div', {
+    class: 'hse-grip is-' + which,
+    title: 'ドラッグで幅を調整（ダブルクリックで元に戻す）',
+    ondblclick: () => { setWidth(which, WIDTH[which][0]); saveWidths(); }
+  });
+  grip.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    grip.classList.add('is-on');
+    const x0 = e.clientX;
+    const w0 = widths[which];
+    const move = (ev) => setWidth(which, which === 'film' ? w0 + ev.clientX - x0 : w0 - (ev.clientX - x0));
+    const up = () => {
+      grip.classList.remove('is-on');
+      grip.removeEventListener('pointermove', move);
+      grip.removeEventListener('pointerup', up);
+      grip.removeEventListener('pointercancel', up);
+      saveWidths();
+    };
+    grip.addEventListener('pointermove', move);
+    grip.addEventListener('pointerup', up);
+    grip.addEventListener('pointercancel', up);
+  });
+  return grip;
+}
+
 export function initPanels() {
   film = h('div', { class: 'hse-film' });
   sideBody = h('div', { class: 'hse-side-body' });
@@ -827,9 +878,13 @@ export function initPanels() {
     film,
     side,
     notesPane = initNotes(),
+    widthGrip('film'),
+    widthGrip('side'),
     h('div', { class: 'hse-bar' }, barInfo, barIssues, h('span', { class: 'hse-bar-space' }),
       h('span', { class: 'hse-bar-hint', text: 'ドラッグで移動 ・ ⌥ドラッグで自由配置 ・ ダブルクリックで文字 ・ ' + MOD + 'K でコマンド' }),
       barZoom));
+  root.style.setProperty('--e-film-w', widths.film + 'px');
+  root.style.setProperty('--e-side-w', widths.side + 'px');
   document.body.appendChild(root);
 
   /* thumbnails follow the slide being edited */
