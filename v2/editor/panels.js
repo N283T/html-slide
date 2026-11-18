@@ -5,7 +5,7 @@ import { HS, ed, isFree, isArrow, pathOf, fromPath } from './core.js';
 import { h, icon, iconButton, menu, toast, MOD } from './ui.js';
 import {
   mutate, sync, undo, redo, moveSlide, duplicateSlide, deleteSlide,
-  setTheme, setDeckAttr, currentTheme, resetSandbox
+  resetSandbox
 } from './sync.js';
 import {
   select, startText, setTool, removeSelected, duplicateSelected, reorder, toggleFree,
@@ -14,7 +14,7 @@ import {
 } from './stage.js';
 import {
   BLOCKS, OBJECTS, insertBlock, insertObject, chooseImage, openGallery, openPalette, openHelp,
-  present, getThemes
+  present
 } from './commands.js';
 import { initNotes, notesOpen, notesToggleButton, toggleNotes } from './notes.js';
 
@@ -546,23 +546,13 @@ function elementPanel() {
 
 /* ================= slide inspector ================= */
 
-const LAYOUT_NAMES = [['', '標準'], ['cover', '表紙'], ['section', '章扉'], ['statement', '一文'],
-  ['quote', '引用'], ['center', '中央'], ['split', '分割'], ['hero', 'ヒーロー'], ['end', '締め']];
-
+/* Slide-wide design (layout, tone, theme, transitions) is left to the
+ * source and to Claude: a deck's look changes from talk to talk, and a
+ * fixed set of presets here would only narrow it. With nothing selected
+ * the inspector shows what is about this slide's content: its notes and
+ * its issues. */
 function slidePanel() {
   const slide = ed.slide;
-  const setAttr = (name, value, key) => mutate(() => {
-    if (value) slide.setAttribute(name, value);
-    else slide.removeAttribute(name);
-  }, { key: 'slide:' + key, source: 'inspector' });
-
-  const select_ = (options, current, onChange) => {
-    const el = h('select', { class: 'hse-input' },
-      options.map(([v, l]) => h('option', { value: v, text: l, selected: v === current })));
-    el.addEventListener('change', () => onChange(el.value));
-    return el;
-  };
-
   const notesEl = slide.querySelector(':scope > .notes');
   const notesText = notesEl ? notesEl.textContent.trim() : '';
   const notes = h('div', { class: 'hse-notes-preview' },
@@ -573,38 +563,11 @@ function slidePanel() {
     }));
 
   const issues = (ed.issues.get(slide) || []).filter((i) => i.level !== 'note');
-  const themes = getThemes();
-  const deck = HS.deck;
-  const footer = textInput(deck.getAttribute('data-footer'), () => {}, '全スライドの左下に出す文字');
-  footer.addEventListener('change', () => setDeckAttr('data-footer', footer.value.trim()));
 
   return [
     h('div', { class: 'hse-crumbs' }, h('button', { class: 'is-on', text: 'スライド ' + (HS.state.index + 1) })),
-    section('レイアウト',
-      h('div', { class: 'hse-tiles' }, LAYOUT_NAMES.map(([value, label]) => h('button', {
-        type: 'button', class: (slide.getAttribute('data-layout') || '') === value ? 'is-on' : '', text: label,
-        onclick: () => { setAttr('data-layout', value, 'layout'); rebuild(); }
-      }))),
-      slide.getAttribute('data-layout') === 'split' ? field('左右', seg([['画像が左', ''], ['画像が右', 'is-flip']],
-        slide.classList.contains('is-flip') ? 'is-flip' : '', (v) => {
-          mutate(() => slide.classList.toggle('is-flip', !!v), { source: 'inspector' });
-        })) : null),
-    section('トーン',
-      seg([['標準', ''], ['反転', 'invert'], ['アクセント', 'accent'], ['ソフト', 'soft']],
-        slide.getAttribute('data-tone') || '', (v) => setAttr('data-tone', v, 'tone'))),
-    section('切り替え',
-      field('このスライド', select_([['', 'デッキの既定'], ['morph', 'モーフ'], ['fade', 'フェード'], ['slide', 'スライド'], ['zoom', 'ズーム'], ['none', 'なし']],
-        slide.getAttribute('data-transition') || '', (v) => setAttr('data-transition', v, 'transition'))),
-      field('ページ番号', seg([['表示', ''], ['隠す', 'off']], slide.getAttribute('data-number') || '', (v) => setAttr('data-number', v, 'number')))),
     section('ノート', notes),
-    issues.length ? section('このスライドの問題', issues.map(issueRow.bind(null, slide))) : null,
-    section('デッキ全体',
-      themes.length ? field('テーマ', select_(themes.map((t) => [t, t]), currentTheme(), (v) => setTheme(v))) : null,
-      field('切り替え', select_([['', 'モーフ'], ['fade', 'フェード'], ['slide', 'スライド'], ['zoom', 'ズーム'], ['none', 'なし']],
-        deck.getAttribute('data-transition') || '', (v) => setDeckAttr('data-transition', v))),
-      field('フッター', footer),
-      field('進捗バー', seg([['なし', ''], ['表示', 'on']], deck.hasAttribute('data-progress') ? 'on' : '',
-        (v) => setDeckAttr('data-progress', v ? 'on' : null))))
+    issues.length ? section('このスライドの問題', issues.map(issueRow.bind(null, slide))) : null
   ];
 }
 
@@ -812,7 +775,7 @@ function applyMode() {
 /* ---- panel widths ---- */
 
 const WIDTHS_KEY = 'hs-editor-panels';
-const WIDTH = { film: [211, 120, 480], side: [365, 330, 640] };   /* default, min, max */
+const WIDTH = { film: [211, 120, 480], side: [365, 340, 640] };   /* default, min, max */
 const widths = { film: WIDTH.film[0], side: WIDTH.side[0] };
 try { Object.assign(widths, JSON.parse(localStorage.getItem(WIDTHS_KEY)) || {}); } catch { /* private mode */ }
 const clampWidth = (which, px) => Math.round(Math.max(WIDTH[which][1], Math.min(WIDTH[which][2], Number.isFinite(Number(px)) ? Number(px) : WIDTH[which][0])));
@@ -868,7 +831,7 @@ export function initPanels() {
     onclick: () => { tab = id; rebuild(); }
   }, icon(iconName, 13), label);
   side = h('div', { class: 'hse-side' },
-    h('div', { class: 'hse-tabs' }, tabBtn('design', 'デザイン', 'sliders'), tabBtn('layers', 'レイヤー', 'layers'), tabBtn('review', 'レビュー', 'note')),
+    h('div', { class: 'hse-tabs' }, tabBtn('design', 'プロパティ', 'sliders'), tabBtn('layers', 'レイヤー', 'layers'), tabBtn('review', 'レビュー', 'note')),
     sideBody);
   barInfo = h('span');
   barIssues = h('button', { class: 'hse-bar-issues', type: 'button', onclick: () => { tab = 'review'; rebuild(); } });

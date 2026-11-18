@@ -203,7 +203,7 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 8.5px 12px 9.5px;
+  padding: 8.5px 9.5px 9.5px;
   white-space: nowrap;
   color: var(--e-dim);
   border-bottom: 2px solid transparent;
@@ -277,10 +277,6 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
 .hse-actions { display: flex; gap: 2px; padding: 5px 12px 12px; border-bottom: 1px solid var(--e-line); }
 .hse-actions.is-tight { padding: 0; border: 0; }
 
-.hse-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.hse .hse-tiles button { height: 33.5px; border: 1px solid var(--e-line); border-radius: 7px; color: var(--e-dim); }
-.hse .hse-tiles button:hover { color: var(--e-fg); }
-.hse .hse-tiles button.is-on { border-color: var(--e-accent); color: var(--e-fg); background: rgb(79 140 255 / .14); }
 
 .hse .hse-layer {
   display: flex;
