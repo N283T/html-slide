@@ -95,7 +95,11 @@ async function inline(html, dir) {
     .replace(/[ \t]*<link\b[^>]*hs\/hs\.css[^>]*>\r?\n?/i, () => '<style>\n' + base + '\n</style>\n')
     .replace(/[ \t]*<link\b[^>]*hs\/themes\/[\w-]+\.css[^>]*>\r?\n?/i,
       () => '<style>\n' + safe(themeCss, 'style') + '\n</style>\n')
-    .replace(/<script\b[^>]*hs\/hs\.js[^>]*><\/script>/i, () => '<script>\n' + js + '\n</script>');
+    /* An inline script cannot defer, so it runs at the end of <body>,
+     * where the deferred <script src> would have. */
+    .replace(/[ \t]*<script\b[^>]*hs\/hs\.js[^>]*><\/script>\r?\n?/i, '');
+  const runtime = '<script>\n' + js + '\n</script>\n';
+  html = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, () => runtime + '</body>') : html + runtime;
 
   const cache = new Map();
   const refs = Array.from(html.matchAll(/\b(?:src|href)\s*=\s*"([^"]+)"/g)).map((m) => m[1]);
