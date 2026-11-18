@@ -79,6 +79,19 @@ export function pick(clientX, clientY, exact) {
   return el;
 }
 
+/* Whether the point is on the glyphs of a text element (not just inside
+ * its box). Like PowerPoint, a click there edits the text, while the
+ * box's empty space and its frame (see grabFrame) handle the object. */
+function textHit(el, clientX, clientY) {
+  if (!el || !canEditText(el) || !document.caretRangeFromPoint) return false;
+  const caret = document.caretRangeFromPoint(clientX, clientY);
+  if (!caret || caret.startContainer.nodeType !== 3 || !el.contains(caret.startContainer)) return false;
+  const line = document.createRange();
+  line.selectNodeContents(caret.startContainer);
+  return Array.prototype.some.call(line.getClientRects(), (b) =>
+    clientX >= b.left - 2 && clientX <= b.right + 2 && clientY >= b.top && clientY <= b.bottom);
+}
+
 /* ================= selection ================= */
 
 export function select(els) {
@@ -854,12 +867,27 @@ function onPointerDown(e) {
     startResize(e, handle.dataset.handle);
     return;
   }
+  const grab = e.target.closest('[data-grab]');
+  if (grab && grab.hseEl && grab.hseEl.isConnected) {
+    e.preventDefault();
+    const el = grab.hseEl;
+    if (ed.textEl) commitText();
+    g = { type: 'press', el, dragEl: el, x0: e.clientX, y0: e.clientY, shift: e.shiftKey, alt: e.altKey };
+    return;
+  }
   if (onOverlay) return;
   if (ed.textEl) {
     if (ed.textEl.contains(e.target)) return;
     commitText();
   }
   const el = pick(e.clientX, e.clientY, e.metaKey || e.ctrlKey);
+  /* Pressing on the text itself edits it right away; the browser then
+   * places the caret and extends a selection as the pointer drags. */
+  if (ed.tool !== 'note' && !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey &&
+      textHit(el, e.clientX, e.clientY)) {
+    startText(el, e);
+    return;
+  }
   e.preventDefault();
   if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
   if (ed.tool === 'note') {
@@ -893,7 +921,10 @@ function beginDrag() {
 function onPointerMove(e) {
   if (!active()) return;
   if (!g) {
+    if (e.target.closest && e.target.closest('[data-grab]')) return;
     const over = isChrome(e.target) ? null : pick(e.clientX, e.clientY, e.metaKey || e.ctrlKey);
+    document.documentElement.classList.toggle('hse-on-text', !!over && over !== ed.textEl &&
+      ed.tool !== 'note' && !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey && textHit(over, e.clientX, e.clientY));
     if (over !== hoverEl) {
       hoverEl = over;
       requestDraw();
@@ -999,6 +1030,26 @@ function boxEl(r, cls, extra) {
 
 const HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
+/* A text element's body edits its text, so its frame is where you grab
+ * it as an object: four thin strips along the edges. */
+function grabFrame(out, el, r) {
+  if (!canEditText(el)) return;
+  const t = 8;
+  [
+    [r.left - t / 2, r.top - t / 2, r.width + t, t],
+    [r.left - t / 2, r.bottom - t / 2, r.width + t, t],
+    [r.left - t / 2, r.top + t / 2, t, Math.max(0, r.height - t)],
+    [r.right - t / 2, r.top + t / 2, t, Math.max(0, r.height - t)]
+  ].forEach(([x, y, w, hgt]) => {
+    const strip = h('div', {
+      class: 'hse-grab', 'data-grab': '', title: 'ドラッグで移動',
+      style: 'left:' + x + 'px;top:' + y + 'px;width:' + w + 'px;height:' + hgt + 'px'
+    });
+    strip.hseEl = el;
+    out.push(strip);
+  });
+}
+
 function draw() {
   drawQueued = false;
   if (!active()) {
@@ -1033,6 +1084,7 @@ function draw() {
     const r = hoverEl.getBoundingClientRect();
     out.push(boxEl(r, 'hse-hover' + (ed.tool === 'note' ? ' is-note' : ''),
       { 'data-label': HS.describe(hoverEl) }));
+    if (ed.tool !== 'note') grabFrame(out, hoverEl, r);
   }
 
   /* selection */
@@ -1069,6 +1121,7 @@ function draw() {
         : round(rr.w) + ' × ' + round(rr.h);
     }
     out.push(box);
+    if (single && !dragging) grabFrame(out, el, r);
     if (single && !editing && (!g || g.type === 'resize' || g.type === 'flowsize')) {
       const small = r.width < 28 || r.height < 28;
       HANDLES.forEach((dir) => {

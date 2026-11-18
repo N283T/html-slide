@@ -410,6 +410,8 @@ html.hse-tool-note #deck, html.hse-tool-note #deck * { cursor: crosshair !import
 .hse-hover { outline: 1.5px solid rgb(79 140 255 / .75); outline-offset: -1px; }
 .hse-hover.is-note { outline-color: var(--e-note); background: rgb(255 212 59 / .1); }
 .hse-parent { outline: 1px dashed rgb(79 140 255 / .4); }
+.hse-grab { pointer-events: auto; cursor: move; }
+html.hse-on-text #deck, html.hse-on-text #deck * { cursor: text; }
 .hse-box { outline: 2px solid var(--e-accent); outline-offset: -1px; }
 .hse-box.is-free { outline-color: #a06bff; }
 .hse-box.is-text { outline: 2px dashed var(--e-accent); outline-offset: 3px; }

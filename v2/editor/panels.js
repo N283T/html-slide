@@ -857,7 +857,7 @@ export function initPanels() {
     widthGrip('film'),
     widthGrip('side'),
     h('div', { class: 'hse-bar' }, barInfo, barIssues, h('span', { class: 'hse-bar-space' }),
-      h('span', { class: 'hse-bar-hint', text: 'ドラッグで移動 ・ ⌥ドラッグで自由配置 ・ ダブルクリックで文字 ・ ' + MOD + 'K でコマンド' }),
+      h('span', { class: 'hse-bar-hint', text: '文字をクリックで編集 ・ 枠や余白をドラッグで移動 ・ ⌥ドラッグで自由配置 ・ ' + MOD + 'K でコマンド' }),
       barZoom));
   root.style.setProperty('--e-film-w', widths.film + 'px');
   root.style.setProperty('--e-side-w', widths.side + 'px');

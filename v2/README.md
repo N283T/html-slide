@@ -45,6 +45,8 @@ Slides mix two kinds of element: **flow elements**, placed by the layout
 layout is for writing a deck (by hand or with Claude); the editor is for
 fine adjustment, so it handles both the same way:
 
+- Like PowerPoint, pressing on a text element's *text* edits it (drag to
+  select); its empty space and its *frame* select it as an object.
 - *Drag* to move and the *handles* to resize, snapping to the canvas, its
   margins and every other element (hold ⌘ to turn snapping off). A flow
   element is shifted from its layout position with `translate`, and a
@@ -58,7 +60,7 @@ fine adjustment, so it handles both the same way:
 | | |
 |---|---|
 | Click / ⇧-click / drag on empty space | select / add / marquee |
-| Double-click | edit text (⌘B, ⌘I, and a format bar on selection) |
+| Click on text / double-click | edit text (⌘B, ⌘I, and a format bar on selection) |
 | Arrows (⇧ = 10px) | nudge |
 | `Esc` / `Enter` / `Tab` | parent / child / next sibling |
 | `T` `R` `O` `A` `L` `I` | text, rectangle, ellipse, arrow, line, image |
