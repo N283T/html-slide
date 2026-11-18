@@ -124,6 +124,7 @@ hs shot <deck> [--slide N] [--out shots] [--scale 2]   1920×1080 PNGs
 hs pdf <deck> [--out file.pdf]   one page per slide
 hs build <deck> [--out dist]     static copy: notes and @fix comments removed
 hs build <deck> --single         one self-contained .html (images inlined)
+hs build <deck> --viewer         the same, as a web viewer to embed in any page
 hs notes <deck>                  open @fix notes only (no browser needed)
 hs upgrade <deck>                refresh the deck's vendored hs/
 ```
@@ -154,6 +155,26 @@ elements two consecutive slides share — same text, same image, or the same
 `data-morph` name — glide to their new position and size, and the rest
 cross-fades. Duplicate a slide, move things, and it animates.
 
+## Publishing on the web
+
+`hs build <deck> --viewer` writes one self-contained `.html` (theme, images
+and runtime inlined; speaker notes and `@fix` comments removed) that runs as
+a **viewer**: slides, steps, transitions, charts and counters work, and the
+keyboard, swipes and edge clicks navigate, while the presenter tools
+(presenter window, overview, laser, blackout, help, context menu) are left
+out. A small bar with previous / count / next / full screen fades in on
+hover. Put the file anywhere and embed it in any page:
+
+```html
+<iframe src="my-talk.html" style="width:100%;aspect-ratio:16/9;border:0"
+        allowfullscreen></iframe>
+```
+
+The deck keeps its own styles inside the iframe, so the host page's CSS
+never touches it, and its slide position lives in the iframe's own `#hash`.
+Opened directly, the same file is a full-window viewer. (`?viewer` on any
+deck URL previews the mode.)
+
 ## Markup
 
 See [`docs/deck-guide.md`](docs/deck-guide.md) for layouts, tones, steps,
@@ -171,7 +192,8 @@ tones; copy one in `design/themes/` to make your own.
 bin/hs.js          CLI
 cli/               server (static + sync endpoints), source model, Chrome/CDP, commands
 runtime/           what every deck ships: navigation, steps, transitions, audit,
-                   <hs-chart>, <hs-count>, code highlighting, presenter view
+                   <hs-chart>, <hs-count>, code highlighting, presenter view,
+                   the published viewer
 design/            tokens, layouts, components, themes
 editor/            the editor — injected by the dev server, never referenced by a deck
 template/          the starter deck

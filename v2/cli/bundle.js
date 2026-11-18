@@ -9,7 +9,7 @@ import path from 'node:path';
 
 export const FRAMEWORK = path.resolve(import.meta.dirname, '..');
 
-const JS_PARTS = ['runtime/hs.js', 'runtime/components.js', 'runtime/present.js'];
+const JS_PARTS = ['runtime/hs.js', 'runtime/components.js', 'runtime/present.js', 'runtime/viewer.js'];
 const CSS_PARTS = ['runtime/hs.css', 'design/base.css', 'design/components.css'];
 
 const read = (rel) => fs.readFile(path.join(FRAMEWORK, rel), 'utf8');

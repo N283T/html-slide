@@ -171,6 +171,47 @@ html.hs-idle:not(.hs-edit) body { cursor: none; }
 }
 html.hs-edit #hs-progress, html.hs-static #hs-progress { display: none; }
 
+/* ---- published viewer (hs build --viewer) ---- */
+
+.hs-vw-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgb(20 20 24 / .72);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 18px rgb(0 0 0 / .25);
+  opacity: 0;
+  transition: opacity .25s;
+}
+/* Shown while the pointer is over the deck (and always on touch screens);
+ * it fades once the pointer rests. */
+html.hs-viewer:hover .hs-vw-bar, .hs-vw-bar:focus-within { opacity: 1; }
+html.hs-viewer.hs-idle .hs-vw-bar:not(:hover, :focus-within) { opacity: 0; }
+@media (hover: none) { .hs-vw-bar { opacity: .85; } }
+.hs-vw-btn {
+  width: 34px;
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+.hs-vw-btn:hover:not(:disabled) { background: rgb(255 255 255 / .14); }
+.hs-vw-btn:disabled { opacity: .3; cursor: default; }
+.hs-vw-btn:focus-visible { outline: 2px solid var(--accent, #8ab4ff); outline-offset: 1px; }
+.hs-vw-count { min-width: 64px; text-align: center; font-size: 13px; font-variant-numeric: tabular-nums; color: #d8d8dc; }
+
 #hs-blackout {
   position: fixed;
   inset: 0;

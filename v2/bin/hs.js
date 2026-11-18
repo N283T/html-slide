@@ -8,6 +8,7 @@
  *   hs shot <deck> [--slide N] [--out dir] [--scale N]   PNG per slide
  *   hs pdf <deck> [--out file]        one page per slide
  *   hs build <deck> [--out dir] [--single]   static copy without notes or editor
+ *   hs build <deck> --viewer [--out file]    one file for the web: no presenter tools, embed in an <iframe>
  *   hs notes <deck>                   list @fix review notes
  *   hs upgrade <deck>                 refresh the deck's vendored hs/ */
 
@@ -39,6 +40,7 @@ const USAGE = `hs — html-slide
   hs shot <deck> [--slide N] [--out shots] [--scale 1]
   hs pdf <deck> [--out deck.pdf]
   hs build <deck> [--out dist] [--single]
+  hs build <deck> --viewer [--out file.html]
   hs notes <deck>
   hs upgrade <deck>
 `;
@@ -79,7 +81,7 @@ try {
     }
     case 'build': {
       const { build } = await import('../cli/commands.js');
-      await build(need('<deck>'), { out: args.out, single: !!args.single });
+      await build(need('<deck>'), { out: args.out, single: !!args.single, viewer: !!args.viewer });
       break;
     }
     case 'check': {

@@ -113,16 +113,25 @@ async function inline(html, dir) {
     (all, attr, ref) => (cache.has(ref) ? attr + '="' + cache.get(ref) + '"' : all));
 }
 
-export async function build(target, { out, single }) {
+export async function build(target, { out, single, viewer }) {
   const { dir, file } = await resolveDeck(target);
   let html = stripNotes((await fs.readFile(file, 'utf8')).replace(NOTES, ''));
   const slides = parseDeck(html).units.length;
 
-  if (single) {
+  /* A viewer is one self-contained file that runs in viewer mode: put it
+   * anywhere and show it in an <iframe> (see runtime/viewer.js). */
+  if (viewer) html = html.replace(/<html\b/i, '<html data-hs-viewer');
+
+  if (single || viewer) {
     const dest = path.resolve(out || path.join(dir, 'dist', path.basename(dir) + '.html'));
     await fs.mkdir(path.dirname(dest), { recursive: true });
     await fs.writeFile(dest, await inline(html, dir));
-    console.log('built %s  (%d slides, single file)', path.relative(process.cwd(), dest), slides);
+    console.log('built %s  (%d slides, single file%s)', path.relative(process.cwd(), dest), slides,
+      viewer ? ', viewer' : '');
+    if (viewer) {
+      console.log('embed: <iframe src="%s" style="width:100%%;aspect-ratio:16/9;border:0" allowfullscreen></iframe>',
+        path.basename(dest));
+    }
     return;
   }
 

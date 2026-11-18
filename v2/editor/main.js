@@ -13,7 +13,7 @@ import { initCommands } from './commands.js';
 import { initPanels } from './panels.js';
 
 async function boot() {
-  if (!HS || HS.isStatic) return;
+  if (!HS || HS.isStatic || HS.flags.viewer) return;
 
   const css = document.createElement('link');
   css.rel = 'stylesheet';

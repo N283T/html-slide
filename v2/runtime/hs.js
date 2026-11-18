@@ -19,11 +19,15 @@
     print: params.has('print'),
     shot: params.has('shot'),
     check: params.has('check'),
-    presenter: params.has('presenter')
+    presenter: params.has('presenter'),
+    /* A published copy: slides, steps and interactive parts work, the
+     * presenter tools do not. Set by `hs build --viewer`. */
+    viewer: params.has('viewer') || root.hasAttribute('data-hs-viewer')
   };
   const isStatic = flags.print || flags.shot || flags.check;
   if (isStatic) root.classList.add('hs-static');
   if (flags.print) root.classList.add('hs-print');
+  if (flags.viewer && !isStatic) root.classList.add('hs-viewer');
 
   const state = { index: 0, step: 0, mode: flags.presenter ? 'presenter' : 'present' };
   const view = { scale: 1, fit: 1, zoom: 1, panX: 0, panY: 0 };

@@ -7,7 +7,7 @@
   'use strict';
 
   const HS = window.HS;
-  if (!HS || HS.isStatic) return;
+  if (!HS || HS.isStatic || HS.flags.viewer) return;
 
   const root = document.documentElement;
   const presenting = function () {
