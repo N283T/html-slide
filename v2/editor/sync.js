@@ -10,6 +10,7 @@
 
 import { HS, ed, pathOf, fromPath, fromHTML } from './core.js';
 import { toast } from './ui.js';
+import { align, authored, claim } from './generated.js';
 
 const filePath = location.pathname;
 const meta = new WeakMap();
@@ -30,7 +31,7 @@ function setStatus(status, detail) {
 function metaOf(node) {
   let m = meta.get(node);
   if (!m) {
-    m = { key: nextKey++, hash: null, dirty: true, html: null, stale: true, version: 0 };
+    m = { key: nextKey++, hash: null, dirty: true, html: null, stale: true, version: 0, ref: null };
     meta.set(node, m);
   }
   return m;
@@ -39,9 +40,10 @@ function metaOf(node) {
 /* ---- serialization ---- */
 
 /* A slide as it should be written to disk: runtime state (hs-* classes,
- * data-hs-* attributes) and editing artefacts removed. */
+ * data-hs-* attributes), editing artefacts and whatever the deck's own
+ * scripts generated removed (see generated.js). */
 export function cleanClone(node) {
-  const clone = node.cloneNode(true);
+  const clone = authored(node);
   const all = [clone, ...clone.querySelectorAll('*')];
   for (const el of all) {
     for (const cls of Array.from(el.classList)) {
@@ -61,19 +63,43 @@ export function cleanClone(node) {
 }
 
 /* outerHTML writes a bare attribute as name="". Put it back the way a
- * person writes it, so untouched markup does not change on save. */
+ * person writes it, so untouched markup does not change on save. An
+ * empty value that is not a flag (alt, an SVG path's d) stays as is. */
 const bareAttrs = (html) => html.replace(/<[a-zA-Z][^<>]*>/g,
-  (tag) => tag.replace(/(\s(?!alt\b)[\w:-]+)=""/g, '$1'));
+  (tag) => tag.replace(/(\s(?!(?:alt|d|value)\b)[\w:-]+)=""/g, '$1'));
 
 export const serialize = (node) => bareAttrs(cleanClone(node).outerHTML);
 
+/* A slide with a reference is written from it: the reference is the
+ * authored markup as of the last change, so nodes a script adds later
+ * (an async viewer, a re-render) cannot leak in. */
 function htmlOf(node) {
   const m = metaOf(node);
   if (m.stale || m.html == null) {
-    m.html = serialize(node);
+    m.html = m.ref ? bareAttrs(m.ref.outerHTML) : serialize(node);
     m.stale = false;
   }
   return m.html;
+}
+
+/* Compare a slide with its reference, before the editor changes it:
+ * from here on, what differs is the deck scripts' doing. */
+function alignSlide(slide) {
+  const m = metaOf(slide);
+  if (!m.ref) return;
+  align(slide, m.ref, ed.textEl);
+}
+
+/* The editor has changed a slide: its new authored state is the
+ * reference. While text is being typed the page may keep running
+ * scripts, so compare once more, leaving the typed element out. */
+function settle(slide) {
+  const m = metaOf(slide);
+  if (m.ref) {
+    if (ed.textEl) align(slide, m.ref, ed.textEl);
+    else claim(slide);
+  }
+  m.ref = cleanClone(slide);
 }
 
 /* ---- saving ---- */
@@ -93,7 +119,9 @@ function schedule() {
 }
 
 export function touch(slide) {
-  const m = metaOf(slide || HS.current);
+  slide = slide || HS.current;
+  const m = metaOf(slide);
+  settle(slide);
   m.dirty = true;
   m.stale = true;
   m.version++;
@@ -172,7 +200,7 @@ function applyOrder(next) {
 
 function created(html, hash) {
   const node = fromHTML(html);
-  meta.set(node, { key: nextKey++, hash, dirty: false, html: null, stale: true, version: 0 });
+  meta.set(node, { key: nextKey++, hash, dirty: false, html: null, stale: true, version: 0, ref: fromHTML(html) });
   return node;
 }
 
@@ -282,7 +310,10 @@ export async function init() {
   rev = state.rev;
   head = state.head;
   list.forEach((node, i) => {
-    meta.set(node, { key: nextKey++, hash: state.slides[i].hash, dirty: false, html: null, stale: true, version: 0 });
+    meta.set(node, {
+      key: nextKey++, hash: state.slides[i].hash, dirty: false, html: null, stale: true, version: 0,
+      ref: fromHTML(state.slides[i].html)
+    });
   });
   enabled = true;
   return true;
@@ -322,6 +353,7 @@ function snapshot() {
 /* Record the state before a change. Calls sharing a key within a short
  * window collapse into one undo step (a drag, a run of nudges). */
 export function capture(key) {
+  alignSlide(HS.current);
   const now = Date.now();
   if (key && key === lastKey && now - lastTime < 1500) {
     lastTime = now;
@@ -347,7 +379,8 @@ function restore(snap) {
       dirty: true,
       html: s.html,
       stale: false,
-      version: (old ? old.version : 0) + 1
+      version: (old ? old.version : 0) + 1,
+      ref: fromHTML(s.html)
     });
     return node;
   });
@@ -383,6 +416,7 @@ export function redo() {
 export function mutate(fn, opts) {
   opts = opts || {};
   capture(opts.key);
+  if (opts.slide && opts.slide !== HS.current) alignSlide(opts.slide);
   const result = fn();
   touch(opts.slide || HS.current);
   ed.emit('change', { source: opts.source });
