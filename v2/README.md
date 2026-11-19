@@ -206,6 +206,15 @@ Three properties the rest depends on:
   and `data-hs-*` attributes, which are stripped on save. Charts and
   counters render in a shadow root, and code is coloured with the CSS
   Custom Highlight API, so there is no generated markup to strip.
+- **Markup a deck's own scripts generate never reaches the source.** A script
+  that fills an empty container, appends a canvas or sets an SVG `d` leaves
+  the file as the author wrote it: before the editor changes a slide it
+  compares the live slide with the markup it last wrote (first, the file),
+  and saves only the authored side. A script can also mark a node it
+  creates with `data-hs-generated` to have it skipped outright. A node a
+  script adds *while* a drag or a text edit is in progress is only caught
+  by that attribute, and undo rebuilds a slide from its markup, so
+  generated content needs a reload to come back.
 - **Saves are compare-and-swap.** The browser sends the slide order with
   only the changed slides' markup; the server applies it if the file is
   still at the revision the browser saw, and otherwise returns the new

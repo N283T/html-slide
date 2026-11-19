@@ -44,6 +44,11 @@ hs shot . --slide 7   # render slide 7 to shots/slide-07.png — look at it
   layout: an arrow or a label on a figure.
 - Classes starting with `hs-` and attributes starting with `data-hs-` are
   runtime state. Never write them into the source.
+- Markup that an inline `<script>` of the deck creates (a filled container,
+  a canvas, an SVG `d`) is not saved by the editor: write the empty
+  container in the source and let the script fill it. If a script adds nodes
+  late (after a fetch or timer), give them `data-hs-generated` so the editor
+  never writes them back.
 - Images go in `assets/` and are referenced relatively.
 
 ## Slide anatomy
